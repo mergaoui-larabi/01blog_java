@@ -1,0 +1,389 @@
+// =======================
+// USERS
+// =======================
+Table users {
+  id integer [primary key]
+  username varchar [unique, not null]
+  email varchar [unique, not null]
+  password_hash text [not null]
+  role varchar [note: 'USER or ADMIN']
+  is_banned boolean [default: false]
+  created_at timestamp
+}
+
+// =======================
+// SUBSCRIPTIONS (FOLLOWS)
+// =======================
+
+Table subscriptions {
+  id integer [primary key]
+  subscriber_id integer [not null]
+  target_user_id integer [not null]
+  created_at timestamp
+}
+
+Ref: users.id < subscriptions.subscriber_id
+Ref: users.id < subscriptions.target_user_id
+
+// =======================
+// POSTS
+// =======================
+Table posts {
+  id integer [primary key]
+  title text [not null]
+  user_id integer [not null]
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < posts.user_id
+
+// =======================
+// POST MEDIA
+// =======================
+Table post_media {
+  id integer [primary key]
+  post_id integer [not null]
+  media_url text [not null]
+  media_type varchar [note: 'IMAGE or VIDEO']
+}
+
+Ref: posts.id < post_media.post_id
+
+// =======================
+// LIKES
+// =======================
+Table likes {
+  id integer [primary key]
+  user_id integer [not null]
+  post_id integer [not null]
+  created_at timestamp
+}
+
+Ref: users.id < likes.user_id
+Ref: posts.id < likes.post_id
+
+// =======================
+// COMMENTS
+// =======================
+Table comments {
+  id integer [primary key]
+  user_id integer [not null]
+  post_id integer [not null]
+  content text [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < comments.user_id
+Ref: posts.id < comments.post_id
+
+// =======================
+// NOTIFICATIONS
+// =======================
+Table notifications {
+  id integer [primary key]
+  user_id integer [not null] // receiver
+  type varchar [note: 'NEW_POST, LIKE, COMMENT, SUBSCRIBE']
+  reference_id integer [note: 'post_id or user_id']
+  is_read boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < notifications.user_id
+
+// =======================
+// REPORTS
+// =======================
+Table reports {
+  id integer [primary key]
+  reporter_id integer [not null]
+  reported_user_id integer [not null]
+  reason text [not null]
+  status varchar [note: 'PENDING, REVIEWED, RESOLVED']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < reports.reporter_id
+Ref: users.id < reports.reported_user_id
+
+// =======================
+// ADMIN ACTIONS (OPTIONAL)
+// =======================
+Table admin_actions {
+  id integer [primary key]
+  admin_id integer [not null]
+  action_type varchar [note: 'BAN_USER, DELETE_POST, WARN_USER']
+  target_user_id integer
+  target_post_id integer
+  created_at timestamp
+}
+
+Ref: users.id < admin_actions.admin_id
+Ref: users.id < admin_actions.target_user_id
+Ref: posts.id < admin_actions.target_post_id// =======================
+// USERS
+// =======================
+Table users {
+  id integer [primary key]
+  username varchar [unique, not null]
+  email varchar [unique, not null]
+  password_hash text [not null]
+  role varchar [note: 'USER or ADMIN']
+  is_banned boolean [default: false]
+  created_at timestamp
+}
+
+// =======================
+// SUBSCRIPTIONS (FOLLOWS)
+// =======================
+Table subscriptions {
+  id integer [primary key]
+  subscriber_id integer [not null]
+  target_user_id integer [not null]
+  created_at timestamp
+}
+
+Ref: users.id < subscriptions.subscriber_id
+Ref: users.id < subscriptions.target_user_id
+
+// =======================
+// POSTS
+// =======================
+Table posts {
+  id integer [primary key]
+  title text [not null]
+  user_id integer [not null]
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < posts.user_id
+
+// =======================
+// POST MEDIA
+// =======================
+Table post_media {
+  id integer [primary key]
+  post_id integer [not null]
+  media_url text [not null]
+  media_type varchar [note: 'IMAGE or VIDEO']
+}
+
+Ref: posts.id < post_media.post_id
+
+// =======================
+// LIKES
+// =======================
+Table likes {
+  id integer [primary key]
+  user_id integer [not null]
+  post_id integer [not null]
+  created_at timestamp
+}
+
+Ref: users.id < likes.user_id
+Ref: posts.id < likes.post_id
+
+// =======================
+// COMMENTS
+// =======================
+Table comments {
+  id integer [primary key]
+  user_id integer [not null]
+  post_id integer [not null]
+  content text [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < comments.user_id
+Ref: posts.id < comments.post_id
+
+// =======================
+// NOTIFICATIONS
+// =======================
+Table notifications {
+  id integer [primary key]
+  user_id integer [not null] // receiver
+  type varchar [note: 'NEW_POST, LIKE, COMMENT, SUBSCRIBE']
+  reference_id integer [note: 'post_id or user_id']
+  is_read boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < notifications.user_id
+
+// =======================
+// REPORTS
+// =======================
+Table reports {
+  id integer [primary key]
+  reporter_id integer [not null]
+  reported_user_id integer [not null]
+  reason text [not null]
+  status varchar [note: 'PENDING, REVIEWED, RESOLVED']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < reports.reporter_id
+Ref: users.id < reports.reported_user_id
+
+// =======================
+// ADMIN ACTIONS (OPTIONAL)
+// =======================
+Table admin_actions {
+  id integer [primary key]
+  admin_id integer [not null]
+  action_type varchar [note: 'BAN_USER, DELETE_POST, WARN_USER']
+  target_user_id integer
+  target_post_id integer
+  created_at timestamp
+}
+
+Ref: users.id < admin_actions.admin_id
+Ref: users.id < admin_actions.target_user_id
+Ref: posts.id < admin_actions.target_post_id// =======================
+// USERS
+// =======================
+Table users {
+  id integer [primary key]
+  username varchar [unique, not null]
+  email varchar [unique, not null]
+  password_hash text [not null]
+  role varchar [note: 'USER or ADMIN']
+  is_banned boolean [default: false]
+  created_at timestamp
+}
+
+// =======================
+// SUBSCRIPTIONS (FOLLOWS)
+// =======================
+Table subscriptions {
+  id integer [primary key]
+  subscriber_id integer [not null]
+  target_user_id integer [not null]
+  created_at timestamp
+}
+
+Ref: users.id < subscriptions.subscriber_id
+Ref: users.id < subscriptions.target_user_id
+
+// =======================
+// POSTS
+// =======================
+Table posts {
+  id integer [primary key]
+  title text [not null]
+  user_id integer [not null]
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < posts.user_id
+
+// =======================
+// POST MEDIA
+// =======================
+Table post_media {
+  id integer [primary key]
+  post_id integer [not null]
+  media_url text [not null]
+  media_type varchar [note: 'IMAGE or VIDEO']
+}
+
+// =======================
+// POST STATS (METADATA)
+// =======================
+Table post_stats {
+  post_id integer [primary key]
+  total_likes integer [default: 0]
+  total_comments integer [default: 0]
+  updated_at timestamp
+}
+
+Ref: posts.id - post_stats.post_id
+Ref: posts.id < post_media.post_id
+
+// =======================
+// LIKES
+// =======================
+Table likes {
+  id integer [primary key]
+  user_id integer [not null]
+  post_id integer [not null]
+  created_at timestamp
+}
+
+Ref: users.id < likes.user_id
+Ref: posts.id < likes.post_id
+
+// =======================
+// COMMENTS
+// =======================
+Table comments {
+  id integer [primary key]
+  user_id integer [not null]
+  post_id integer [not null]
+  content text [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < comments.user_id
+Ref: posts.id < comments.post_id
+
+// =======================
+// NOTIFICATIONS
+// =======================
+Table notifications {
+  id integer [primary key]
+  user_id integer [not null] // receiver
+  type varchar [note: 'NEW_POST, LIKE, COMMENT, SUBSCRIBE']
+  reference_id integer [note: 'post_id or user_id']
+  is_read boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < notifications.user_id
+
+// =======================
+// REPORTS
+// =======================
+
+Table reports {
+  id integer [primary key]
+  reporter_id integer [not null]
+  reported_user_id integer [not null]
+  reason text [not null]
+  status varchar [note: 'PENDING, REVIEWED, RESOLVED']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.id < reports.reporter_id
+Ref: users.id < reports.reported_user_id
+
+// =======================
+// ADMIN ACTIONS (OPTIONAL)
+// =======================
+Table admin_actions {
+  id integer [primary key]
+  admin_id integer [not null]
+  action_type varchar [note: 'BAN_USER, DELETE_POST, WARN_USER']
+  target_user_id integer
+  target_post_id integer
+  created_at timestamp
+}
+
+Ref: users.id < admin_actions.admin_id
+Ref: users.id < admin_actions.target_user_id
+Ref: posts.id < admin_actions.target_post_id
