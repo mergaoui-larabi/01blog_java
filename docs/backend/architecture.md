@@ -49,8 +49,9 @@ user-service/
 
 ```sh
 curl https://start.spring.io/starter.zip \
+  -d type=maven-project \
   -d dependencies=web,data-jpa,postgresql,flyway \
-  -d name=user-service \
+  -d name=name-service \
   -o user-service.zip
 ```
 
