@@ -1,0 +1,62 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a routerLink="/" class="navbar-brand">
+      <span class="brand-icon">📝</span>
+      <span class="brand-text">01Blog</span>
+    </a>
+
+    <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+      <span class="hamburger" [class.open]="mobileMenuOpen">
+        <span></span><span></span><span></span>
+      </span>
+    </button>
+
+    <div class="navbar-links" [class.open]="mobileMenuOpen">
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="mobileMenuOpen = false">
+          <span class="nav-icon">🏠</span> Home
+        </a>
+
+        <a routerLink="/posts/new" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <span class="nav-icon">✏️</span> New Post
+        </a>
+
+        <a [routerLink]="'/profile/' + auth.currentUser()?.username" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <span class="nav-icon">👤</span> My Profile
+        </a>
+
+        <a routerLink="/notifications" routerLinkActive="active" class="notif-link" (click)="mobileMenuOpen = false">
+          <span class="nav-icon">🔔</span>
+          Notifications
+          @if (notificationService.unreadCount() > 0) {
+            <span class="badge">{{ notificationService.unreadCount() }}</span>
+          }
+        </a>
+
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin" routerLinkActive="active" (click)="mobileMenuOpen = false">
+            <span class="nav-icon">⚙️</span> Admin
+          </a>
+        }
+
+        <div class="nav-divider"></div>
+
+        <div class="user-info">
+          <span class="user-avatar">{{ auth.currentUser()?.username?.charAt(0)?.toUpperCase() }}</span>
+          <span class="user-name">{{ auth.currentUser()?.username }}</span>
+        </div>
+
+        <button class="btn-logout" (click)="logout()">
+          <span class="nav-icon">🚪</span> Logout
+        </button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <span class="nav-icon">🔑</span> Login
+        </a>
+        <a routerLink="/register" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <span class="nav-icon">📝</span> Register
+        </a>
+      }
+    </div>
+  </div>
+</nav>

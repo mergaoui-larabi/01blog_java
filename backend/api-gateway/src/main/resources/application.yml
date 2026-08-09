@@ -1,0 +1,11 @@
+server:
+  port: 5000
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:5001
+          predicates:
+           - Path=/api/v1/users/**

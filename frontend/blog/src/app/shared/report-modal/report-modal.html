@@ -1,0 +1,35 @@
+@if (visible()) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Report User</h3>
+        <button class="close-btn" (click)="close.emit()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="report-info">
+          Reporting <strong>{{ username() }}</strong>
+        </p>
+        <p class="report-hint">Please describe why you are reporting this user. Your report will be reviewed by an administrator.</p>
+
+        <textarea
+          [formControl]="reasonControl"
+          placeholder="Explain why you're reporting this user (minimum 10 characters)..."
+          class="report-textarea"
+          rows="4"
+        ></textarea>
+
+        @if (reasonControl.invalid && reasonControl.touched) {
+          <p class="error-text">Please provide a reason (at least 10 characters).</p>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="close.emit()">Cancel</button>
+        <button class="btn-submit" (click)="submit()" [disabled]="reasonControl.invalid">
+          Submit Report
+        </button>
+      </div>
+    </div>
+  </div>
+}

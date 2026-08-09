@@ -1,0 +1,77 @@
+<div class="post-detail-page">
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <span>Loading post...</span>
+    </div>
+  } @else if (error) {
+    <div class="error-container">
+      <span class="error-icon">⚠️</span>
+      <h2>{{ error }}</h2>
+      <a routerLink="/" class="btn-back">Back to Home</a>
+    </div>
+  } @else if (post) {
+    <div class="post-detail-card">
+      <div class="post-detail-header">
+        <a [routerLink]="['/profile', post.author.username]" class="post-author">
+          <span class="author-avatar">{{ post.author.username.charAt(0).toUpperCase() }}</span>
+          <div class="author-info">
+            <span class="author-name">{{ post.author.username }}</span>
+            <span class="post-time">{{ post.createdAt | date: 'medium' }}</span>
+          </div>
+        </a>
+
+        <div class="post-actions">
+          @if (canModify()) {
+            <a [routerLink]="['/posts', post.id, 'edit']" class="action-btn" title="Edit post">✏️</a>
+            <button class="action-btn delete" (click)="onDeletePost()" title="Delete post">🗑️</button>
+          }
+          <button class="action-btn report" (click)="onReportRequested()" title="Report user">🚩</button>
+        </div>
+      </div>
+
+      <h1 class="post-title">{{ post.title }}</h1>
+      <p class="post-content">{{ post.content }}</p>
+
+      @if (post.mediaUrl) {
+        <div class="post-media">
+          @if (post.mediaType === 'video') {
+            <video [src]="post.mediaUrl" controls class="media-video"></video>
+          } @else {
+            <img [src]="post.mediaUrl" [alt]="post.title" class="media-image" loading="lazy" />
+          }
+        </div>
+      }
+
+      <div class="post-interactions">
+        <button class="interaction-btn like-btn" [class.liked]="post.isLiked" (click)="onLikeToggled()">
+          <span class="btn-icon">{{ post.isLiked ? '❤️' : '🤍' }}</span>
+          <span>{{ post.likeCount }} {{ post.likeCount === 1 ? 'like' : 'likes' }}</span>
+        </button>
+
+        <span class="interaction-info">
+          <span>💬 {{ post.commentCount }} {{ post.commentCount === 1 ? 'comment' : 'comments' }}</span>
+        </span>
+      </div>
+
+      @if (auth.isAuthenticated()) {
+        <app-comment-list
+          [postId]="post.id"
+          [comments]="comments"
+          (commentCreated)="onCommentCreated()"
+        />
+      } @else {
+        <div class="login-to-comment">
+          <a routerLink="/login">Sign in</a> to leave a comment.
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-report-modal
+  [visible]="reportModalVisible"
+  [userId]="reportUserId"
+  (close)="onReportModalClose()"
+  (submitReport)="onReportSubmitted($event)"
+/>

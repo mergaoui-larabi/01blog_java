@@ -1,0 +1,75 @@
+<div class="admin-section">
+  <div class="admin-section-header">
+    <h2>Reported Users</h2>
+    <p>Review and handle user reports</p>
+  </div>
+
+  @if (message) {
+    <div class="message-banner">{{ message }}</div>
+  }
+
+  <div class="status-filters">
+    <button
+      class="filter-btn"
+      [class.active]="statusFilter === 'ALL'"
+      (click)="statusFilter = 'ALL'"
+    >All ({{ reports.length }})</button>
+    <button
+      class="filter-btn"
+      [class.active]="statusFilter === 'PENDING'"
+      (click)="statusFilter = 'PENDING'"
+    >Pending ({{ reports.filter(r => r.status === 'PENDING').length }})</button>
+    <button
+      class="filter-btn"
+      [class.active]="statusFilter === 'RESOLVED'"
+      (click)="statusFilter = 'RESOLVED'"
+    >Resolved</button>
+    <button
+      class="filter-btn"
+      [class.active]="statusFilter === 'DISMISSED'"
+      (click)="statusFilter = 'DISMISSED'"
+    >Dismissed</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Loading reports...</div>
+  } @else if (filteredReports.length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon">✅</span>
+      <p>No reports to show.</p>
+    </div>
+  } @else {
+    <div class="reports-list">
+      @for (report of filteredReports; track report.id) {
+        <div class="report-card">
+          <div class="report-header">
+            <div class="reported-user">
+              <span class="user-avatar">{{ report.reportedUser.username.charAt(0).toUpperCase() }}</span>
+              <div>
+                <strong>{{ report.reportedUser.username }}</strong>
+                <span class="report-meta">Reported by {{ report.reportedBy.username }}</span>
+              </div>
+            </div>
+            <span class="report-status" [class]="getStatusClass(report.status)">
+              {{ report.status }}
+            </span>
+          </div>
+          <div class="report-reason">
+            <p>{{ report.reason }}</p>
+          </div>
+          <div class="report-date">
+            {{ report.createdAt | date: 'medium' }}
+          </div>
+
+          @if (report.status === 'PENDING') {
+            <div class="report-actions">
+              <button class="btn-ban" (click)="banUser(report)">🚫 Ban User</button>
+              <button class="btn-resolve" (click)="resolveReport(report)">✅ Resolve</button>
+              <button class="btn-dismiss" (click)="dismissReport(report)">✕ Dismiss</button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

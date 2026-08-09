@@ -1,0 +1,82 @@
+<div class="register-page">
+  <div class="register-card">
+    <div class="register-header">
+      <h1>Join 01Blog</h1>
+      <p>Create your account and start sharing your learning journey</p>
+    </div>
+
+    @if (error) {
+      <div class="server-error">{{ error }}</div>
+    }
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          class="form-input"
+          [formControl]="registerForm.controls.username"
+          placeholder="Choose a username"
+          autocomplete="username"
+        />
+        @if (registerForm.controls.username.invalid && registerForm.controls.username.touched) {
+          <p class="error-message">Username must be 3-30 characters (letters, numbers, underscores).</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="form-input"
+          [formControl]="registerForm.controls.email"
+          placeholder="Enter your email"
+          autocomplete="email"
+        />
+        @if (registerForm.controls.email.invalid && registerForm.controls.email.touched) {
+          <p class="error-message">Please enter a valid email address.</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          class="form-input"
+          [formControl]="registerForm.controls.password"
+          placeholder="Create a password (min 6 characters)"
+          autocomplete="new-password"
+        />
+        @if (registerForm.controls.password.invalid && registerForm.controls.password.touched) {
+          <p class="error-message">Password must be at least 6 characters.</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          class="form-input"
+          [formControl]="registerForm.controls.confirmPassword"
+          placeholder="Confirm your password"
+          autocomplete="new-password"
+        />
+        @if (registerForm.controls.confirmPassword.touched && registerForm.value.password !== registerForm.value.confirmPassword) {
+          <p class="error-message">Passwords do not match.</p>
+        }
+      </div>
+
+      <button type="submit" class="btn-register" [disabled]="registerForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'Creating account...' : 'Create Account' }}
+      </button>
+    </form>
+
+    <p class="auth-link">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </div>
+</div>
