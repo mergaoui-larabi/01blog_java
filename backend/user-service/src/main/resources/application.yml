@@ -1,0 +1,12 @@
+logging:
+  level:
+    root: WARN
+
+server:
+  port: 5001
+
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: user-service
