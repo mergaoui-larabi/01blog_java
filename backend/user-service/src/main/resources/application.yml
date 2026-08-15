@@ -1,6 +1,7 @@
 logging:
   level:
     root: WARN
+    com.blog.user: INFO
 
 server:
   port: 5001
