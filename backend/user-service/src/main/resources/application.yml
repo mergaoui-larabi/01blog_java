@@ -11,3 +11,28 @@ spring:
     banner-mode: off
   application:
     name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/blog_users
+    username: blog_user
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+#Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+
+  endpoint:
+    health:
+      show-details: never
