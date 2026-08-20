@@ -4,7 +4,7 @@ services:
     container_name: blog-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: blog_user
+      POSTGRES_USER: blog_admin
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: blog_users
     ports:

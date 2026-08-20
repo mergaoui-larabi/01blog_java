@@ -13,8 +13,8 @@ spring:
     name: user-service
   datasource:
     url: jdbc:postgresql://localhost:5432/blog_users
-    username: blog_user
-    password: ${POSTGRES_PASSWORD}
+    username: blog_admin
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
