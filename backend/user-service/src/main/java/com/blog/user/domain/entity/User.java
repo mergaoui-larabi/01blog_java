@@ -1,7 +1,9 @@
 
 package com.blog.user.domain.entity;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -13,8 +15,11 @@ import jakarta.persistence.EnumType;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.blog.user.domain.model.Gender;
 import com.blog.user.domain.model.UserRole;
+import com.blog.user.domain.valueobject.Email;
+import com.blog.user.domain.valueobject.Username;
+import com.blog.user.domain.valueobject.Age;
+import com.blog.user.domain.valueobject.Gender;
 
 @Entity
 @Table(name = "users")
@@ -24,20 +29,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "email", nullable = false, unique = true, length = 255))
+    private Email email;
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String username;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "username", nullable = false, unique = true, length = 255))
+    private Username username;
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(nullable = false)
-    private Short age;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "age", nullable = false))
+    private Age age;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "gender", nullable = false, length = 30))
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
@@ -55,10 +63,10 @@ public class User {
     }
 
     public User(
-            String email,
-            String username,
+            Email email,
+            Username username,
             String passwordHash,
-            Short age,
+            Age age,
             Gender gender,
             UserRole role) {
 
@@ -68,29 +76,29 @@ public class User {
         this.age = age;
         this.gender = gender;
         this.role = role;
-
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }
 
+    // getters
     public UUID getId() {
         return id;
     }
 
     public String getEmail() {
-        return email;
+        return email.value();
     }
 
     public String getUsername() {
-        return username;
+        return username.value();
     }
 
     public Short getAge() {
-        return age;
+        return age.value();
     }
 
-    public Gender getGender() {
-        return gender;
+    public String getGender() {
+        return gender.toString();
     }
 
     public UserRole getRole() {

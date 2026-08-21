@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+        // 409
         @ExceptionHandler(EmailAlreadyExistsException.class)
         public ResponseEntity<UserErrorResponse> handleEmailAlreadyExists(
                         EmailAlreadyExistsException exception,
@@ -51,23 +50,17 @@ public class GlobalExceptionHandler {
                                 .body(response);
         }
 
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<UserErrorResponse> handleValidation(
-                        MethodArgumentNotValidException exception,
+        // 404
+        @ExceptionHandler(InvalidValueException.class)
+        public ResponseEntity<UserErrorResponse> handleInvalidValue(
+                        InvalidValueException exception,
                         HttpServletRequest request) {
-
-                System.out.println("ex" + MethodArgumentNotValidException.class);
-                String message = exception.getBindingResult()
-                                .getFieldErrors()
-                                .stream()
-                                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                                .collect(Collectors.joining(", "));
 
                 UserErrorResponse response = new UserErrorResponse(
                                 Instant.now(),
                                 HttpStatus.BAD_REQUEST.name(),
                                 HttpStatus.BAD_REQUEST.value(),
-                                message,
+                                exception.getMessage(),
                                 request.getRequestURI());
 
                 return ResponseEntity
@@ -75,20 +68,11 @@ public class GlobalExceptionHandler {
                                 .body(response);
         }
 
-        @ExceptionHandler(HttpMessageNotReadableException.class)
-        public ResponseEntity<UserErrorResponse> handleMessageNotReadable(
-                        HttpMessageNotReadableException exception,
-                        HttpServletRequest request) {
+        // 403
 
-                UserErrorResponse response = new UserErrorResponse(
-                                Instant.now(),
-                                HttpStatus.BAD_REQUEST.name(),
-                                HttpStatus.BAD_REQUEST.value(),
-                                "Invalid value for gender",
-                                request.getRequestURI());
+        // 401
 
-                return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(response);
-        }
+        // 404
+
+        // 500
 }
