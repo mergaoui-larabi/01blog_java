@@ -1,0 +1,35 @@
+logging:
+  level:
+    root: WARN
+    com.blog.auth: INFO
+
+server:
+  port: 5002
+
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: auth-service
+
+auth:
+  jwt:
+    issuer: blog-auth-service
+    expiration: 3600
+    key-id: blog-auth-key-1
+    private-key-path: ${JWT_PRIVATE_KEY_PATH}
+
+#Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+
+  endpoint:
+    health:
+      show-details: never

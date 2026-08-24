@@ -70,9 +70,7 @@ public class GlobalExceptionHandler {
 
         // 403
 
-        // 401
-
         // 404
-
+        
         // 500
 }
