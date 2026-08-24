@@ -6,6 +6,7 @@ import com.blog.user.domain.valueobject.Username;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
@@ -13,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByUsername(Username username);
 
+    Optional<User> findByEmail(Email email);
 }

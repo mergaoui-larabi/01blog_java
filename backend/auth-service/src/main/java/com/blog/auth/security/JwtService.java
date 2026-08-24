@@ -42,7 +42,7 @@ public class JwtService {
 
     // create jwt token
 
-    public String createToken(UUID userId) {
+    public String createToken(UUID userId, String role) {
         Instant issuedAt = Instant.now();
         Instant expiration = issuedAt.plusSeconds(jwtProperties.expiration());
 
@@ -51,6 +51,7 @@ public class JwtService {
         String payload = JwtConstants.PAYLOAD_TEMPLATE.formatted(
                 userId,
                 jwtProperties.issuer(),
+                role,
                 issuedAt.getEpochSecond(),
                 expiration.getEpochSecond());
 

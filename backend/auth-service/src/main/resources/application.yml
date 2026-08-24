@@ -19,6 +19,17 @@ auth:
     key-id: blog-auth-key-1
     private-key-path: ${JWT_PRIVATE_KEY_PATH}
     public-key-path: ${JWT_PUBLIC_KEY_PATH}
+  user-service:
+    url: http://localhost:5001
+
+security:
+  public-routes:
+    - path: /api/v1/auth/signin
+      method: POST
+    - path: /.well-known/jwks.json
+      method: GET
+    - path: /api/v1/auth/ping
+      method: GET
 
 #Actuator
 management:

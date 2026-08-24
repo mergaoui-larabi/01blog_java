@@ -93,6 +93,10 @@ public class User {
         return username.value();
     }
 
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
     public Short getAge() {
         return age.value();
     }
