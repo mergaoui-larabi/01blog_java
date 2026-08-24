@@ -18,6 +18,7 @@ auth:
     expiration: 3600
     key-id: blog-auth-key-1
     private-key-path: ${JWT_PRIVATE_KEY_PATH}
+    public-key-path: ${JWT_PUBLIC_KEY_PATH}
 
 #Actuator
 management:

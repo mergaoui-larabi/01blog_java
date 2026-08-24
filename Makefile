@@ -57,7 +57,7 @@ stop-user-service:
 	fi
 
 # auth service
-dev-user-service:
+dev-auth-service:
 	@mkdir -p logs
 	cd $(AUTH_SERVICE_PATH) && \
 	set -a && . ../../.env && set +a && \
@@ -65,7 +65,7 @@ dev-user-service:
 	echo $$! > $(AUTH_SERVICE_PID)
 
 
-stop-user-service:
+stop-auth-service:
 	@if [ -f $(AUTH_SERVICE_PID) ]; then \
 		kill $$(cat $(AUTH_SERVICE_PID)) 2>/dev/null || true; \
 		rm -f $(AUTH_SERVICE_PID); \

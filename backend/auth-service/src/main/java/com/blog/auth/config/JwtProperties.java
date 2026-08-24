@@ -5,8 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "auth.jwt")
 public record JwtProperties(
-        String issuer,
-        long expiration,
-        String keyId,
-        String privateKeyPath) {
+                String issuer,
+                long expiration,
+                String keyId,
+                String privateKeyPath,
+                String publicKeyPath) {
 }
