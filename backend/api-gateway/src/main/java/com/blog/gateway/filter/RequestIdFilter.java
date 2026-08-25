@@ -36,6 +36,12 @@ public class RequestIdFilter implements WebFilter, Ordered {
                         SecurityConstants.REQUEST_ID_HEADER,
                         requestId);
 
-        return chain.filter(exchange);
+        ServerWebExchange mutatedExchange = exchange.mutate()
+                .request(request -> request.headers(headers -> headers.set(
+                        SecurityConstants.REQUEST_ID_HEADER,
+                        requestId)))
+                .build();
+
+        return chain.filter(mutatedExchange);
     }
 }

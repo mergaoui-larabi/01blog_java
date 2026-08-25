@@ -14,8 +14,11 @@ DOCKER_COMPOSE := docker
 
 
 .PHONY: docker-up \
+        dev-gateway stop-gateway \
         dev-user-service stop-user-service \
-        dev-gateway stop-gateway
+		dev-auth-service stop-auth-service \
+		stop \
+
 
 
 docker-up:
@@ -73,3 +76,7 @@ stop-auth-service:
 	else \
 		echo "Auth service is not running"; \
 	fi
+
+stop: stop-auth-service stop-user-service stop-gateway
+
+start: dev-gateway dev-user-service dev-auth-service

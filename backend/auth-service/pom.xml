@@ -32,11 +32,6 @@
 		<bouncycastle.version>1.82</bouncycastle.version>
 	</properties>
 	<dependencies>
-		<!-- Spring-Security -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
 		<!-- Webmvc -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
