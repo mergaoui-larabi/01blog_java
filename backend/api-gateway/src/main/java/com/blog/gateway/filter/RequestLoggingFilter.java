@@ -3,6 +3,7 @@ package com.blog.gateway.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -29,6 +30,9 @@ public class RequestLoggingFilter implements WebFilter, Ordered {
 
                 long start = System.currentTimeMillis();
 
+                String requestId = exchange.getAttribute(
+                                SecurityConstants.REQUEST_ID_ATTRIBUTE);
+
                 String method = exchange.getRequest()
                                 .getMethod()
                                 .name();
@@ -37,23 +41,17 @@ public class RequestLoggingFilter implements WebFilter, Ordered {
                                 .getPath()
                                 .value();
 
-                String requestId = exchange.getAttribute(
-                                SecurityConstants.REQUEST_ID_ATTRIBUTE);
-
                 return chain.filter(exchange)
                                 .doFinally(signal -> {
 
                                         long duration = System.currentTimeMillis() - start;
-
-                                        Integer status = exchange.getResponse()
-                                                        .getStatusCode() != null
-                                                                        ? exchange.getResponse()
-                                                                                        .getStatusCode()
-                                                                                        .value()
-                                                                        : null;
+                                        HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                                        Integer status = statusCode != null
+                                                        ? statusCode.value()
+                                                        : null;
 
                                         log.info(
-                                                        "\nrequestId={} method={} path={} status={} duration={}ms",
+                                                        "\nrequestId={}\nmethod={} path={} status={} duration={}ms",
                                                         requestId,
                                                         method,
                                                         path,

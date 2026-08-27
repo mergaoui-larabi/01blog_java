@@ -12,8 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.blog.user.constant.SecurityConstants;
 
-import io.micrometer.common.lang.NonNull;
-
 import java.io.IOException;
 
 @Component
@@ -39,7 +37,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             long duration = System.currentTimeMillis() - start;
 
             log.info(
-                    "\nrequestId={} method={} path={} status={} duration={}ms",
+                    "\nrequestId={}\nmethod={} path={} status={} duration={}ms",
                     requestId,
                     request.getMethod(),
                     request.getRequestURI(),

@@ -2,6 +2,10 @@ logging:
   level:
     root: WARN
     com.blog.gateway: INFO
+    # org.springframework.security: DEBUG
+    # org.springframework.security.oauth2: DEBUG
+    # org.springframework.security: TRACE
+    # org.springframework.security.oauth2: TRACE
 
 server:
   port: 5000
@@ -18,7 +22,7 @@ spring:
       host: localhost
       port: 6379
       password: ${REDIS_PASSWORD}
-
+  #spring cloud
   cloud:
     gateway:
       server:
@@ -80,6 +84,10 @@ spring:
                 #     redis-rate-limiter.burstCapacity: 20
 
 gateway:
+  # OAuth/OIDC jwt validation
+  jwt:
+    jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+    issuer: blog-auth-service
   security:
     public-routes:
       - /api/v1/users/signup

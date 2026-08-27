@@ -46,14 +46,14 @@ public class JwtService {
         Instant issuedAt = Instant.now();
         Instant expiration = issuedAt.plusSeconds(jwtProperties.expiration());
 
-        String header = JwtConstants.HEADER_TEMPLATE.formatted(jwtProperties.keyId());
+        String header = JwtConstants.HEADER_TEMPLATE.formatted(jwtProperties.keyId()).trim();
 
         String payload = JwtConstants.PAYLOAD_TEMPLATE.formatted(
                 userId,
                 jwtProperties.issuer(),
                 role,
                 issuedAt.getEpochSecond(),
-                expiration.getEpochSecond());
+                expiration.getEpochSecond()).trim();
 
         String encodedHeader = encode(header);
         String encodedPayload = encode(payload);

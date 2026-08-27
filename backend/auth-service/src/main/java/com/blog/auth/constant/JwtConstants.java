@@ -10,13 +10,12 @@ public final class JwtConstants {
         "alg":"RS256",
         "typ":"JWT",
         "kid":"%s"
-      }
-      """;
+      }""";
   public static final String PAYLOAD_TEMPLATE = """
       {
         "sub":"%s",
         "iss":"%s",
-        "role":%s,
+        "role":"%s",
         "iat":%d,
         "exp":%d
       }
