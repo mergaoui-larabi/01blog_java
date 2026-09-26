@@ -1,0 +1,51 @@
+<main class="relative min-h-screen bg-background">
+
+  <header class="fixed inset-x-0 top-0 z-50
+         flex h-16 items-center justify-between
+         border-b border-border
+         bg-surface
+         px-6 sm:px-8">
+    <app-logo />
+    <app-theme-toggle />
+  </header>
+  <!-- Authentication area -->
+  <section class="relative grow min-h-[calc(100vh-4rem)] bg-surface">
+
+    <div class="absolute inset-0 bg-primary/10" style="
+      mask-image: url('/assets/auth/standalone-auth-bg.svg');
+      mask-size: cover;
+      mask-position: center;
+      mask-repeat: no-repeat;
+      mask-type: alpha;
+      -webkit-mask-image: url('/assets/auth/standalone-auth-bg.svg');
+      -webkit-mask-size: cover;
+      -webkit-mask-position: center;
+      -webkit-mask-repeat: no-repeat;
+    " aria-hidden="true"></div>
+
+    <div class="relative z-10 flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-20">
+
+      <div class="w-full max-w-md rounded-2xl border border-border
+         bg-surface px-6 py-8 shadow-xl sm:px-10">
+        <router-outlet />
+      </div>
+      
+    </div>
+
+
+  </section>
+  <!-- Footer -->
+  <footer class="absolute inset-x-0 bottom-0 z-20 px-6 py-4 text-center text-xs text-text-muted">
+    <p>
+      By continuing, you agree to our
+      <a routerLink="/terms" class="text-text underline underline-offset-2 hover:text-primary">
+        Terms of Service
+      </a>
+      and
+      <a routerLink="/privacy" class="text-text underline underline-offset-2 hover:text-primary">
+        Privacy Policy
+      </a>.
+    </p>
+  </footer>
+
+</main>

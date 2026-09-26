@@ -1,3 +1,54 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+:root {
+  --app-color-primary: #2563eb;
+  --app-color-primary-hover: #1d4ed8;
+
+  --app-color-background: #f8fafc;
+  --app-color-surface: #ffffff;
+
+  --app-color-text: #111827;
+  --app-color-text-bg: #dbe4e9;
+  --app-color-text-muted: #6b7280;
+
+  --app-color-border: #e5e7eb;
+
+  --app-color-danger: #dc2626;
+  --app-color-success: #16a34a;
+}
+
+.dark {
+  --app-color-primary: #60a5fa;
+  --app-color-primary-hover: #93c5fd;
+
+  --app-color-background: #090f11;
+  --app-color-surface: #11181c;
+
+  --app-color-text: #f2f4f5;
+  --app-color-text-bg: #1d272b;
+  --app-color-text-muted: #a8b3b8;
+
+  --app-color-border: #2a353a;
+
+  --app-color-danger: #f87171;
+  --app-color-success: #4ade80;
+}
+
+@theme {
+  --color-primary: var(--app-color-primary);
+  --color-primary-hover: var(--app-color-primary-hover);
+
+  --color-background: var(--app-color-background);
+  --color-surface: var(--app-color-surface);
+
+  --color-text: var(--app-color-text);
+  --color-text-bg: var(--app-color-text-bg);
+  --color-text-muted: var(--app-color-text-muted);
+
+  --color-border: var(--app-color-border);
+
+  --color-danger: var(--app-color-danger);
+  --color-success: var(--app-color-success);
+}
