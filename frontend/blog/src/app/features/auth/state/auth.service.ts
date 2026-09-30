@@ -4,6 +4,7 @@ import {
     AuthApiService,
     AuthUser,
     LoginRequest,
+    RegisterRequest,
 } from '../data-access/auth-api.service';
 
 @Injectable({
@@ -16,6 +17,10 @@ export class AuthService {
     private readonly currentUser = signal<AuthUser | null>(null);
 
     readonly user = this.currentUser.asReadonly();
+
+    register(request: RegisterRequest) {
+        return this.authApiService.register(request);
+    }
 
     login(request: LoginRequest) {
         return this.authApiService.login(request);

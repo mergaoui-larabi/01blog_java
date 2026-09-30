@@ -14,7 +14,6 @@ import { Logo } from '../../../../shared/components/logo/logo';
 interface LoginData {
   email: string;
   password: string;
-  rememberMe: boolean;
 }
 
 @Component({
@@ -33,8 +32,7 @@ export class Login {
 
   protected readonly loginModel = signal<LoginData>({
     email: '',
-    password: '',
-    rememberMe: false,
+    password: ''
   });
 
   protected readonly loginForm = form(
@@ -64,8 +62,7 @@ export class Login {
           this.authService
             .login({
               email: credentials.email,
-              password: credentials.password,
-              rememberMe: credentials.rememberMe,
+              password: credentials.password
             })
         },
       },
