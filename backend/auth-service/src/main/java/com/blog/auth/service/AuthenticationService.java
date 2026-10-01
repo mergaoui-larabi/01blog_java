@@ -7,6 +7,7 @@ import com.blog.auth.application.dto.request.LoginRequest;
 import com.blog.auth.application.dto.response.LoginResponse;
 import com.blog.auth.application.dto.user.AuthenticateUserRequest;
 import com.blog.auth.application.dto.user.UserAuthenticationResponse;
+import com.blog.auth.exception.InvalidRequestException;
 import com.blog.auth.security.JwtService;
 
 @Service
@@ -24,6 +25,12 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(LoginRequest request) {
+
+        if (request == null
+                || request.email() == null || request.email().isBlank()
+                || request.password() == null || request.password().isBlank()) {
+            throw new InvalidRequestException("Email and password are required");
+        }
 
         UserAuthenticationResponse user =
                 userServiceClient.authenticate(

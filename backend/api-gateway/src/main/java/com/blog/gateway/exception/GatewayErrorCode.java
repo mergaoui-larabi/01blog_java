@@ -6,5 +6,6 @@ public enum GatewayErrorCode {
     UNAUTHORIZED,
     FORBIDDEN,
     SERVICE_UNAVAILABLE,
+    GATEWAY_TIMEOUT,
     INTERNAL_SERVER_ERROR
 }

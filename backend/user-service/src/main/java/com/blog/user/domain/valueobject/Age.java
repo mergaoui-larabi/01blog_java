@@ -16,6 +16,9 @@ public class Age {
     }
 
     public Age(Short value) {
+        if (value == null) {
+            throw new InvalidValueException("Age cannot be null");
+        }
         if (value > ValidationConstants.AGE_MAX_NUMBER) {
             throw new InvalidValueException("Age must be younger than "
                     + ValidationConstants.AGE_MAX_NUMBER);

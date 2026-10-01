@@ -11,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 import com.blog.gateway.constant.SecurityConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -50,10 +52,25 @@ public class GatewayErrorHandler implements ErrorWebExceptionHandler {
                 message = "No route found for the requested resource";
             }
 
-            case Throwable exception when isConnectionRefused(exception) == true -> {
+            case ResponseStatusException exception -> {
+                HttpStatus resolved = HttpStatus.resolve(exception.getStatusCode().value());
+                status = resolved != null ? resolved : HttpStatus.INTERNAL_SERVER_ERROR;
+                code = mapStatusToCode(status);
+                message = exception.getReason() != null
+                        ? exception.getReason()
+                        : status.getReasonPhrase();
+            }
+
+            case Throwable exception when isDownstreamUnreachable(exception) == true -> {
                 status = HttpStatus.SERVICE_UNAVAILABLE;
                 code = GatewayErrorCode.SERVICE_UNAVAILABLE;
                 message = "The requested service is currently unavailable";
+            }
+
+            case Throwable exception when isTimeout(exception) == true -> {
+                status = HttpStatus.GATEWAY_TIMEOUT;
+                code = GatewayErrorCode.GATEWAY_TIMEOUT;
+                message = "The request timed out while waiting for the requested service";
             }
 
             default -> {
@@ -92,10 +109,11 @@ public class GatewayErrorHandler implements ErrorWebExceptionHandler {
         }
     }
 
-    private boolean isConnectionRefused(Throwable throwable) {
+    private boolean isDownstreamUnreachable(Throwable throwable) {
         Throwable current = throwable;
         while (current != null) {
-            if (current instanceof ConnectException exception) {
+            if (current instanceof ConnectException
+                    || current instanceof UnknownHostException) {
                 return true;
             }
 
@@ -103,5 +121,40 @@ public class GatewayErrorHandler implements ErrorWebExceptionHandler {
         }
 
         return false;
+    }
+
+    private boolean isTimeout(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            // covers java.net.SocketTimeoutException, netty Read/WriteTimeoutException, ...
+            if (current instanceof java.util.concurrent.TimeoutException
+                    || current.getClass().getName().contains("TimeoutException")) {
+                return true;
+            }
+
+            current = current.getCause();
+        }
+
+        return false;
+    }
+
+    private GatewayErrorCode mapStatusToCode(HttpStatus status) {
+        if (status == HttpStatus.NOT_FOUND) {
+            return GatewayErrorCode.ROUTE_NOT_FOUND;
+        }
+        if (status == HttpStatus.UNAUTHORIZED) {
+            return GatewayErrorCode.UNAUTHORIZED;
+        }
+        if (status == HttpStatus.FORBIDDEN) {
+            return GatewayErrorCode.FORBIDDEN;
+        }
+        if (status == HttpStatus.SERVICE_UNAVAILABLE) {
+            return GatewayErrorCode.SERVICE_UNAVAILABLE;
+        }
+        if (status.is4xxClientError()) {
+            return GatewayErrorCode.BAD_REQUEST;
+        }
+
+        return GatewayErrorCode.INTERNAL_SERVER_ERROR;
     }
 }
