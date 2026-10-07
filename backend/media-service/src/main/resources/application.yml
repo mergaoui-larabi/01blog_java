@@ -1,0 +1,60 @@
+logging:
+  level:
+    root: WARN
+    com.blog.media: INFO
+
+server:
+  port: 5003
+
+spring:
+  main:
+    banner-mode: off
+
+  application:
+    name: media-service
+
+  datasource:
+    url: jdbc:postgresql://${MEDIA_DB_HOST}/${MEDIA_DB_NAME}
+    username: ${MEDIA_DB_USERNAME}
+    password: ${MEDIA_DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+
+# Media storage
+media:
+  storage:
+    location: ${MEDIA_STORAGE_LOCATION}
+
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+
+  endpoint:
+    health:
+      show-details: never

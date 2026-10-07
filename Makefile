@@ -4,6 +4,7 @@
 	dev-gateway stop-gateway \
 	dev-user-service stop-user-service \
 	dev-auth-service stop-auth-service \
+	dev-media-service stop-media-service \
 	stop start
 
 
@@ -22,6 +23,10 @@ USER_SERVICE_LOG := logs/user-service.log
 AUTH_SERVICE_PATH := backend/auth-service
 AUTH_SERVICE_PID := /tmp/blog-auth-service.pid
 AUTH_SERVICE_LOG := logs/auth-service.log
+
+MEDIA_SERVICE_PATH := backend/media-service
+MEDIA_SERVICE_PID := /tmp/blog-media-service.pid
+MEDIA_SERVICE_LOG := logs/media-service.log
 
 DOCKER_COMPOSE := docker
 
@@ -49,7 +54,8 @@ front-down:
 # =======================
 
 docker-up:
-	cd $(DOCKER_COMPOSE) && \
+	@cd $(DOCKER_COMPOSE) && \
+	set -a && . ../.env && set +a && \
 	systemctl stop postgresql 2>/dev/null || true && \
 	docker compose down -v && \
 	docker compose up -d
@@ -120,11 +126,31 @@ stop-auth-service:
 		echo "Auth service is not running"; \
 	fi
 
+# =======================
+# Auth Service
+# =======================
+
+dev-media-service: stop-media-service
+	@mkdir -p logs
+	@cd $(MEDIA_SERVICE_PATH) && \
+	set -a && . ../../.env && set +a && \
+	nohup ./mvnw spring-boot:run > ../../$(MEDIA_SERVICE_LOG) 2>&1 & \
+	echo $$! > $(MEDIA_SERVICE_PID)
+	@echo "Media service started"
+
+stop-media-service:
+	@if [ -f $(MEDIA_SERVICE_PID) ]; then \
+		kill $$(cat $(MEDIA_SERVICE_PID)) 2>/dev/null || true; \
+		rm -f $(MEDIA_SERVICE_PID); \
+		echo "Media service stopped"; \
+	else \
+		echo "Media service is not running"; \
+	fi
 
 # =======================
 # Global
 # =======================
 
-stop: stop-auth-service stop-user-service stop-gateway front-down
+stop: stop-media-service stop-auth-service stop-user-service stop-gateway front-down
 
-start: dev-gateway dev-user-service dev-auth-service
+start: dev-gateway dev-user-service dev-auth-service dev-media-service front-up

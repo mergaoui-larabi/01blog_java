@@ -1,27 +1,54 @@
 services:
-  postgres:
+
+  postgres-users:
     image: postgres:17
-    container_name: blog-postgres
+    container_name: blog-postgres-users
     restart: unless-stopped
+
     environment:
-      POSTGRES_USER: blog_admin
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: blog_users
+      POSTGRES_USER: ${USER_DB_USERNAME}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+      POSTGRES_DB: ${USER_DB_NAME}
+
     ports:
       - "5432:5432"
+
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_users_data:/var/lib/postgresql/data
+
+
+  postgres-media:
+    image: postgres:17
+    container_name: blog-postgres-media
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${MEDIA_DB_USERNAME}
+      POSTGRES_PASSWORD: ${MEDIA_DB_PASSWORD}
+      POSTGRES_DB: ${MEDIA_DB_NAME}
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_media_data:/var/lib/postgresql/data
+
 
   redis:
     image: redis:8
     container_name: blog-redis
     restart: unless-stopped
+
     command: redis-server --requirepass ${REDIS_PASSWORD}
+
     ports:
       - "6379:6379"
+
     volumes:
       - redis_data:/data
 
+
 volumes:
-  postgres_data:
+  postgres_users_data:
+  postgres_media_data:
   redis_data:

@@ -6,6 +6,7 @@ CREATE TABLE users (
     age SMALLINT NOT NULL,
     gender VARCHAR(30) NOT NULL,
     role VARCHAR(50) NOT NULL,
+    avatar_media_id UUID,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

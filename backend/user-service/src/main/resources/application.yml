@@ -12,15 +12,20 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/blog_users
-    username: blog_admin
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${USER_DB_HOST}/${USER_DB_NAME}
+    username: ${USER_DB_USERNAME}
+    password: ${USER_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
     open-in-view: false
   flyway:
     enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
 
 #Actuator
 management:
