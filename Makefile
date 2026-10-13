@@ -8,24 +8,28 @@
 	stop start
 
 
+# =======================
+# Paths
+# =======================
+
 FRONT_END_PATH := frontend/blog
 FRONT_END_PID := /tmp/frontend.pid
-FRONT_END_LOGS := logs/angular.log
+FRONT_END_LOG := logs/angular.log
 
 GATEWAY_PATH := backend/api-gateway
-GATEWAY_PID := /tmp/blog-gateway.pid
+GATEWAY_PORT := 5000
 GATEWAY_LOG := logs/gateway.log
 
 USER_SERVICE_PATH := backend/user-service
-USER_SERVICE_PID := /tmp/blog-user-service.pid
+USER_SERVICE_PORT := 5001
 USER_SERVICE_LOG := logs/user-service.log
 
 AUTH_SERVICE_PATH := backend/auth-service
-AUTH_SERVICE_PID := /tmp/blog-auth-service.pid
+AUTH_SERVICE_PORT := 5003
 AUTH_SERVICE_LOG := logs/auth-service.log
 
 MEDIA_SERVICE_PATH := backend/media-service
-MEDIA_SERVICE_PID := /tmp/blog-media-service.pid
+MEDIA_SERVICE_PORT := 5002
 MEDIA_SERVICE_LOG := logs/media-service.log
 
 DOCKER_COMPOSE := docker
@@ -38,14 +42,15 @@ DOCKER_COMPOSE := docker
 front-up: front-down
 	@mkdir -p logs
 	@cd $(FRONT_END_PATH) && \
-	nohup sh -c 'exec ng serve 2>&1 | sed -E "s/\x1B\[[0-9;]*[mK]//g"' \
-		> ../../$(FRONT_END_LOGS) 2>&1 & \
+	nohup sh -c 'npm install && exec npm exec -- ng serve' \
+		> ../../$(FRONT_END_LOG) 2>&1 < /dev/null & \
 	echo $$! > $(FRONT_END_PID)
 	@sleep 1
-	@echo "Frontend started on http://localhost:4200"
+	@echo "Frontend starting on http://localhost:4200"
 
 front-down:
 	@fuser -k 4200/tcp 2>/dev/null || true
+	@rm -f $(FRONT_END_PID)
 	@echo "Frontend stopped"
 
 
@@ -56,7 +61,6 @@ front-down:
 docker-up:
 	@cd $(DOCKER_COMPOSE) && \
 	set -a && . ../.env && set +a && \
-	systemctl stop postgresql 2>/dev/null || true && \
 	docker compose down -v && \
 	docker compose up -d
 
@@ -69,18 +73,15 @@ dev-gateway: stop-gateway
 	@mkdir -p logs
 	@cd $(GATEWAY_PATH) && \
 	set -a && . ../../.env && set +a && \
-	nohup ./mvnw spring-boot:run > ../../$(GATEWAY_LOG) 2>&1 & \
-	echo $$! > $(GATEWAY_PID)
-	@echo "Gateway started"
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(GATEWAY_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-gateway.pid
+	@echo "Gateway starting on port $(GATEWAY_PORT)"
 
 stop-gateway:
-	@if [ -f $(GATEWAY_PID) ]; then \
-		kill $$(cat $(GATEWAY_PID)) 2>/dev/null || true; \
-		rm -f $(GATEWAY_PID); \
-		echo "Gateway stopped"; \
-	else \
-		echo "Gateway is not running"; \
-	fi
+	@fuser -k $(GATEWAY_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-gateway.pid
+	@echo "Gateway stopped"
 
 
 # =======================
@@ -91,18 +92,15 @@ dev-user-service: stop-user-service
 	@mkdir -p logs
 	@cd $(USER_SERVICE_PATH) && \
 	set -a && . ../../.env && set +a && \
-	nohup ./mvnw spring-boot:run > ../../$(USER_SERVICE_LOG) 2>&1 & \
-	echo $$! > $(USER_SERVICE_PID)
-	@echo "User service started"
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(USER_SERVICE_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-user-service.pid
+	@echo "User service starting on port $(USER_SERVICE_PORT)"
 
 stop-user-service:
-	@if [ -f $(USER_SERVICE_PID) ]; then \
-		kill $$(cat $(USER_SERVICE_PID)) 2>/dev/null || true; \
-		rm -f $(USER_SERVICE_PID); \
-		echo "User service stopped"; \
-	else \
-		echo "User service is not running"; \
-	fi
+	@fuser -k $(USER_SERVICE_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-user-service.pid
+	@echo "User service stopped"
 
 
 # =======================
@@ -113,39 +111,35 @@ dev-auth-service: stop-auth-service
 	@mkdir -p logs
 	@cd $(AUTH_SERVICE_PATH) && \
 	set -a && . ../../.env && set +a && \
-	nohup ./mvnw spring-boot:run > ../../$(AUTH_SERVICE_LOG) 2>&1 & \
-	echo $$! > $(AUTH_SERVICE_PID)
-	@echo "Auth service started"
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(AUTH_SERVICE_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-auth-service.pid
+	@echo "Auth service starting on port $(AUTH_SERVICE_PORT)"
 
 stop-auth-service:
-	@if [ -f $(AUTH_SERVICE_PID) ]; then \
-		kill $$(cat $(AUTH_SERVICE_PID)) 2>/dev/null || true; \
-		rm -f $(AUTH_SERVICE_PID); \
-		echo "Auth service stopped"; \
-	else \
-		echo "Auth service is not running"; \
-	fi
+	@fuser -k $(AUTH_SERVICE_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-auth-service.pid
+	@echo "Auth service stopped"
+
 
 # =======================
-# Auth Service
+# Media Service
 # =======================
 
 dev-media-service: stop-media-service
 	@mkdir -p logs
 	@cd $(MEDIA_SERVICE_PATH) && \
 	set -a && . ../../.env && set +a && \
-	nohup ./mvnw spring-boot:run > ../../$(MEDIA_SERVICE_LOG) 2>&1 & \
-	echo $$! > $(MEDIA_SERVICE_PID)
-	@echo "Media service started"
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(MEDIA_SERVICE_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-media-service.pid
+	@echo "Media service starting on port $(MEDIA_SERVICE_PORT)"
 
 stop-media-service:
-	@if [ -f $(MEDIA_SERVICE_PID) ]; then \
-		kill $$(cat $(MEDIA_SERVICE_PID)) 2>/dev/null || true; \
-		rm -f $(MEDIA_SERVICE_PID); \
-		echo "Media service stopped"; \
-	else \
-		echo "Media service is not running"; \
-	fi
+	@fuser -k $(MEDIA_SERVICE_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-media-service.pid
+	@echo "Media service stopped"
+
 
 # =======================
 # Global
