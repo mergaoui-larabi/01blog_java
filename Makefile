@@ -25,11 +25,11 @@ USER_SERVICE_PORT := 5001
 USER_SERVICE_LOG := logs/user-service.log
 
 AUTH_SERVICE_PATH := backend/auth-service
-AUTH_SERVICE_PORT := 5003
+AUTH_SERVICE_PORT := 5002
 AUTH_SERVICE_LOG := logs/auth-service.log
 
 MEDIA_SERVICE_PATH := backend/media-service
-MEDIA_SERVICE_PORT := 5002
+MEDIA_SERVICE_PORT := 5003
 MEDIA_SERVICE_LOG := logs/media-service.log
 
 DOCKER_COMPOSE := docker

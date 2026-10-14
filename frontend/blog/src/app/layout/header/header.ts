@@ -4,13 +4,15 @@ import {
     RouterLinkActive
 } from '@angular/router';
 import { Logo } from '../../shared/components/logo/logo';
+import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 
 @Component({
     selector: 'app-header',
     imports: [
         Logo,
         RouterLink,
-        RouterLinkActive
+        RouterLinkActive,
+        ThemeToggle
     ],
     templateUrl: './header.html'
 })

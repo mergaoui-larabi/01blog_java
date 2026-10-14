@@ -1,8 +1,9 @@
-import { Component } from "@angular/core";
-
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
-    selector: 'app-logo',
-    templateUrl: './logo.html'
+  selector: 'app-logo',
+  imports: [RouterLink],
+  templateUrl: './logo.html',
 })
-export class Logo { }
+export class Logo {}
