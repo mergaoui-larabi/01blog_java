@@ -41,18 +41,33 @@ public class UserController {
                 user.getAge(),
                 user.getGender(),
                 user.getRole(),
+                user.getAvatarMediaId(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //userId
+    // user profile
     @GetMapping("/me")
-    public String me(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserResponse> me(@AuthenticationPrincipal Jwt jwt) {
 
         UUID userId = UUID.fromString(jwt.getSubject());
-        return userId.toString();
+
+        User user = userService.getUserById(userId);
+
+        UserResponse response = new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getAge(),
+                user.getGender(),
+                user.getRole(),
+                user.getAvatarMediaId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+
+        return ResponseEntity.ok(response);
     }
 
     // test if the service is up

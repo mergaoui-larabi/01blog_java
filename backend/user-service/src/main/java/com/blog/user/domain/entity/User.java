@@ -52,6 +52,9 @@ public class User {
     @Column(nullable = false, length = 50)
     private UserRole role;
 
+    @Column(name = "avatar_media_id")
+    private UUID avatarMediaId;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -107,6 +110,10 @@ public class User {
 
     public UserRole getRole() {
         return role;
+    }
+
+    public UUID getAvatarMediaId() {
+        return avatarMediaId;
     }
 
     public Instant getCreatedAt() {

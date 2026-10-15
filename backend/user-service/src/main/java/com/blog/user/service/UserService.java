@@ -19,6 +19,7 @@ import com.blog.user.exception.EmailAlreadyExistsException;
 import com.blog.user.exception.InvalidCredentialsException;
 import com.blog.user.exception.UsernameAlreadyExistsException;
 import com.blog.user.repository.UserRepository;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -28,6 +29,12 @@ public class UserService {
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
     }
 
     @Transactional

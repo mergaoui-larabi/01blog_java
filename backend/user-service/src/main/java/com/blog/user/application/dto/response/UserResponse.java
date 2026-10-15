@@ -11,6 +11,7 @@ public record UserResponse(
                 Short age,
                 String gender,
                 UserRole role,
+                UUID avatarMediaId,
                 Instant createdAt,
                 Instant updatedAt) {
 }
