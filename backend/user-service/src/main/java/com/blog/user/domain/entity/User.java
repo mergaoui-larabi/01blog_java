@@ -123,4 +123,9 @@ public class User {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
+    // update
+    public void updateAvatarMediaId(UUID avatarMediaId) {
+        this.avatarMediaId = avatarMediaId;
+    }
 }

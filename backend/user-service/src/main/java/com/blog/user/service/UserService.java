@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.blog.user.application.dto.request.AuthenticateUserRequest;
 import com.blog.user.application.dto.request.CreateUserRequest;
+import com.blog.user.application.dto.request.UpdateUserAvatarRequest;
 import com.blog.user.application.dto.response.UserAuthenticationResponse;
+import com.blog.user.application.dto.response.UserResponse;
 import com.blog.user.domain.entity.User;
 import com.blog.user.domain.model.UserRole;
 import com.blog.user.domain.valueobject.Age;
@@ -60,6 +62,16 @@ public class UserService {
                 age,
                 gender,
                 UserRole.USER);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateAvatarMediaId(UpdateUserAvatarRequest request) {
+        System.out.println("OwnerId: " + request.ownerId() + "avatar media id" + request.avatarMediaId());
+        User user = userRepository.findById(request.ownerId())
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+        user.updateAvatarMediaId(request.avatarMediaId());
 
         return userRepository.save(user);
     }

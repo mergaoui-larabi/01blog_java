@@ -82,6 +82,19 @@ spring:
                 #     key-resolver: "#{@ipKeyResolver}"
                 #     redis-rate-limiter.replenishRate: 10
                 #     redis-rate-limiter.burstCapacity: 20
+            - id: media-service
+
+              uri: http://localhost:5003
+
+              predicates:
+                - Path=/api/v1/medias/**
+
+              filters:
+                # - name: RequestRateLimiter
+                #   args:
+                #     key-resolver: "#{@ipKeyResolver}"
+                #     redis-rate-limiter.replenishRate: 10
+                #     redis-rate-limiter.burstCapacity: 20
 
 gateway:
   # OAuth/OIDC jwt validation

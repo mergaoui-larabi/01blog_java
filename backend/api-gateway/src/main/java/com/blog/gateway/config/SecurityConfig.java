@@ -3,6 +3,7 @@ package com.blog.gateway.config;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
@@ -17,8 +18,12 @@ public class SecurityConfig {
         public SecurityWebFilterChain securityWebFilterChain(
                         ServerHttpSecurity http,
                         GatewaySecurityProperties securityProperties) {
-                return http.csrf(csrf -> csrf.disable())
+                return http
+                                .cors(cors -> {
+                                })
+                                .csrf(csrf -> csrf.disable())
                                 .authorizeExchange(exchange -> {
+                                        exchange.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                                         securityProperties.getPublicRoutes()
                                                         .forEach(route -> exchange
                                                                         .pathMatchers(route)

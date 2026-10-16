@@ -7,12 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blog.user.application.dto.request.CreateUserRequest;
+import com.blog.user.application.dto.request.UpdateUserAvatarRequest;
 import com.blog.user.application.dto.response.UserResponse;
 import com.blog.user.service.UserService;
 import com.blog.user.domain.entity.User;
@@ -48,8 +50,26 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // update
+    @PatchMapping("update")
+    public ResponseEntity<UserResponse> updateUserAvatar(@Valid @RequestBody UpdateUserAvatarRequest request) {
+        User user = userService.updateAvatarMediaId(request);
+        UserResponse response = new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getAge(),
+                user.getGender(),
+                user.getRole(),
+                user.getAvatarMediaId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     // user profile
-    @GetMapping("/me")
+    @GetMapping("me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal Jwt jwt) {
 
         UUID userId = UUID.fromString(jwt.getSubject());
