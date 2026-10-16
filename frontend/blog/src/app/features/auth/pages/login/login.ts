@@ -7,9 +7,8 @@ import {
   minLength,
   required,
 } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../state/auth.service';
-import { Logo } from '../../../../shared/components/logo/logo';
 
 interface LoginData {
   email: string;
@@ -21,7 +20,6 @@ interface LoginData {
   imports: [
     FormField,
     FormRoot,
-    Logo,
     RouterLink
   ],
   templateUrl: './login.html',
@@ -29,6 +27,7 @@ interface LoginData {
 })
 export class Login {
   private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly loginModel = signal<LoginData>({
     email: '',
@@ -59,11 +58,13 @@ export class Login {
         action: async (form) => {
           const credentials = form().value();
 
-          this.authService
-            .login({
+          this.authService.login(
+            {
               email: credentials.email,
-              password: credentials.password
-            })
+              password: credentials.password,
+            },
+            this.route.snapshot.queryParamMap.get('returnUrl'),
+          );
         },
       },
     },

@@ -161,6 +161,54 @@
 
     </div>
 
+    <!-- Avatar (optional) -->
+    <div>
+      <span id="avatar-legend" class="block text-sm font-medium leading-5 text-text">
+        Profile picture <span class="font-normal text-text-muted">(optional)</span>
+      </span>
+
+      <div class="mt-2 flex items-center gap-4">
+        <!-- Preview or default avatar -->
+        @if (avatarPreviewUrl(); as url) {
+        <img [src]="url" alt="Selected profile picture preview"
+          class="h-16 w-16 shrink-0 rounded-full border border-border object-cover" />
+        } @else {
+        <span
+          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-dashed border-border bg-text-bg text-text-muted"
+          role="img" aria-label="No profile picture selected">
+          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+          </svg>
+        </span>
+        }
+
+        <div class="flex flex-wrap items-center gap-2">
+          <label for="avatar-input"
+            class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium leading-5 text-text transition hover:bg-background focus-within:ring-2 focus-within:ring-primary/30">
+            {{ avatarPreviewUrl() ? 'Replace picture' : 'Choose picture' }}
+
+            <input id="avatar-input" type="file" [accept]="avatarAcceptedTypes" class="sr-only"
+              (change)="onAvatarSelected($event)" />
+          </label>
+
+          @if (avatarPreviewUrl()) {
+          <button type="button" (click)="removeAvatar()"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium leading-5 text-danger transition hover:bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+            Remove
+          </button>
+          }
+        </div>
+      </div>
+
+      @if (avatarError()) {
+      <p class="mt-2 text-sm text-danger" role="alert">
+        {{ avatarError() }}
+      </p>
+      }
+    </div>
+
     <!-- Submit -->
     <button type="submit" [disabled]="
         registerForm().invalid() ||
