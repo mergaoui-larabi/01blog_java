@@ -34,6 +34,57 @@ services:
       - postgres_media_data:/var/lib/postgresql/data
 
 
+  postgres-posts:
+    image: postgres:17
+    container_name: blog-postgres-posts
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POST_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POST_DB_PASSWORD}
+      POSTGRES_DB: ${POST_DB_NAME}
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - postgres_posts_data:/var/lib/postgresql/data
+
+
+  postgres-notifications:
+    image: postgres:17
+    container_name: blog-postgres-notifications
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${NOTIF_DB_USERNAME}
+      POSTGRES_PASSWORD: ${NOTIF_DB_PASSWORD}
+      POSTGRES_DB: ${NOTIF_DB_NAME}
+
+    ports:
+      - "5435:5432"
+
+    volumes:
+      - postgres_notifications_data:/var/lib/postgresql/data
+
+
+  postgres-moderation:
+    image: postgres:17
+    container_name: blog-postgres-moderation
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${MOD_DB_USERNAME}
+      POSTGRES_PASSWORD: ${MOD_DB_PASSWORD}
+      POSTGRES_DB: ${MOD_DB_NAME}
+
+    ports:
+      - "5436:5432"
+
+    volumes:
+      - postgres_moderation_data:/var/lib/postgresql/data
+
+
   redis:
     image: redis:8
     container_name: blog-redis
@@ -51,4 +102,7 @@ services:
 volumes:
   postgres_users_data:
   postgres_media_data:
+  postgres_posts_data:
+  postgres_notifications_data:
+  postgres_moderation_data:
   redis_data:

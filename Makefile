@@ -1,12 +1,14 @@
 .PHONY: \
 	front-up front-down \
-	docker-up \
+	docker-up docker-down \
 	dev-gateway stop-gateway \
 	dev-user-service stop-user-service \
 	dev-auth-service stop-auth-service \
 	dev-media-service stop-media-service \
+	dev-post-service stop-post-service \
+	dev-notification-service stop-notification-service \
+	dev-moderation-service stop-moderation-service \
 	stop start
-
 
 # =======================
 # Paths
@@ -32,8 +34,21 @@ MEDIA_SERVICE_PATH := backend/media-service
 MEDIA_SERVICE_PORT := 5003
 MEDIA_SERVICE_LOG := logs/media-service.log
 
+POST_SERVICE_PATH := backend/post-service
+POST_SERVICE_PORT := 5004
+POST_SERVICE_LOG := logs/post-service.log
+
+NOTIFICATION_SERVICE_PATH := backend/notification-service
+NOTIFICATION_SERVICE_PORT := 5005
+NOTIFICATION_SERVICE_LOG := logs/notification-service.log
+
+MODERATION_SERVICE_PATH := backend/moderation-service
+MODERATION_SERVICE_PORT := 5006
+MODERATION_SERVICE_LOG := logs/moderation-service.log
+
 DOCKER_COMPOSE := docker
 
+COMPOSE_FILE := docker/docker-compose.yml
 
 # =======================
 # Frontend
@@ -61,8 +76,19 @@ front-down:
 docker-up:
 	@cd $(DOCKER_COMPOSE) && \
 	set -a && . ../.env && set +a && \
-	docker compose down -v && \
-	docker compose up -d
+	docker compose  down && \
+	docker compose  up -d
+
+docker-clean-up:
+	@cd $(DOCKER_COMPOSE) && \
+	set -a && . ../.env && set +a && \
+	docker compose  down -v && \
+	docker compose  up -d
+
+docker-down:
+	@cd $(DOCKER_COMPOSE) && \
+	set -a && . ../.env && set +a && \
+	docker compose -f $(COMPOSE_FILE) down
 
 
 # =======================
@@ -142,9 +168,66 @@ stop-media-service:
 
 
 # =======================
+# Post Service
+# =======================
+
+dev-post-service: stop-post-service
+	@mkdir -p logs
+	@cd $(POST_SERVICE_PATH) && \
+	set -a && . ../../.env && set +a && \
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(POST_SERVICE_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-post-service.pid
+	@echo "Post service starting on port $(POST_SERVICE_PORT)"
+
+stop-post-service:
+	@fuser -k $(POST_SERVICE_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-post-service.pid
+	@echo "Post service stopped"
+
+
+# =======================
+# Notification Service
+# =======================
+
+dev-notification-service: stop-notification-service
+	@mkdir -p logs
+	@cd $(NOTIFICATION_SERVICE_PATH) && \
+	set -a && . ../../.env && set +a && \
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(NOTIFICATION_SERVICE_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-notification-service.pid
+	@echo "Notification service starting on port $(NOTIFICATION_SERVICE_PORT)"
+
+stop-notification-service:
+	@fuser -k $(NOTIFICATION_SERVICE_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-notification-service.pid
+	@echo "Notification service stopped"
+
+
+# =======================
+# Moderation Service
+# =======================
+
+dev-moderation-service: stop-moderation-service
+	@mkdir -p logs
+	@cd $(MODERATION_SERVICE_PATH) && \
+	set -a && . ../../.env && set +a && \
+	nohup sh -c './mvnw install && exec ./mvnw spring-boot:run' \
+		> ../../$(MODERATION_SERVICE_LOG) 2>&1 < /dev/null & \
+	echo $$! > /tmp/blog-moderation-service.pid
+	@echo "Moderation service starting on port $(MODERATION_SERVICE_PORT)"
+
+stop-moderation-service:
+	@fuser -k $(MODERATION_SERVICE_PORT)/tcp 2>/dev/null || true
+	@rm -f /tmp/blog-moderation-service.pid
+	@echo "Moderation service stopped"
+
+
+# =======================
 # Global
 # =======================
 
-stop: stop-media-service stop-auth-service stop-user-service stop-gateway front-down
+stop: stop-post-service stop-notification-service stop-moderation-service stop-media-service stop-auth-service stop-user-service stop-gateway front-down
 
-start: dev-gateway dev-user-service dev-auth-service dev-media-service front-up
+start: dev-gateway dev-user-service dev-auth-service dev-media-service dev-post-service dev-notification-service dev-moderation-service front-up
