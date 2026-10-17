@@ -7,6 +7,7 @@ CREATE TABLE users (
     gender VARCHAR(30) NOT NULL,
     role VARCHAR(50) NOT NULL,
     avatar_media_id UUID,
+    is_banned BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

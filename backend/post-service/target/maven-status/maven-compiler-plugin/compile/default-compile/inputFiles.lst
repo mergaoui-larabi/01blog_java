@@ -1,0 +1,14 @@
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/PostServiceApplication.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/application/dto/request/CommentCreateRequest.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/application/dto/request/PostCreateRequest.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/application/dto/request/PostLikeCreateRequest.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/application/service/CommentService.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/application/service/PostLikeService.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/application/service/PostService.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/config/SecurityConfig.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/domain/model/Comment.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/domain/model/Post.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/domain/model/PostLike.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/repository/CommentRepository.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/repository/PostLikeRepository.java
+/home/mlarbi/Desktop/01blog_java/backend/post-service/src/main/java/com/blog/post/repository/PostRepository.java

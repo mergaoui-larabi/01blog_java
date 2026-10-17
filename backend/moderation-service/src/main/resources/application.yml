@@ -1,0 +1,36 @@
+server:
+  port: 5006
+
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: moderation-service
+  datasource:
+    url: jdbc:postgresql://${MOD_DB_HOST}/${MOD_DB_NAME}
+    username: ${MOD_DB_USERNAME}
+    password: ${MOD_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+  endpoint:
+    health:
+      show-details: never

@@ -1,0 +1,9 @@
+com/blog/moderation/ModerationServiceApplication.class
+com/blog/moderation/domain/entity/ReportStatus.class
+com/blog/moderation/domain/entity/Report.class
+com/blog/moderation/domain/entity/ActionType.class
+com/blog/moderation/repository/ReportRepository.class
+com/blog/moderation/domain/entity/ModerationAction.class
+com/blog/moderation/config/SecurityConfig.class
+com/blog/moderation/repository/ModerationActionRepository.class
+com/blog/moderation/domain/entity/TargetType.class

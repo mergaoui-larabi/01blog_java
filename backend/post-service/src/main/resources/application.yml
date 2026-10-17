@@ -1,0 +1,36 @@
+server:
+  port: 5004
+
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: post-service
+  datasource:
+    url: jdbc:postgresql://${POST_DB_HOST}/${POST_DB_NAME}
+    username: ${POST_DB_USERNAME}
+    password: ${POST_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+  endpoint:
+    health:
+      show-details: never
