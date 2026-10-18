@@ -1,0 +1,42 @@
+logging:
+  level:
+    root: WARN
+    com.blog.post: INFO
+
+server:
+  port: 5002
+
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: post-service
+  datasource:
+    url: jdbc:postgresql://${POST_DB_HOST:localhost}:${POST_DB_PORT:5434}/${POST_DB_NAME:blog_post}
+    username: ${POST_DB_USERNAME:blog_post}
+    password: ${POST_DB_PASSWORD:secret}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+  endpoint:
+    health:
+      show-details: never
