@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { RouterLink, RouterLinkActive } from "@angular/router";
+import { RouterLink } from "@angular/router";
 import { Logo } from "../../shared/components/logo/logo";
 
 @Component({
@@ -7,7 +7,6 @@ import { Logo } from "../../shared/components/logo/logo";
     imports: [
         Logo,
         RouterLink,
-        RouterLinkActive
     ],
     templateUrl: './footer.html'
 })

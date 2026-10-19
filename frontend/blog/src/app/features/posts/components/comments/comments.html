@@ -1,0 +1,76 @@
+<section [id]="regionId()" aria-label="Comments" class="mt-3 border-t border-border pt-4">
+
+  <!-- Comment list -->
+  @if (comments().length === 0) {
+  <p class="text-sm text-text-muted">
+    No comments yet. Be the first to share your thoughts.
+  </p>
+  } @else {
+  <ul class="space-y-4">
+    @for (comment of comments(); track comment.id) {
+    <li class="flex gap-3">
+      <a [routerLink]="['/block', comment.author.username]"
+        class="mt-0.5 shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <app-avatar [user]="comment.author" size="sm" [decorative]="true" />
+      </a>
+
+      <div class="min-w-0 flex-1">
+        <p class="text-sm">
+          <a [routerLink]="['/block', comment.author.username]"
+            class="font-semibold text-text transition-colors hover:text-primary">
+            {{ comment.author.displayName || comment.author.username }}
+          </a>
+
+          <span class="ml-2 text-xs text-text-muted">
+            <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | date: 'MMM d, y, HH:mm' }}</time>
+          </span>
+        </p>
+
+        <p class="mt-1 break-words text-sm leading-6 text-text">
+          {{ comment.content }}
+        </p>
+      </div>
+    </li>
+    }
+  </ul>
+  }
+
+  <!-- New comment form -->
+  <form class="mt-4" (submit)="$event.preventDefault(); submit()">
+    <label for="new-comment" class="sr-only">
+      Write a comment
+    </label>
+
+    <textarea id="new-comment" rows="2" [attr.maxlength]="maxLength" (input)="draft.set($any($event.target).value)"
+      [value]="draft()" placeholder="Write a comment…"
+      [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="error() ? 'new-comment-error' : null"
+      class="w-full resize-y rounded-lg border border-border bg-surface px-3 py-2 text-sm leading-6 text-text
+             outline-none transition placeholder:text-text-muted
+             focus:border-primary focus:ring-2 focus:ring-primary/10"></textarea>
+
+    @if (error()) {
+    <p id="new-comment-error" class="mt-2 text-sm text-danger" role="alert">
+      {{ error() }}
+    </p>
+    }
+
+    <div class="mt-2 flex items-center justify-between gap-3">
+      <p class="text-xs text-text-muted" aria-live="polite">
+        @if (success()) {
+        Comment posted.
+        }
+      </p>
+
+      <button type="submit" [disabled]="submitting() || !draft().trim()" class="rounded-lg bg-primary px-3.5 py-1.5
+             text-sm font-semibold text-white transition hover:bg-primary-hover
+             focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+             disabled:cursor-not-allowed disabled:opacity-60">
+        @if (submitting()) {
+        Posting…
+        } @else {
+        Comment
+        }
+      </button>
+    </div>
+  </form>
+</section>

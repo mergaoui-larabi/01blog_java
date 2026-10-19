@@ -1,0 +1,79 @@
+<div class="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6">
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-xl font-semibold tracking-tight text-text">
+      Notifications
+
+      @if (unreadCount() > 0) {
+      <span class="ml-2 inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5
+                   text-xs font-semibold text-white">
+        {{ unreadCount() }}
+        <span class="sr-only">unread notifications</span>
+      </span>
+      }
+    </h1>
+
+    <button type="button" (click)="markAllRead()" [disabled]="unreadCount() === 0"
+      class="rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-medium text-text
+             transition-colors hover:bg-background
+             focus:outline-none focus:ring-2 focus:ring-primary/30
+             disabled:cursor-not-allowed disabled:opacity-50">
+      Mark all as read
+    </button>
+  </div>
+
+  @if (notifications().length === 0) {
+  <div class="mt-6 rounded-xl border border-dashed border-border bg-surface px-6 py-12 text-center">
+    <h2 class="text-base font-semibold text-text">
+      Nothing here yet
+    </h2>
+
+    <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-text-muted">
+      When people you follow publish, like, or comment, you'll see it here.
+    </p>
+  </div>
+  } @else {
+  <ul class="mt-6 space-y-2">
+    @for (notification of notifications(); track notification.id) {
+    <li>
+      <a [routerLink]="linkFor(notification)" (click)="markRead(notification)"
+        [attr.aria-label]="'Notification: ' + notification.actor.displayName + ' ' + labelFor(notification)"
+        class="relative flex items-start gap-3 rounded-xl border p-4 transition-colors
+               focus:outline-none focus:ring-2 focus:ring-primary/30
+               {{ notification.read
+                  ? 'border-border bg-surface hover:bg-background'
+                  : 'border-primary/30 bg-primary/5 hover:bg-primary/10' }}">
+
+        <!-- Unread indicator: shape + text, not color alone -->
+        @if (!notification.read) {
+        <span class="absolute right-4 top-4 h-2 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+        }
+
+        <app-avatar [user]="notification.actor" size="md" [decorative]="true" />
+
+        <span class="min-w-0 flex-1 pr-6">
+          <span class="block text-sm leading-6 text-text">
+            <span class="font-semibold">{{ notification.actor.displayName || notification.actor.username }}</span>
+            {{ labelFor(notification) }}
+          </span>
+
+          @if (notification.postExcerpt) {
+          <span class="mt-1 block truncate text-sm text-text-muted">
+            “{{ notification.postExcerpt }}”
+          </span>
+          }
+
+          <span class="mt-1 block text-xs text-text-muted">
+            {{ notification.createdAt | timeAgo }}
+
+            @if (!notification.read) {
+            <span class="ml-2 font-medium text-primary">Unread</span>
+            }
+          </span>
+        </span>
+      </a>
+    </li>
+    }
+  </ul>
+  }
+</div>

@@ -1,0 +1,33 @@
+<header class="fixed inset-x-0 top-0 z-50
+       flex h-16 items-center justify-between
+       border-b border-border
+       bg-surface
+       px-6 sm:px-8">
+  <app-logo />
+  <app-theme-toggle />
+</header>
+
+<section class="relative mt-16 min-h-[calc(100vh-4rem)] bg-surface">
+
+  <div class="absolute inset-0 bg-primary/10" style="
+    mask-image: url('/assets/auth/standalone-auth-bg.svg');
+    mask-size: cover;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-type: alpha;
+    -webkit-mask-image: url('/assets/auth/standalone-auth-bg.svg');
+    -webkit-mask-size: cover;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+  " aria-hidden="true"></div>
+
+  <div class="relative z-10 flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-20">
+
+    <div class="w-full max-w-md rounded-2xl border border-border
+       bg-surface px-6 py-8 shadow-xl sm:px-10">
+      <router-outlet />
+    </div>
+
+  </div>
+
+</section>    

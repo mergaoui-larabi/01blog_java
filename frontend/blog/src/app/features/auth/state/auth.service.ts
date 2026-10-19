@@ -78,7 +78,6 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.token.set(response.accessToken);
-
           sessionStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
         }),
 
@@ -120,6 +119,7 @@ export class AuthService {
         // 2. Store the JWT before calling protected endpoints.
         tap((loginResponse) => {
           this.token.set(loginResponse.accessToken);
+          sessionStorage.setItem(ACCESS_TOKEN_KEY, loginResponse.accessToken);
         }),
 
         // 3. Upload the avatar only if one was selected.

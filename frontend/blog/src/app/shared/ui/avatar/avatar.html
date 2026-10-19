@@ -1,0 +1,9 @@
+@if (user().avatarUrl; as url) {
+<img [src]="url" [attr.alt]="decorative() ? '' : name()" [class]="sizeClass() + ' shrink-0 rounded-full object-cover'" />
+} @else {
+<span [class]="sizeClass() + ' flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary'"
+  [attr.role]="decorative() ? null : 'img'" [attr.aria-label]="decorative() ? null : name()"
+  [attr.aria-hidden]="decorative() ? 'true' : null">
+  {{ initials() }}
+</span>
+}

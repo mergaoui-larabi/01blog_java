@@ -1,0 +1,106 @@
+<app-dialog [title]="succeeded() ? 'Report submitted' : 'Report content'"
+  [description]="succeeded() ? '' : 'Reports are confidential. They help moderators keep the community safe.'"
+  [maxWidth]="'max-w-md'" (closed)="closed.emit()">
+
+  @if (succeeded()) {
+  <!-- Success confirmation: recorded, not reviewed. -->
+  <div class="text-sm leading-6">
+    <p class="flex items-start gap-2 text-success">
+      <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7" />
+      </svg>
+
+      Your report has been recorded.
+    </p>
+
+    <p class="mt-2 text-text-muted">
+      Our moderation team will take a look when it comes in. You won't hear back
+      individually, and nothing happens to the content automatically.
+    </p>
+
+    <div class="mt-4 flex justify-end">
+      <button type="button" (click)="closed.emit()" class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold
+             text-white transition hover:bg-primary-hover
+             focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+        Done
+      </button>
+    </div>
+  </div>
+
+  } @else {
+  <!-- What is being reported -->
+  <p class="rounded-lg border border-border bg-background px-3 py-2 text-sm text-text">
+    {{ targetDescription() }}
+  </p>
+
+  <!-- Reason (required) -->
+  <fieldset class="mt-4">
+    <legend class="text-sm font-medium text-text">
+      Reason <span class="text-danger" aria-hidden="true">*</span>
+    </legend>
+
+    <div class="mt-2 space-y-1">
+      @for (reason of reasons; track reason) {
+      <label class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 transition-colors
+             hover:bg-background">
+        <input type="radio" name="report-reason" [value]="reason" (change)="selectReason(reason)"
+          [checked]="selectedReason() === reason" class="h-4 w-4 border-border text-primary
+                 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+
+        <span class="text-sm text-text">{{ reason }}</span>
+      </label>
+      }
+    </div>
+
+    @if (reasonError(); as message) {
+    <p class="mt-1 text-sm text-danger" role="alert">
+      {{ message }}
+    </p>
+    }
+  </fieldset>
+
+  <!-- Optional details -->
+  <div class="mt-4">
+    <label for="report-details" class="text-sm font-medium text-text">
+      Anything else we should know? <span class="font-normal text-text-muted">(optional)</span>
+    </label>
+
+    <textarea id="report-details" rows="3" maxlength="1000" (input)="details.set($any($event.target).value)"
+      [value]="details()" placeholder="Add context for the moderators…"
+      class="mt-2 w-full resize-y rounded-lg border border-border bg-surface px-3 py-2 text-sm leading-6 text-text
+             outline-none transition placeholder:text-text-muted
+             focus:border-primary focus:ring-2 focus:ring-primary/10"></textarea>
+  </div>
+
+  @if (serverError()) {
+  <p class="mt-3 text-sm text-danger" role="alert">
+    {{ serverError() }}
+  </p>
+  }
+
+  <!-- Actions -->
+  <div class="mt-5 flex justify-end gap-2">
+    <button type="button" (click)="closed.emit()" class="rounded-lg border border-border bg-surface px-4 py-2
+           text-sm font-medium text-text transition-colors hover:bg-background
+           focus:outline-none focus:ring-2 focus:ring-primary/30">
+      Cancel
+    </button>
+
+    <button type="button" (click)="submit()" [disabled]="submitting()"
+      class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover
+             focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+             disabled:cursor-not-allowed disabled:opacity-60">
+      @if (submitting()) {
+      <span class="flex items-center gap-2">
+        <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+          aria-hidden="true"></span>
+        Submitting…
+      </span>
+      } @else {
+      Submit report
+      }
+    </button>
+  </div>
+  }
+</app-dialog>

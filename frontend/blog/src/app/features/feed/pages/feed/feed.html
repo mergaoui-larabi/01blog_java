@@ -1,0 +1,111 @@
+<div class="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6">
+
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-xl font-semibold tracking-tight text-text">
+      Your feed
+    </h1>
+
+    <button type="button" (click)="composerVisible.update(v => !v); editingPost.set(null)"
+      [attr.aria-expanded]="composerVisible()" aria-controls="feed-composer"
+      class="rounded-lg bg-primary px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover
+             focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+      New post
+    </button>
+  </div>
+
+  <!-- Composer -->
+  @if (composerVisible()) {
+  <div id="feed-composer" class="mt-4">
+    <app-post-composer [editingPost]="editingPost()" (submitted)="onComposerSubmitted()"
+      (cancelled)="composerVisible.set(false); editingPost.set(null)" />
+  </div>
+  }
+
+  <div class="mt-6 space-y-6">
+
+    <!-- Loading skeleton -->
+    @if (loading()) {
+    @for (slot of [1, 2, 3]; track slot) {
+    <div class="animate-pulse rounded-xl border border-border bg-surface p-4 sm:p-5" aria-hidden="true">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-text-bg"></div>
+        <div class="space-y-2">
+          <div class="h-3 w-32 rounded bg-text-bg"></div>
+          <div class="h-3 w-24 rounded bg-text-bg"></div>
+        </div>
+      </div>
+      <div class="mt-4 space-y-2">
+        <div class="h-3 w-full rounded bg-text-bg"></div>
+        <div class="h-3 w-5/6 rounded bg-text-bg"></div>
+      </div>
+    </div>
+    }
+    <p class="sr-only" role="status">Loading your feed…</p>
+
+    <!-- Empty state -->
+    } @else if (posts().length === 0) {
+    <div class="rounded-xl border border-dashed border-border bg-surface px-6 py-12 text-center">
+      <h2 class="text-base font-semibold text-text">
+        Your feed is quiet
+      </h2>
+
+      <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-text-muted">
+        You're not following anyone yet, or the people you follow haven't posted.
+        Explore Blocks to find classmates to follow.
+      </p>
+
+      <a routerLink="/explore" class="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold
+             text-white transition hover:bg-primary-hover
+             focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+        Explore writers
+      </a>
+    </div>
+
+    <!-- Posts -->
+    } @else {
+    <ul class="space-y-6">
+      @for (post of posts(); track post.id) {
+      <li>
+        <app-post-card [post]="post" [commentsOpen]="expandedPostId() === post.id"
+          (like)="toggleLike(post)" (toggleComments)="toggleComments(post)" (report)="openReport(post)"
+          (edit)="startEdit(post)" (deleteRequested)="deleteCandidate.set(post)">
+
+          @if (expandedPostId() === post.id) {
+          <app-comments class="block" [postId]="post.id" [regionId]="'comments-' + post.id" />
+          }
+        </app-post-card>
+      </li>
+      }
+    </ul>
+    }
+  </div>
+
+  <!-- Report dialog -->
+  @if (reportTarget(); as target) {
+  <app-report-dialog [target]="target" (closed)="reportTarget.set(null)" />
+  }
+
+  <!-- Delete confirmation -->
+  @if (deleteCandidate(); as post) {
+  <app-dialog title="Delete post?" [description]="'This can’t be undone.'" [maxWidth]="'max-w-sm'"
+    (closed)="deleteCandidate.set(null)">
+    <p class="text-sm leading-6 text-text">
+      “{{ excerpt(post) }}”
+    </p>
+
+    <div class="mt-5 flex justify-end gap-2">
+      <button type="button" (click)="deleteCandidate.set(null)" class="rounded-lg border border-border bg-surface
+             px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-background
+             focus:outline-none focus:ring-2 focus:ring-primary/30">
+        Cancel
+      </button>
+
+      <button type="button" (click)="confirmDelete()" class="rounded-lg bg-danger px-4 py-2 text-sm font-semibold
+             text-white transition hover:opacity-90
+             focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2">
+        Delete
+      </button>
+    </div>
+  </app-dialog>
+  }
+</div>
