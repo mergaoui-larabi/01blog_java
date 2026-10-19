@@ -2,12 +2,16 @@ import { Routes } from '@angular/router';
 import { AppLayout } from './layout/app-layout/app-layout';
 import { AuthLayout } from './features/auth/layout/auth-layout';
 import { authGuard, guestGuard } from './features/auth/guards/auth.guard';
+import { Feed } from './features/feed/pages/feed';
+import { Explore } from './features/explore/pages/explore';
+import { Notifications } from './features/notifications/pages/notifications';
+import { Block } from './features/block/pages/block';
 
 export const routes: Routes = [
   // Authentication pages — guests only
   {
     path: 'auth',
-    canActivate: [guestGuard],
+    // canActivate: [guestGuard],
     children: [
       {
         path: '',
@@ -43,32 +47,23 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        title: 'Feed · 01Blog',
-        loadComponent: () => import('./features/feed/pages/feed/feed').then((m) => m.Feed),
+        component: Feed,
       },
       {
         path: 'explore',
-        title: 'Explore · 01Blog',
-        loadComponent: () =>
-          import('./features/explore/pages/explore/explore').then((m) => m.Explore),
+        component: Explore,
       },
       {
         path: 'notifications',
-        title: 'Notifications · 01Blog',
-        loadComponent: () =>
-          import('./features/notifications/pages/notifications/notifications').then(
-            (m) => m.Notifications,
-          ),
+        component: Notifications,
       },
       {
         path: 'block/me',
-        title: 'My Block · 01Blog',
-        loadComponent: () => import('./features/block/pages/block/block').then((m) => m.Block),
+        component: Block,
       },
       {
         path: 'block/:username',
-        title: 'Block · 01Blog',
-        loadComponent: () => import('./features/block/pages/block/block').then((m) => m.Block),
+        component: Block,
       },
       {
         path: '**',

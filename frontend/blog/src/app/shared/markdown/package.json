@@ -1,6 +1,0 @@
-{
-  "name": "@01blog/markdown",
-  "version": "0.0.0",
-  "private": true,
-  "main": "./markdown.service.js"
-}

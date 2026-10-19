@@ -3,8 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Logo } from '../../shared/components/logo/logo';
 import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 import { AuthService } from '../../features/auth/state/auth.service';
-import { NotificationsService } from '../../features/notifications/data-access/notifications.service';
-import { Avatar } from '../../shared/ui/avatar/avatar';
+// import { Avatar } from '../../shared/ui/avatar/avatar';
 
 /**
  * Authenticated application header: brand, primary navigation with an unread
@@ -14,15 +13,13 @@ import { Avatar } from '../../shared/ui/avatar/avatar';
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
-  imports: [RouterLink, RouterLinkActive, Logo, ThemeToggle, Avatar],
+  imports: [RouterLink, RouterLinkActive, Logo, ThemeToggle],
 })
 export class Header {
   protected readonly authService = inject(AuthService);
-  private readonly notificationsService = inject(NotificationsService);
-
   protected readonly user = this.authService.user;
-  protected readonly unreadCount = this.notificationsService.unreadCount;
 
+  protected readonly unreadCount = 100;
   protected readonly mobileMenuOpen = signal(false);
   protected readonly accountMenuOpen = signal(false);
 
