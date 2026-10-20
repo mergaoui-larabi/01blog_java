@@ -1,6 +1,7 @@
 package com.blog.media.controller;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ContentDisposition;
@@ -47,11 +48,16 @@ public class MediaController {
 
     // upload a post image or video (purpose derived from the content type)
     @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MediaResponse> uploadPostMedia(
-            @RequestParam("file") MultipartFile file,
+    public ResponseEntity<List<MediaResponse>> uploadPostMedia(
+            @RequestParam("files") List<MultipartFile> files,
             @AuthenticationPrincipal Jwt jwt) {
-        Media media = mediaService.createPostMedia(userId(jwt), file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(media));
+
+        List<MediaResponse> responses = files.stream()
+                .map(file -> mediaService.createPostMedia(userId(jwt), file))
+                .map(this::toResponse)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
 
     // media metadata (owner only)
