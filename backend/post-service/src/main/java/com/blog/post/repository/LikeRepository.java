@@ -1,30 +1,29 @@
 package com.blog.post.repository;
 
 import com.blog.post.domain.entity.Like;
-import com.blog.post.domain.valueobject.PostId;
-import com.blog.post.domain.valueobject.UserId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Repository
-public interface LikeRepository extends JpaRepository<Like, Long> {
+public interface LikeRepository extends JpaRepository<Like, UUID> {
 
-    @Query("""
-            SELECT l FROM Like l
-            WHERE l.postId = :postId
-              AND l.userId = :userId
-            """)
-    Optional<Like> findByPostIdAndUserId(@Param("postId") PostId postId, @Param("userId") UserId userId);
+    Optional<Like> findByPostIdAndUserId(UUID postId, UUID userId);
 
-    long countByPostId(PostId postId);
+    boolean existsByPostIdAndUserId(UUID postId, UUID userId);
 
-    void deleteByPostIdAndUserId(PostId postId, UserId userId);
+    long countByPostId(UUID postId);
 
-    boolean existsByPostIdAndUserId(PostId postId, UserId userId);
+    void deleteByPostIdAndUserId(UUID postId, UUID userId);
 
-
+    @Query("SELECT l.postId FROM Like l WHERE l.userId = :userId AND l.postId IN (:postIds)")
+    Set<UUID> findLikedPostIdsByUserIdAndPostIdIn(
+            @Param("userId") UUID userId,
+            @Param("postIds") Collection<UUID> postIds);
 }

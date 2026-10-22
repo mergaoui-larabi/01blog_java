@@ -16,7 +16,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/actuator/health",
                                 "/api/v1/users/signup",
-                                "/internal/users/authenticate")
+                                "/internal/users/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {

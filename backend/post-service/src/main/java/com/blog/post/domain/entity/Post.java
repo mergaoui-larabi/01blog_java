@@ -1,22 +1,26 @@
 package com.blog.post.domain.entity;
 
-import com.blog.post.domain.valueobject.AuthorId;
 import com.blog.post.domain.valueobject.CommentsCount;
 import com.blog.post.domain.valueobject.LikesCount;
-import com.blog.post.domain.valueobject.MediaId;
 import com.blog.post.domain.valueobject.PostContent;
-import com.blog.post.domain.valueobject.PostId;
-import com.blog.post.domain.valueobject.Visibility;
 
-import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -27,34 +31,28 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "post_id", nullable = false))
-    private PostId postId;
-
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "author_id", nullable = false))
-    private AuthorId authorId;
+    @Column(name = "author_id", nullable = false)
+    private UUID authorId;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-    private PostContent postContent;
+    private PostContent content;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "post_media_id"))
-    private MediaId mediaId;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "post_medias", joinColumns = @JoinColumn(name = "post_id"))
+    @OrderColumn(name = "position")
+    @Column(name = "media_id", nullable = false)
+    private List<UUID> mediaIds = new ArrayList<>();
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "likes_count", nullable = false))
-    private LikesCount likesCount;
+    @Column(name = "likes_count", nullable = false)
+    private LikesCount likesCount = new LikesCount(0L);
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "comments_count", nullable = false))
-    private CommentsCount commentsCount;
+    @Column(name = "comments_count", nullable = false)
+    private CommentsCount commentsCount = new CommentsCount(0L);
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "is_hidden", nullable = false))
-    private Visibility hidden;
+    @Column(name = "visible", nullable = false)
+    private Boolean visible = true;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
@@ -63,22 +61,35 @@ public class Post {
     protected Post() {
     }
 
-    public Post(
-            PostId postId,
-            AuthorId authorId,
-            PostContent postContent,
-            MediaId mediaId,
-            LikesCount likesCount,
-            CommentsCount commentsCount,
-            Visibility hidden) {
-        this.postId = postId;
+    public Post(UUID id, UUID authorId, PostContent content) {
+        this.id = id;
         this.authorId = authorId;
-        this.postContent = postContent;
-        this.mediaId = mediaId;
-        this.likesCount = likesCount;
-        this.commentsCount = commentsCount;
-        this.hidden = hidden;
-        this.createdAt = Instant.now();
+        this.content = content;
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    public Post(UUID id, UUID authorId, PostContent content, List<UUID> mediaIds) {
+        this(id, authorId, content);
+        if (mediaIds != null) {
+            this.mediaIds = new ArrayList<>(mediaIds);
+        }
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Instant now = Instant.now();
+        if (this.createdAt == null) {
+            this.createdAt = now;
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = now;
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
         this.updatedAt = Instant.now();
     }
 
@@ -86,32 +97,32 @@ public class Post {
         return id;
     }
 
-    public PostId getPostId() {
-        return postId;
-    }
-
-    public AuthorId getAuthorId() {
+    public UUID getAuthorId() {
         return authorId;
     }
 
-    public String getContent() {
-        return postContent.value();
+    public PostContent getContent() {
+        return content;
     }
 
-    public MediaId getMediaId() {
-        return mediaId;
+    public List<UUID> getMediaIds() {
+        return mediaIds;
     }
 
-    public Long getLikesCount() {
-        return likesCount.value();
+    public LikesCount getLikesCount() {
+        return likesCount;
     }
 
-    public Long getCommentsCount() {
-        return commentsCount.value();
+    public CommentsCount getCommentsCount() {
+        return commentsCount;
+    }
+
+    public Boolean getVisible() {
+        return visible;
     }
 
     public Boolean getHidden() {
-        return hidden.value();
+        return visible != null && !visible;
     }
 
     public Instant getCreatedAt() {
@@ -122,52 +133,67 @@ public class Post {
         return updatedAt;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setAuthorId(UUID authorId) {
+        this.authorId = authorId;
+    }
+
+    public void setContent(PostContent content) {
+        this.content = content;
+    }
+
+    public void setMediaIds(List<UUID> mediaIds) {
+        this.mediaIds = mediaIds != null ? new ArrayList<>(mediaIds) : new ArrayList<>();
+    }
+
+    public void setLikesCount(LikesCount likesCount) {
+        this.likesCount = likesCount;
+    }
+
+    public void setCommentsCount(CommentsCount commentsCount) {
+        this.commentsCount = commentsCount;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
+
+    public void setHidden(Boolean hidden) {
+        this.visible = (hidden != null) ? !hidden : true;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
+
     public void incrementLikesCount() {
-        likesCount = new LikesCount(likesCount.value() + 1);
-        updatedAt = Instant.now();
+        this.likesCount.increment();
+        touch();
     }
 
     public void decrementLikesCount() {
-        if (likesCount.value() > 0) {
-            likesCount = new LikesCount(likesCount.value() - 1);
-        }
-        updatedAt = Instant.now();
+        this.likesCount.decrement();
+        touch();
     }
 
     public void incrementCommentsCount() {
-        commentsCount = new CommentsCount(commentsCount.value() + 1);
-        updatedAt = Instant.now();
+        this.commentsCount.increment();
+        touch();
     }
 
     public void decrementCommentsCount() {
-        if (commentsCount.value() > 0) {
-            commentsCount = new CommentsCount(commentsCount.value() - 1);
-        }
-        updatedAt = Instant.now();
-    }
-
-    public void hide() {
-        this.hidden = new Visibility(true);
-        updatedAt = Instant.now();
-    }
-
-    public void unhide() {
-        this.hidden = new Visibility(false);
-        updatedAt = Instant.now();
-    }
-
-    public void updateContent(PostContent postContent) {
-        this.postContent = postContent;
-        updatedAt = Instant.now();
-    }
-
-    public void updateMediaId(MediaId mediaId) {
-        this.mediaId = mediaId;
-        updatedAt = Instant.now();
-    }
-
-    public void updateAuthorId(AuthorId authorId) {
-        this.authorId = authorId;
-        updatedAt = Instant.now();
+        this.commentsCount.decrement();
+        touch();
     }
 }

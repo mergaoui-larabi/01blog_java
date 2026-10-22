@@ -1,72 +1,39 @@
 package com.blog.post.service;
 
 import com.blog.post.domain.entity.Comment;
-import com.blog.post.domain.valueobject.AuthorId;
-import com.blog.post.domain.valueobject.CommentContent;
+import com.blog.post.domain.entity.Post;
 import com.blog.post.domain.valueobject.PostId;
-import com.blog.post.domain.valueobject.UserId;
+import java.util.UUID;
+import com.blog.post.domain.valueobject.CommentsCount;
 import com.blog.post.exception.CommentNotFoundException;
 import com.blog.post.exception.CommentNotOwnedException;
-import com.blog.post.exception.PostNotFoundException;
 import com.blog.post.repository.CommentRepository;
+import com.blog.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final PostService postService;
+    private final PostRepository postRepository;
 
-    public CommentService(CommentRepository commentRepository, PostService postService) {
+    public CommentService(CommentRepository commentRepository,
+                          PostRepository postRepository) {
         this.commentRepository = commentRepository;
-        this.postService = postService;
+        this.postRepository = postRepository;
     }
 
     @Transactional
-    public Comment addComment(UserId userId, PostId postId, CommentContent content) {
-        postService.getPostById(postId);
-
-        Comment comment = new Comment(postId, new AuthorId(userId.value().toString()), content);
-        return commentRepository.save(comment);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Comment> getCommentsByPost(PostId postId) {
-        return commentRepository.findCommentsByPostId(postId);
-    }
-
-    @Transactional
-    public Comment updateCommentContent(UserId userId, Long commentId, CommentContent content) {
-        PostId postId = commentRepository.findPostIdById(commentId)
-                .orElseThrow(() -> new PostNotFoundException("Comment not found"));
-
-        Comment comment = commentRepository.findByPostIdAndId(postId, commentId)
-                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
-
-        if (!comment.getAuthorId().value().equals(userId.value())) {
-            throw new CommentNotOwnedException("Comment not owned by user");
-        }
-
-        comment.updateContent(content);
-        return commentRepository.save(comment);
-    }
-
-    @Transactional
-    public void deleteComment(UserId userId, Long commentId) {
-        PostId postId = commentRepository.findPostIdById(commentId)
-                .orElseThrow(() -> new PostNotFoundException("Comment not found"));
-
-        Comment comment = commentRepository.findByPostIdAndId(postId, commentId)
-                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
-
-        if (!comment.getAuthorId().value().equals(userId.value())) {
-            throw new CommentNotOwnedException("Comment not owned by user");
-        }
-
+    public void delete(PostId postId, UUID commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .filter(c -> c.getPostId().equals(postId.value()))
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found: " + commentId));
         commentRepository.delete(comment);
+        Post post = postRepository.findById(postId.value())
+                .orElseThrow(() -> new CommentNotFoundException("Post not found: " + postId));
+        long count = commentRepository.countByPostId(postId.value());
+        post.setCommentsCount(new CommentsCount(count));
+        postRepository.save(post);
     }
 }

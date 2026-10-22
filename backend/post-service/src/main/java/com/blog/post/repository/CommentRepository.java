@@ -1,46 +1,35 @@
 package com.blog.post.repository;
 
 import com.blog.post.domain.entity.Comment;
-import com.blog.post.domain.valueobject.PostId;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long> {
-
-    List<Comment> findByPostIdOrderByCreatedAtAsc(PostId postId);
+public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
     @Query("""
-            SELECT c FROM Comment c
-            WHERE c.postId = :postId
-            ORDER BY c.createdAt ASC, c.id ASC
+            select c
+            from Comment c
+            where c.postId = :postId
+              and (:cursorTime is null or (c.createdAt > :cursorTime or (c.createdAt = :cursorTime and c.id > :cursorId)))
+            order by c.createdAt asc, c.id asc
             """)
-    List<Comment> findCommentsByPostId(@Param("postId") PostId postId);
+    List<Comment> findCommentsByPostIdWithCursor(
+            @Param("postId") UUID postId,
+            @Param("cursorId") UUID cursorId,
+            @Param("cursorTime") Instant cursorTime,
+            Pageable pageable);
 
-    Optional<Comment> findByPostIdAndId(PostId postId, Long id);
+    List<Comment> findByPostIdOrderByCreatedAtAsc(UUID postId, Pageable pageable);
 
-    @Query("""
-            SELECT c.postId FROM Comment c
-            WHERE c.id = :id
-            """)
-    Optional<PostId> findPostIdById(@Param("id") Long id);
+    long countByPostId(UUID postId);
 
-    long countByPostId(PostId postId);
-
-    void deleteByPostId(PostId postId);
-
-    void deleteByPostIdAndAuthorId(PostId postId, com.blog.post.domain.valueobject.AuthorId authorId);
-
-    boolean existsByPostIdAndId(PostId postId, Long id);
-
-    @org.springframework.transaction.annotation.Transactional
-    @Modifying
-    @Query("DELETE FROM Comment c WHERE c.postId = :postId")
-    void deleteAllByPostId(@Param("postId") PostId postId);
+    void deleteByPostId(UUID postId);
 }

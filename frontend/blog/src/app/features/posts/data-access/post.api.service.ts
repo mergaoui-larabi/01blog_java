@@ -43,7 +43,7 @@ export interface ReplacePostRequest {
 
 export interface UpdatePostRequest {
   content?: string;
-  mediaId?: string | null;
+  mediaIds?: string[];
   hidden?: boolean;
 }
 
@@ -131,36 +131,24 @@ export class PostApiService {
     return this.http.post<Post>(this.env.createPostEndPoint, request);
   }
 
-  /**
-   * POST /api/v1/posts/{postId}/likes
-   */
   likePost(postId: string): Observable<void> {
     const url = this.env.likePostEndPoint.replace('{postId}', encodeURIComponent(postId));
 
     return this.http.post<void>(url, {});
   }
 
-  /**
-   * POST /api/v1/posts/{postId}/comments
-   */
   createComment(postId: string, request: CreateCommentRequest): Observable<Comment> {
     const url = this.env.createCommentEndPoint.replace('{postId}', encodeURIComponent(postId));
 
     return this.http.post<Comment>(url, request);
   }
 
-  /**
-   * PUT /api/v1/posts/{postId}
-   */
   replacePost(postId: string, request: ReplacePostRequest): Observable<Post> {
     const url = this.env.replacePostEndPoint.replace('{postId}', encodeURIComponent(postId));
 
     return this.http.put<Post>(url, request);
   }
 
-  /**
-   * PUT /api/v1/posts/{postId}/comments/{commentId}
-   */
   replaceComment(
     postId: string,
     commentId: string,
@@ -173,18 +161,12 @@ export class PostApiService {
     return this.http.put<Comment>(url, request);
   }
 
-  /**
-   * PATCH /api/v1/posts/{postId}
-   */
+  //patch
   updatePost(postId: string, request: UpdatePostRequest): Observable<Post> {
     const url = this.env.updatePostEndPoint.replace('{postId}', encodeURIComponent(postId));
-
     return this.http.patch<Post>(url, request);
   }
 
-  /**
-   * PATCH /api/v1/posts/{postId}/comments/{commentId}
-   */
   updateComment(
     postId: string,
     commentId: string,
@@ -193,36 +175,26 @@ export class PostApiService {
     const url = this.env.updateCommentEndPoint
       .replace('{postId}', encodeURIComponent(postId))
       .replace('{commentId}', encodeURIComponent(commentId));
-
     return this.http.patch<Comment>(url, request);
   }
 
-  /**
-   * DELETE /api/v1/posts/{postId}
-   */
+  //delete
   deletePost(postId: string): Observable<void> {
     const url = this.env.deletePostEndPoint.replace('{postId}', encodeURIComponent(postId));
 
     return this.http.delete<void>(url);
   }
 
-  /**
-   * DELETE /api/v1/posts/{postId}/likes
-   */
   unlikePost(postId: string): Observable<void> {
     const url = this.env.unlikePostEndPoint.replace('{postId}', encodeURIComponent(postId));
 
     return this.http.delete<void>(url);
   }
 
-  /**
-   * DELETE /api/v1/posts/{postId}/comments/{commentId}
-   */
   deleteComment(postId: string, commentId: string): Observable<void> {
     const url = this.env.deleteCommentEndPoint
       .replace('{postId}', encodeURIComponent(postId))
       .replace('{commentId}', encodeURIComponent(commentId));
-
     return this.http.delete<void>(url);
   }
 }

@@ -1,14 +1,13 @@
 package com.blog.post.domain.entity;
 
-import com.blog.post.domain.valueobject.PostId;
-import com.blog.post.domain.valueobject.UserId;
-
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -17,52 +16,59 @@ import java.util.UUID;
 public class Like {
 
     @Id
-    @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "user_id", nullable = false))
-    private UserId userId;
+    @Column(name = "post_id", nullable = false)
+    private UUID postId;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "post_id", nullable = false))
-    private PostId postId;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     protected Like() {
     }
 
-    public Like(UserId userId, PostId postId) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
+    public Like(UUID postId, UUID userId) {
         this.postId = postId;
+        this.userId = userId;
         this.createdAt = Instant.now();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = Instant.now();
+        }
     }
 
     public UUID getId() {
         return id;
     }
 
-    public UUID getUserId() {
-        return userId.value();
+    public UUID getPostId() {
+        return postId;
     }
 
-    public UUID getPostId() {
-        return postId.value();
+    public UUID getUserId() {
+        return userId;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public UserId getUserIdEntity() {
-        return userId;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public PostId getPostIdEntity() {
-        return postId;
+    public void setPostId(UUID postId) {
+        this.postId = postId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 }

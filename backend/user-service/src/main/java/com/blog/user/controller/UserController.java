@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blog.user.application.dto.request.CreateUserRequest;
 import com.blog.user.application.dto.request.UpdateUserAvatarRequest;
 import com.blog.user.application.dto.response.UserResponse;
+import com.blog.user.service.FollowerService;
 import com.blog.user.service.UserService;
 import com.blog.user.domain.entity.User;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import jakarta.validation.Valid;
 
@@ -26,10 +29,12 @@ import jakarta.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final FollowerService followerService;
 
     // intialize the @Service Object
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FollowerService followerService) {
         this.userService = userService;
+        this.followerService = followerService;
     }
 
     // signup
@@ -88,6 +93,24 @@ public class UserController {
                 user.getUpdatedAt());
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{userId}/follow")
+    public ResponseEntity<Void> follow(
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal Jwt jwt) {
+        UUID currentUserId = UUID.fromString(jwt.getSubject());
+        followerService.follow(currentUserId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{userId}/follow")
+    public ResponseEntity<Void> unfollow(
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal Jwt jwt) {
+        UUID currentUserId = UUID.fromString(jwt.getSubject());
+        followerService.unfollow(currentUserId, userId);
+        return ResponseEntity.noContent().build();
     }
 
     // test if the service is up

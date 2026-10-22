@@ -116,7 +116,6 @@ public class MediaService {
                     new Width(dimensions.width()),
                     new Height(dimensions.height()),
                     new DurationMs(null));
-
             try {
                 return mediaRepository.save(media);
             } catch (RuntimeException exception) {

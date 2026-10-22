@@ -1,423 +1,177 @@
 package com.blog.post.controller;
 
-import com.blog.post.domain.valueobject.AuthorId;
-import com.blog.post.domain.valueobject.PostId;
-import com.blog.post.domain.valueobject.UserId;
-import com.blog.post.service.CommentService;
-import com.blog.post.service.LikeService;
+import com.blog.post.application.dto.post.PageResponse;
+import com.blog.post.application.dto.post.PostResponse;
+import com.blog.post.application.dto.request.CreateCommentRequest;
+import com.blog.post.application.dto.request.CreatePostRequest;
+import com.blog.post.application.dto.request.ReplacePostRequest;
+import com.blog.post.application.dto.request.UpdatePostRequest;
+import com.blog.post.constant.SecurityConstants;
+import com.blog.post.domain.model.CommentModel;
 import com.blog.post.service.PostService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/posts")
+@Validated
 public class PostController {
 
     private final PostService postService;
-    private final LikeService likeService;
-    private final CommentService commentService;
 
-    public PostController(PostService postService, LikeService likeService, CommentService commentService) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.likeService = likeService;
-        this.commentService = commentService;
     }
 
+    // -------------------------------------------------------------------------
+    // Posts
+    // -------------------------------------------------------------------------
+
     @GetMapping("/feed")
-    public ResponseEntity<?> getFeed(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        AuthorId authorId = new AuthorId(subject);
-
-        // In a full implementation this would come from the user service's follow graph.
-        // For now the authenticated user sees their own posts plus the global feed.
-        List<com.blog.post.domain.entity.Post> posts = postService.getFeed(authorId, List.of());
-
-        return ResponseEntity.ok(toFeedResponse(posts));
+    public ResponseEntity<PageResponse<PostResponse>> fetchFeed(
+            @RequestParam(required = false) UUID cursor,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.fetchFeed(userId(jwt), cursor, size));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable String postId) {
-        PostId id = new PostId(postId);
-        com.blog.post.domain.entity.Post post = postService.getPostById(id);
-
-        return ResponseEntity.ok(toPostResponse(post));
-    }
-
-    @GetMapping("/{postId}/comments")
-    public ResponseEntity<?> getComments(
-            @PathVariable String postId,
-            @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "20") int size) {
-        PostId id = new PostId(postId);
-        com.blog.post.domain.entity.Post post = postService.getPostById(id);
-
-        List<com.blog.post.domain.entity.Comment> comments = commentService.getCommentsByPost(id);
-
-        if (cursor != null && !cursor.isBlank()) {
-            comments = comments.stream()
-                    .filter(c -> c.getId().compareTo(Long.parseLong(cursor)) > 0)
-                    .limit(size)
-                    .toList();
-        } else {
-            comments = comments.stream().limit(size).toList();
-        }
-
-        return ResponseEntity.ok(toCommentsResponse(comments));
+    public ResponseEntity<PostResponse> fetchPost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal Jwt jwt) {
+        UUID currentUserId = jwt != null ? userId(jwt) : null;
+        return ResponseEntity.ok(postService.fetchPost(postId, currentUserId));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getMyPosts(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        AuthorId authorId = new AuthorId(subject);
-
-        List<com.blog.post.domain.entity.Post> posts = postService.getPostsByAuthor(authorId);
-
-        return ResponseEntity.ok(toFeedResponse(posts));
+    public ResponseEntity<PageResponse<PostResponse>> fetchMyPosts(
+            @RequestParam(required = false) UUID cursor,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.fetchMyPosts(userId(jwt), cursor, size));
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @Valid @RequestBody CreatePostRequest request) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        AuthorId authorId = new AuthorId(subject);
-
-        com.blog.post.domain.entity.Post post = new com.blog.post.domain.entity.Post(
-                new com.blog.post.domain.valueobject.PostId(UUID.randomUUID().toString()),
-                authorId,
-                new com.blog.post.domain.valueobject.PostContent(request.content()),
-                request.mediaId() != null ? new com.blog.post.domain.valueobject.MediaId(request.mediaId()) : null,
-                new com.blog.post.domain.valueobject.LikesCount(0L),
-                new com.blog.post.domain.valueobject.CommentsCount(0L),
-                new com.blog.post.domain.valueobject.Visibility(false)
-        );
-
-        com.blog.post.domain.entity.Post saved = postService.getPostRepository().save(post);
-
-        return ResponseEntity.status(201).body(toPostResponse(saved));
+    public ResponseEntity<PostResponse> createPost(
+            @Valid @RequestBody CreatePostRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.createPost(request, userId(jwt), authHeader(jwt)));
     }
 
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<?> likePost(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        UserId userId = new UserId(subject);
-        PostId id = new PostId(postId);
-
-        com.blog.post.domain.entity.Like like = likeService.like(userId, id);
-
-        return ResponseEntity.ok(Map.of(
-                "postId", postId,
-                "liked", true,
-                "likesCount", likeService.getLikesCount(id)
-        ));
-    }
-
-    @PostMapping("/{postId}/comments")
-    public ResponseEntity<?> addComment(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId,
-            @Valid @RequestBody CreateCommentRequest request) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        UserId userId = new UserId(subject);
-        PostId id = new PostId(postId);
-
-        com.blog.post.domain.entity.Comment comment = commentService.addComment(userId, id, new com.blog.post.domain.valueobject.CommentContent(request.content()));
-
-        return ResponseEntity.status(201).body(toCommentResponse(comment));
+    public ResponseEntity<Void> likePost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal Jwt jwt) {
+        postService.likePost(postId, userId(jwt));
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<?> replacePost(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId,
-            @Valid @RequestBody ReplacePostRequest request) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        AuthorId authorId = new AuthorId(subject);
-        PostId id = new PostId(postId);
-
-        if (!postService.isPostOwnedBy(id, authorId)) {
-            return ResponseEntity.status(403).body("Not authorized to update this post");
-        }
-
-        com.blog.post.domain.entity.Post post = postService.getPostById(id);
-        post.updateContent(new com.blog.post.domain.valueobject.PostContent(request.content()));
-        post.updateMediaId(request.mediaId() != null ? new com.blog.post.domain.valueobject.MediaId(request.mediaId()) : null);
-
-        com.blog.post.domain.entity.Post saved = postService.getPostRepository().save(post);
-
-        return ResponseEntity.ok(toPostResponse(saved));
+    public ResponseEntity<PostResponse> replacePost(
+            @PathVariable UUID postId,
+            @Valid @RequestBody ReplacePostRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.replacePost(postId, request, userId(jwt), authHeader(jwt)));
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<?> patchPost(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId,
-            @Valid @RequestBody Map<String, Object> patch) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        AuthorId authorId = new AuthorId(subject);
-        PostId id = new PostId(postId);
-
-        if (!postService.isPostOwnedBy(id, authorId)) {
-            return ResponseEntity.status(403).body("Not authorized to update this post");
-        }
-
-        com.blog.post.domain.entity.Post post = postService.getPostById(id);
-
-        if (patch.containsKey("content")) {
-            post.updateContent(new com.blog.post.domain.valueobject.PostContent((String) patch.get("content")));
-        }
-        if (patch.containsKey("mediaId")) {
-            Object mediaId = patch.get("mediaId");
-            if (mediaId == null || mediaId.toString().isEmpty()) {
-                post.updateMediaId(null);
-            } else {
-                post.updateMediaId(new com.blog.post.domain.valueobject.MediaId(mediaId.toString()));
-            }
-        }
-        if (patch.containsKey("hidden")) {
-            Boolean hidden = (Boolean) patch.get("hidden");
-            if (hidden != null) {
-                post.hide();
-            } else {
-                post.unhide();
-            }
-        }
-
-        com.blog.post.domain.entity.Post saved = postService.getPostRepository().save(post);
-
-        return ResponseEntity.ok(toPostResponse(saved));
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable UUID postId,
+            @Valid @RequestBody UpdatePostRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.updatePost(postId, request, userId(jwt), authHeader(jwt)));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        AuthorId authorId = new AuthorId(subject);
-        PostId id = new PostId(postId);
-
-        if (!postService.isPostOwnedBy(id, authorId)) {
-            return ResponseEntity.status(403).body("Not authorized to delete this post");
-        }
-
-        postService.getPostRepository().deleteById(UUID.fromString(postId));
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> deletePost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal Jwt jwt) {
+        postService.deletePost(postId, userId(jwt));
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<?> unlikePost(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        UserId userId = new UserId(subject);
-        PostId id = new PostId(postId);
-
-        likeService.unlike(userId, id);
-
-        return ResponseEntity.ok(Map.of(
-                "postId", postId,
-                "liked", false,
-                "likesCount", likeService.getLikesCount(id)
-        ));
+    public ResponseEntity<Void> unlikePost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal Jwt jwt) {
+        postService.unlikePost(postId, userId(jwt));
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<?> deleteComment(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId,
-            @PathVariable Long commentId) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        UserId userId = new UserId(subject);
+    // -------------------------------------------------------------------------
+    // Comments
+    // -------------------------------------------------------------------------
 
-        commentService.deleteComment(userId, commentId);
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<PageResponse<CommentModel>> fetchComments(
+            @PathVariable UUID postId,
+            @RequestParam(required = false) UUID cursor,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        return ResponseEntity.ok(postService.fetchComments(postId, cursor, size));
+    }
 
-        return ResponseEntity.ok().build();
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<CommentModel> createComment(
+            @PathVariable UUID postId,
+            @Valid @RequestBody CreateCommentRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.createComment(postId, request.content(), userId(jwt)));
     }
 
     @PutMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<?> replaceComment(
-            @AuthenticationPrincipal(expression = "jwt") Map<String, Object> claims,
-            @PathVariable String postId,
-            @PathVariable Long commentId,
-            @Valid @RequestBody ReplaceCommentRequest request) {
-        String subject = (String) claims.get("sub");
-        if (subject == null) {
-            return ResponseEntity.badRequest().body("Missing subject in JWT");
-        }
-        UserId userId = new UserId(subject);
-
-        com.blog.post.domain.entity.Comment comment = commentService.updateCommentContent(
-                userId, commentId, new com.blog.post.domain.valueobject.CommentContent(request.content()));
-
-        return ResponseEntity.ok(toCommentResponse(comment));
+    public ResponseEntity<CommentModel> replaceComment(
+            @PathVariable UUID postId,
+            @PathVariable UUID commentId,
+            @Valid @RequestBody CreateCommentRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.replaceComment(postId, commentId, request.content(), userId(jwt)));
     }
 
-    private Map<String, Object> toPostResponse(com.blog.post.domain.entity.Post post) {
-        return Map.of(
-                "id", post.getId(),
-                "authorId", post.getAuthorId().value().toString(),
-                "content", post.getContent(),
-                "mediaId", post.getMediaId() != null ? post.getMediaId().value() : null,
-                "likesCount", post.getLikesCount(),
-                "commentsCount", post.getCommentsCount(),
-                "hidden", post.getHidden(),
-                "createdAt", post.getCreatedAt().toString(),
-                "updatedAt", post.getUpdatedAt().toString()
-        );
+    @PatchMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<CommentModel> updateComment(
+            @PathVariable UUID postId,
+            @PathVariable UUID commentId,
+            @Valid @RequestBody CreateCommentRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(postService.updateComment(postId, commentId, request.content(), userId(jwt)));
     }
 
-    private Map<String, Object> toFeedResponse(List<com.blog.post.domain.entity.Post> posts) {
-        return Map.of("posts", posts.stream().map(this::toPostResponse).toList());
+    @DeleteMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable UUID postId,
+            @PathVariable UUID commentId,
+            @AuthenticationPrincipal Jwt jwt) {
+        postService.deleteComment(postId, commentId, userId(jwt));
+        return ResponseEntity.noContent().build();
     }
 
-    private Map<String, Object> toCommentsResponse(List<com.blog.post.domain.entity.Comment> comments) {        return Map.of("comments", comments.stream().map(PostController::toCommentResponse).toList());
+    private UUID userId(Jwt jwt) {
+        return UUID.fromString(jwt.getSubject());
     }
 
-    public static class CreatePostRequest {
-        private String content;
-        private String mediaId;
-
-        public CreatePostRequest() {
-        }
-
-        public CreatePostRequest(String content, String mediaId) {
-            this.content = content;
-            this.mediaId = mediaId;
-        }
-
-        public String content() {
-            return content;
-        }
-
-        public String mediaId() {
-            return mediaId;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public void setMediaId(String mediaId) {
-            this.mediaId = mediaId;
-        }
+    private String authHeader(Jwt jwt) {
+        return jwt != null ? "Bearer " + jwt.getTokenValue() : null;
     }
 
-    public static class CreateCommentRequest {
-        private String content;
-
-        public CreateCommentRequest() {
-        }
-
-        public CreateCommentRequest(String content) {
-            this.content = content;
-        }
-
-        public String content() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-    }
-
-    public static class ReplacePostRequest {
-        private String content;
-        private String mediaId;
-
-        public ReplacePostRequest() {
-        }
-
-        public ReplacePostRequest(String content, String mediaId) {
-            this.content = content;
-            this.mediaId = mediaId;
-        }
-
-        public String content() {
-            return content;
-        }
-
-        public String mediaId() {
-            return mediaId;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public void setMediaId(String mediaId) {
-            this.mediaId = mediaId;
-        }
-    }
-
-    public static class ReplaceCommentRequest {
-        private String content;
-
-        public ReplaceCommentRequest() {
-        }
-
-        public ReplaceCommentRequest(String content) {
-            this.content = content;
-        }
-
-        public String content() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-    }
-
-    static Map<String, Object> toCommentResponse(com.blog.post.domain.entity.Comment comment) {
-        return Map.of(
-                "id", comment.getId(),
-                "postId", comment.getPostId().value(),
-                "authorId", comment.getAuthorId().value().toString(),
-                "content", comment.getContent(),
-                "createdAt", comment.getCreatedAt().toString(),
-                "updatedAt", comment.getUpdatedAt().toString()
-        );
+    private boolean isAdmin(Jwt jwt) {
+        return SecurityConstants.ADMIN_ROLE.equals(jwt.getClaimAsString(SecurityConstants.ROLE_CLAIM));
     }
 }

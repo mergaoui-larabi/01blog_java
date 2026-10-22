@@ -4,7 +4,7 @@ logging:
     com.blog.post: INFO
 
 server:
-  port: 5002
+  port: 5004
 
 spring:
   main:
@@ -21,13 +21,19 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
-    baseline-on-migrate: true
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:5002/.well-known/jwks.json
 
+post:
+  user-service:
+    url: ${USER_SERVICE_URL:http://localhost:5001}
+  media-service:
+    url: ${MEDIA_SERVICE_URL:http://localhost:5003}
+
+#Actuator
 management:
   endpoints:
     web:
@@ -37,6 +43,7 @@ management:
           - info
           - metrics
           - prometheus
+
   endpoint:
     health:
       show-details: never
