@@ -4,9 +4,11 @@ import com.blog.post.domain.valueobject.CommentsCount;
 import com.blog.post.domain.valueobject.LikesCount;
 import com.blog.post.domain.valueobject.PostContent;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,7 +36,8 @@ public class Post {
     @Column(name = "author_id", nullable = false)
     private UUID authorId;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "content", nullable = false, columnDefinition = "TEXT"))
     private PostContent content;
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -43,14 +46,16 @@ public class Post {
     @Column(name = "media_id", nullable = false)
     private List<UUID> mediaIds = new ArrayList<>();
 
-    @Column(name = "likes_count", nullable = false)
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "likes_count", nullable = false))
     private LikesCount likesCount = new LikesCount(0L);
 
-    @Column(name = "comments_count", nullable = false)
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "comments_count", nullable = false))
     private CommentsCount commentsCount = new CommentsCount(0L);
 
-    @Column(name = "visible", nullable = false)
-    private Boolean visible = true;
+    @Column(name = "hidden", nullable = false)
+    private Boolean hidden = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -117,12 +122,8 @@ public class Post {
         return commentsCount;
     }
 
-    public Boolean getVisible() {
-        return visible;
-    }
-
     public Boolean getHidden() {
-        return visible != null && !visible;
+        return hidden;
     }
 
     public Instant getCreatedAt() {
@@ -157,12 +158,8 @@ public class Post {
         this.commentsCount = commentsCount;
     }
 
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
-    }
-
     public void setHidden(Boolean hidden) {
-        this.visible = (hidden != null) ? !hidden : true;
+        this.hidden = hidden;
     }
 
     public void setCreatedAt(Instant createdAt) {

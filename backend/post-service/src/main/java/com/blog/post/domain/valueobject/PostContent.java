@@ -2,10 +2,12 @@ package com.blog.post.domain.valueobject;
 
 import com.blog.post.constant.ValidationConstants;
 import com.blog.post.exception.InvalidValueException;
+import jakarta.persistence.Embeddable;
 
+@Embeddable
 public final class PostContent {
 
-    private  String value;
+    private String value;
 
     // Required by JPA
     protected PostContent() {
@@ -33,8 +35,10 @@ public final class PostContent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PostContent that)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof PostContent that))
+            return false;
         return value.equals(that.value);
     }
 

@@ -8,8 +8,4 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Disabled("Requires live PostgreSQL database on port 5434")
 class PostServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
 }

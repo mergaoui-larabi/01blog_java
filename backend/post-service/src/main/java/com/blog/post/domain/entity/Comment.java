@@ -1,11 +1,10 @@
 package com.blog.post.domain.entity;
 
-import com.blog.post.domain.valueobject.PostId;
-import com.blog.post.domain.valueobject.UserId;
-import com.blog.post.domain.valueobject.PostContent;
 import com.blog.post.domain.valueobject.CommentContent;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,7 +28,8 @@ public class Comment {
     @Column(name = "author_id", nullable = false)
     private UUID authorId;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "content", nullable = false, columnDefinition = "TEXT"))
     private CommentContent content;
 
     @Column(name = "created_at", nullable = false)
@@ -41,10 +41,10 @@ public class Comment {
     protected Comment() {
     }
 
-    public Comment(PostId postId, UserId authorId, CommentContent content) {
+    public Comment(UUID postId, UUID authorId, CommentContent content) {
         this.id = UUID.randomUUID();
-        this.postId = postId.value();
-        this.authorId = authorId.value();
+        this.postId = postId;
+        this.authorId = authorId;
         this.content = content;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();

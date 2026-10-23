@@ -21,7 +21,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     @Query("""
             SELECT p FROM Post p
             WHERE p.authorId IN (:authorIds)
-              AND p.visible = true
+              AND p.hidden = true
             ORDER BY p.createdAt DESC, p.id DESC
             """)
     List<Post> findFeedFirstPage(
@@ -31,7 +31,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     @Query("""
             SELECT p FROM Post p
             WHERE p.authorId IN (:authorIds)
-              AND p.visible = true
+              AND p.hidden = true
               AND (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
             ORDER BY p.createdAt DESC, p.id DESC
             """)

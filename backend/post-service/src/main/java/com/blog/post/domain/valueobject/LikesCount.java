@@ -2,6 +2,9 @@ package com.blog.post.domain.valueobject;
 
 import com.blog.post.exception.InvalidValueException;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable 
 public final class LikesCount {
 
     private long value;

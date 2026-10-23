@@ -2,7 +2,6 @@ package com.blog.post.service;
 
 import com.blog.post.application.dto.post.PageResponse;
 import com.blog.post.application.dto.post.PostResponse;
-import com.blog.post.application.dto.request.CreateCommentRequest;
 import com.blog.post.application.dto.request.CreatePostRequest;
 import com.blog.post.application.dto.request.ReplacePostRequest;
 import com.blog.post.application.dto.request.UpdatePostRequest;
@@ -246,8 +245,8 @@ public class PostService {
     public CommentModel createComment(UUID postId, String content, UUID userId) {
         Post post = requirePost(postId);
         Comment comment = new Comment(
-                new com.blog.post.domain.valueobject.PostId(postId),
-                new com.blog.post.domain.valueobject.UserId(userId),
+                postId,
+                userId,
                 new CommentContent(content));
 
         comment = commentRepository.save(comment);

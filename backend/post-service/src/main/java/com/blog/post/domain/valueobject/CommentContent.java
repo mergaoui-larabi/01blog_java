@@ -3,6 +3,9 @@ package com.blog.post.domain.valueobject;
 import com.blog.post.constant.ValidationConstants;
 import com.blog.post.exception.InvalidValueException;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public final class CommentContent {
 
     private String value;
@@ -17,7 +20,8 @@ public final class CommentContent {
         }
         if (value.length() > ValidationConstants.COMMENT_CONTENT_MAX_LENGTH) {
             throw new InvalidValueException(
-                    "Comment content must not exceed " + ValidationConstants.COMMENT_CONTENT_MAX_LENGTH + " characters");
+                    "Comment content must not exceed " + ValidationConstants.COMMENT_CONTENT_MAX_LENGTH
+                            + " characters");
         }
         this.value = value;
     }
@@ -33,8 +37,10 @@ public final class CommentContent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CommentContent that)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof CommentContent that))
+            return false;
         return value.equals(that.value);
     }
 

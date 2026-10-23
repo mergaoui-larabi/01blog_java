@@ -1,6 +1,5 @@
 package com.blog.post.service;
 
-import com.blog.post.domain.valueobject.PostId;
 import com.blog.post.exception.LikeNotFoundException;
 import com.blog.post.repository.LikeRepository;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,8 @@ public class LikeService {
     }
 
     @Transactional
-    public void unlike(PostId postId, UUID userId) {
-        com.blog.post.domain.entity.Like like = likeRepository.findByPostIdAndUserId(postId.value(), userId)
+    public void unlike(UUID postId, UUID userId) {
+        com.blog.post.domain.entity.Like like = likeRepository.findByPostIdAndUserId(postId, userId)
                 .orElseThrow(() -> new LikeNotFoundException("Like not found: " + postId));
         likeRepository.delete(like);
     }
