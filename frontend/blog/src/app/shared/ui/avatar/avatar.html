@@ -1,0 +1,12 @@
+<div class="relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-text-bg font-semibold text-text-muted select-none"
+    [class.h-6]="size() === 'sm'" [class.w-6]="size() === 'sm'" [class.text-[10px]]="size() === 'sm'"
+    [class.h-9]="size() === 'md'" [class.w-9]="size() === 'md'" [class.text-xs]="size() === 'md'"
+    [class.h-12]="size() === 'lg'" [class.w-12]="size() === 'lg'" [class.text-sm]="size() === 'lg'"
+    [class.h-16]="size() === 'xl'" [class.w-16]="size() === 'xl'" [class.text-base]="size() === 'xl'"
+    [attr.aria-label]="name() ? name() + '\'s avatar' : 'User avatar'">
+    @if (imageSrc() && !imageFailed()) {
+    <img [src]="imageSrc()" [alt]="name() ?? 'User avatar'" (error)="onImageError()" />
+    } @else {
+    <span>{{ initials() }}</span>
+    }
+</div>

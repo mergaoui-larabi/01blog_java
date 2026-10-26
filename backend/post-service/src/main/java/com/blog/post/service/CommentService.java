@@ -24,10 +24,13 @@ public class CommentService {
     }
 
     @Transactional
-    public void delete(UUID postId, UUID commentId) {
+    public void delete(UUID postId, UUID commentId, UUID userId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
                 .filter(c -> c.getPostId().equals(postId))
                 .orElseThrow(() -> new CommentNotFoundException("Comment not found: " + commentId));
+        if (!comment.getAuthorId().equals(userId) && !isAdmin) {
+            throw new CommentNotOwnedException("Comment not owned by current user: " + commentId);
+        }
         commentRepository.delete(comment);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CommentNotFoundException("Post not found: " + postId));

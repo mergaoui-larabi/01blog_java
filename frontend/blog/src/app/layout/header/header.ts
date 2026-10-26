@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Logo } from '../../shared/components/logo/logo';
 import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 import { AuthService } from '../../features/auth/state/auth.service';
+import { Avatar } from '../../shared/ui/avatar/avatar';
 // import { Avatar } from '../../shared/ui/avatar/avatar';
 
 /**
@@ -13,7 +14,7 @@ import { AuthService } from '../../features/auth/state/auth.service';
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
-  imports: [RouterLink, RouterLinkActive, Logo, ThemeToggle],
+  imports: [RouterLink, RouterLinkActive, Logo, ThemeToggle, Avatar],
 })
 export class Header {
   protected readonly authService = inject(AuthService);

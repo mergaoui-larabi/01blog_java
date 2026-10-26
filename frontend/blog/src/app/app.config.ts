@@ -16,8 +16,5 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
       }),
     ),
-    // Wired now so the AuthApiService / media integration in the next phase
-    // only needs the endpoints, not new providers.
-    provideHttpClient(),
   ],
 };

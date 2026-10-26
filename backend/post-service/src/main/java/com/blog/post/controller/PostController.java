@@ -104,7 +104,8 @@ public class PostController {
     public ResponseEntity<Void> deletePost(
             @PathVariable UUID postId,
             @AuthenticationPrincipal Jwt jwt) {
-        postService.deletePost(postId, userId(jwt));
+        boolean isAdmin = isAdmin(jwt);
+        postService.deletePost(postId, userId(jwt), isAdmin);
         return ResponseEntity.noContent().build();
     }
 
@@ -159,7 +160,8 @@ public class PostController {
             @PathVariable UUID postId,
             @PathVariable UUID commentId,
             @AuthenticationPrincipal Jwt jwt) {
-        postService.deleteComment(postId, commentId, userId(jwt));
+        boolean isAdmin = isAdmin(jwt);
+        postService.deleteComment(postId, commentId, userId(jwt), isAdmin);
         return ResponseEntity.noContent().build();
     }
 

@@ -60,13 +60,21 @@ public class MediaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
 
-    // media metadata (owner only)
-    @GetMapping("/{mediaId}")
-    public ResponseEntity<MediaResponse> getMedia(
+    // avatar bytes (owner only)
+    @GetMapping("/{mediaId}/avatar")
+    public ResponseEntity<org.springframework.core.io.Resource> getAvatar(
             @PathVariable UUID mediaId,
             @AuthenticationPrincipal Jwt jwt) {
-        Media media = mediaService.getMedia(mediaId, userId(jwt));
-        return ResponseEntity.ok(toResponse(media));
+        MediaService.MediaContent content = mediaService.getContent(mediaId, userId(jwt));
+
+        ContentDisposition disposition = ContentDisposition.inline()
+                .filename(content.filename(), StandardCharsets.UTF_8)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(content.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+                .body(content.resource());
     }
 
     // media bytes (owner only)

@@ -134,13 +134,6 @@ public class MediaService {
     // ------------------------------------------------------------------
 
     @Transactional(readOnly = true)
-    public Media getMedia(UUID mediaId, UUID requesterId) {
-        Media media = findMedia(mediaId);
-        assertOwner(media, requesterId);
-        return media;
-    }
-
-    @Transactional(readOnly = true)
     public MediaContent getContent(UUID mediaId, UUID requesterId) {
         Media media = getMedia(mediaId, requesterId);
         Path path = resolve(new StorageKey(media.getStorageKey()));
@@ -151,6 +144,13 @@ public class MediaService {
                 new FileSystemResource(path),
                 media.getDetectedContentType(),
                 media.getOriginalFilename());
+    }
+
+    @Transactional(readOnly = true)
+    public Media getMedia(UUID mediaId, UUID requesterId) {
+        Media media = findMedia(mediaId);
+        assertOwner(media, requesterId);
+        return media;
     }
 
     // ------------------------------------------------------------------

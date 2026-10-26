@@ -55,7 +55,7 @@ public class Post {
     private CommentsCount commentsCount = new CommentsCount(0L);
 
     @Column(name = "hidden", nullable = false)
-    private Boolean hidden = true;
+    private Boolean hidden = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -66,8 +66,7 @@ public class Post {
     protected Post() {
     }
 
-    public Post(UUID id, UUID authorId, PostContent content) {
-        this.id = id;
+    public Post(UUID authorId, PostContent content) {
         this.authorId = authorId;
         this.content = content;
         Instant now = Instant.now();
@@ -75,8 +74,8 @@ public class Post {
         this.updatedAt = now;
     }
 
-    public Post(UUID id, UUID authorId, PostContent content, List<UUID> mediaIds) {
-        this(id, authorId, content);
+    public Post(UUID authorId, PostContent content, List<UUID> mediaIds) {
+        this(authorId, content);
         if (mediaIds != null) {
             this.mediaIds = new ArrayList<>(mediaIds);
         }
@@ -132,10 +131,6 @@ public class Post {
 
     public Instant getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public void setAuthorId(UUID authorId) {

@@ -4,14 +4,15 @@ import java.time.Instant;
 import java.util.List;
 
 public record PostResponse(
-        String id,
-        String authorId,
-        String content,
-        List<String> mediaIds,
-        long likesCount,
-        long commentsCount,
-        boolean likedByCurrentUser,
-        boolean hidden,
-        Instant createdAt,
-        Instant updatedAt) {
+                String id,
+                String authorId,
+                String content,
+                List<String> mediaIds,
+                long likesCount,
+                long commentsCount,
+                boolean likedByCurrentUser,
+                boolean ownedByCurrentUser,
+                boolean hidden,
+                Instant createdAt,
+                Instant updatedAt) {
 }

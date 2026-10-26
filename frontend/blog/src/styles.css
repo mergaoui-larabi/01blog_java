@@ -52,3 +52,17 @@
   --color-danger: var(--app-color-danger);
   --color-success: var(--app-color-success);
 }
+
+
+/* remove some browser specefic issues*/
+/* Chrome, Safari, Edge, and other WebKit-based browsers */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

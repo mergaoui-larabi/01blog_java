@@ -68,7 +68,7 @@ public class PostService {
     public PostResponse fetchPost(UUID postId, UUID currentUserId) {
         Post post = requirePost(postId);
         boolean liked = currentUserId != null && likeRepository.existsByPostIdAndUserId(postId, currentUserId);
-        return toPostResponse(post, liked);
+        return toPostResponse(post, currentUserId, liked);
     }
 
     @Transactional(readOnly = true)
@@ -123,13 +123,12 @@ public class PostService {
         }
 
         Post post = new Post(
-                UUID.randomUUID(),
                 userId,
                 new PostContent(request.content()),
                 mediaUuids);
 
         post = postRepository.save(post);
-        return toPostResponse(post, false);
+        return toPostResponse(post, userId, false);
     }
 
     @Transactional
@@ -147,7 +146,7 @@ public class PostService {
         post = postRepository.save(post);
 
         boolean liked = likeRepository.existsByPostIdAndUserId(postId, userId);
-        return toPostResponse(post, liked);
+        return toPostResponse(post, userId, liked);
     }
 
     @Transactional
@@ -174,12 +173,16 @@ public class PostService {
         post = postRepository.save(post);
 
         boolean liked = likeRepository.existsByPostIdAndUserId(postId, userId);
-        return toPostResponse(post, liked);
+        return toPostResponse(post, userId, liked);
     }
 
     @Transactional
-    public void deletePost(UUID postId, UUID userId) {
-        Post post = requireOwnPost(postId, userId);
+    public void deletePost(UUID postId, UUID userId, boolean isAdmin) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found: " + postId));
+        if (!post.getAuthorId().equals(userId) && !isAdmin) {
+            throw new PostNotOwnedException("Post not owned by current user: " + postId);
+        }
         postRepository.delete(post);
     }
 
@@ -278,9 +281,11 @@ public class PostService {
     }
 
     @Transactional
-    public void deleteComment(UUID postId, UUID commentId, UUID userId) {
+    public void deleteComment(UUID postId, UUID commentId, UUID userId, boolean isAdmin) {
         Comment comment = requireComment(postId, commentId);
-        ensureCommentOwnedByCurrentUser(comment, userId);
+        if (!comment.getAuthorId().equals(userId) && !isAdmin) {
+            throw new CommentNotOwnedException("Comment not owned by current user: " + commentId);
+        }
         commentRepository.delete(comment);
 
         Post post = postRepository.findById(postId)
@@ -328,7 +333,7 @@ public class PostService {
                 : Collections.emptySet();
 
         List<PostResponse> responses = contentPosts.stream()
-                .map(post -> toPostResponse(post, likedPostIds.contains(post.getId())))
+                .map(post -> toPostResponse(post, currentUserId, likedPostIds.contains(post.getId())))
                 .toList();
 
         return new PageResponse<>(responses, nextCursor, hasNext);
@@ -351,7 +356,9 @@ public class PostService {
         return new ArrayList<>(uniqueUuids);
     }
 
-    private PostResponse toPostResponse(Post post, boolean likedByCurrentUser) {
+    private PostResponse toPostResponse(Post post, UUID currentUserId, boolean likedByCurrentUser) {
+        boolean ownedByCurrentUser = currentUserId != null && post.getAuthorId().equals(currentUserId);
+
         List<String> mediaIds = post.getMediaIds() != null
                 ? post.getMediaIds().stream().map(UUID::toString).toList()
                 : Collections.emptyList();
@@ -364,6 +371,7 @@ public class PostService {
                 post.getLikesCount().value(),
                 post.getCommentsCount().value(),
                 likedByCurrentUser,
+                ownedByCurrentUser,
                 post.getHidden(),
                 post.getCreatedAt(),
                 post.getUpdatedAt());

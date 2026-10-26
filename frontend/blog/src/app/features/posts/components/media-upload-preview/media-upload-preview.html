@@ -1,0 +1,136 @@
+<div class="flex h-full min-h-0 w-full flex-col gap-3">
+    <div class="relative flex min-h-0 w-full flex-1 items-center justify-center
+           overflow-hidden rounded-xl border border-border bg-background
+           transition-colors" [class.border-primary]="isDragging()" [class.bg-text-bg]="isDragging()"
+        (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <input #fileInput type="file" accept="image/*,video/*" multiple class="hidden" (change)="onFileInput($event)" />
+
+        @if (activeMedia(); as item) {
+        @if (item.type === 'image') {
+        <img [src]="item.previewUrl" [alt]="item.file.name" class="h-full w-full object-contain" />
+        } @else {
+        <video [src]="item.previewUrl" controls preload="metadata" class="h-full w-full object-contain">
+            Your browser does not support video playback.
+        </video>
+        }
+
+        <!-- File name -->
+        <div class="absolute bottom-3 left-3 max-w-[65%] truncate rounded-lg
+               bg-surface/90 px-3 py-2 text-sm text-text shadow" [title]="item.file.name">
+            {{ item.file.name }}
+        </div>
+
+        <!-- Remove selected media or cancel its active upload -->
+        <div class="absolute right-3 top-3 flex items-center gap-2">
+            @if (uploading()) {
+            <button type="button" (click)="cancelUpload()" class="rounded-lg bg-danger px-3 py-2 text-sm font-medium
+                   text-white shadow transition hover:opacity-90">
+                Cancel upload
+            </button>
+            } @else {
+            <button type="button" (click)="removeActive()" aria-label="Remove this media" class="flex h-9 w-9 items-center justify-center rounded-full
+                   bg-surface/90 text-text shadow transition
+                   hover:bg-danger hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                </svg>
+            </button>
+            }
+        </div>
+
+        <!-- Carousel navigation -->
+        @if (mediaCount() > 1) {
+        <button type="button" (click)="previous()" aria-label="Previous media" class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2
+                 items-center justify-center rounded-full bg-surface/90
+                 text-text shadow transition hover:bg-primary
+                 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+                <path d="m15 18-6-6 6-6" />
+            </svg>
+        </button>
+
+        <button type="button" (click)="next()" aria-label="Next media" class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2
+                 items-center justify-center rounded-full bg-surface/90
+                 text-text shadow transition hover:bg-primary
+                 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </button>
+        }
+
+        <!-- Upload progress -->
+        @if (uploading() && uploadProgress() !== null) {
+        <div class="absolute inset-x-0 bottom-0 h-1.5 bg-text-bg" role="progressbar" aria-label="Media upload progress"
+            aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="uploadProgress()">
+            <div class="h-full bg-primary transition-[width] duration-200" [style.width.%]="uploadProgress()"></div>
+        </div>
+        }
+        } @else {
+        <button type="button" (click)="fileInput.click()" class="flex h-full w-full flex-col items-center justify-center
+               gap-3 p-6 text-center transition hover:bg-text-bg/50">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full
+                 bg-text-bg text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7"
+                    aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="3" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                </svg>
+            </div>
+
+            <div>
+                <p class="font-semibold text-text">
+                    Add photos or videos
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                    Click to browse or drag and drop files here
+                </p>
+                <p class="mt-1 text-xs text-text-muted">
+                    Up to 10 files, 10 MB per file
+                </p>
+            </div>
+        </button>
+        }
+
+        @if (isDragging()) {
+        <div class="pointer-events-none absolute inset-0 flex items-center
+               justify-center rounded-xl border-2 border-dashed
+               border-primary bg-surface/90">
+            <p class="font-semibold text-primary">
+                Drop images or videos here
+            </p>
+        </div>
+        }
+    </div>
+
+    <div class="flex min-h-10 items-center justify-between gap-3">
+        <div class="min-w-0 flex-1">
+            @if (errorMessage(); as error) {
+            <p class="text-sm text-danger" role="alert">
+                {{ error }}
+            </p>
+            } @else if (mediaCount() > 0) {
+            <p class="truncate text-sm text-text-muted" aria-live="polite">
+                Media {{ activeIndex() + 1 }} of {{ mediaCount() }}
+            </p>
+            } @else {
+            <p class="text-sm text-text-muted">
+                Images and videos are supported.
+            </p>
+            }
+        </div>
+
+        <button type="button" (click)="fileInput.click()" [disabled]="mediaCount() >= 10" class="shrink-0 rounded-lg border border-border px-4 py-2
+             text-sm font-medium text-text transition
+             hover:bg-text-bg disabled:cursor-not-allowed
+             disabled:opacity-50">
+            + Add media
+        </button>
+    </div>
+</div>

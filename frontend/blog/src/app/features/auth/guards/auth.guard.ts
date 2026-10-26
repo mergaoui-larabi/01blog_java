@@ -15,7 +15,6 @@ export const authGuard: CanActivateFn = (_route, state) => {
       }
 
       if (status === 'error') {
-        // Replace with a real error page if you have one.
         return router.createUrlTree(['/auth/login'], {
           queryParams: {
             returnUrl: state.url,
@@ -43,7 +42,6 @@ export const guestGuard: CanActivateFn = () => {
       }
 
       if (status === 'error') {
-        // Avoid treating a server outage as proof that the token is invalid.
         return router.parseUrl('/');
       }
 
@@ -51,4 +49,31 @@ export const guestGuard: CanActivateFn = () => {
     }),
     catchError(() => of(router.parseUrl('/'))),
   );
+};
+
+/**
+ * Functional guard for role-based routes. Requests the user session
+ * from the backend via getCurrentUser() and checks that the user matches the expected role.
+ */
+export const roleGuard = (expectedRole: 'USER' | 'ADMIN'): CanActivateFn => {
+  return (_route, state) => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+
+    return authService.getCurrentUser().pipe(
+      map((user) => {
+        if (user.role === expectedRole) {
+          return true;
+        }
+        return router.parseUrl('/');
+      }),
+      catchError(() =>
+        of(
+          router.createUrlTree(['/auth/login'], {
+            queryParams: { returnUrl: state.url },
+          }),
+        ),
+      ),
+    );
+  };
 };

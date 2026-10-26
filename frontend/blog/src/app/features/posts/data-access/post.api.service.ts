@@ -70,6 +70,13 @@ export interface MediaResponse {
   updatedAt: string;
 }
 
+export interface MediaItem {
+  id: string;
+  file: File;
+  previewUrl: string;
+  type: 'image' | 'video';
+}
+
 @Service()
 export class PostApiService {
   private readonly http = inject(HttpClient);

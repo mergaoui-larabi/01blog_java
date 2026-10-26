@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { inject, Service, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
@@ -10,9 +10,8 @@ import {
   LoginRequest,
   RegisterRequest,
 } from '../data-access/auth.api.service';
-
-const SESSION_STORAGE_KEY = '01blog.session';
-const ACCESS_TOKEN_KEY = '01blog.accessToken';
+import { AlertService } from '../../../core/alerts/alert.service';
+import { TokenStorageService } from '../data-access/token-storage.service';
 
 export type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated' | 'error';
 
@@ -20,48 +19,63 @@ export type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated' | 'err
 export class AuthService {
   private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
+  private readonly alertService = inject(AlertService);
+  private readonly tokenStorage = inject(TokenStorageService);
 
-  private readonly currentUser = signal<AuthUser | null>(this.restoreSession());
-  private readonly token = signal<string | null>(sessionStorage.getItem(ACCESS_TOKEN_KEY));
+  // User session is stored in reactive memory only (not persisted in sessionStorage or cookies)
+  private readonly currentUser = signal<AuthUser | null>(null);
 
   readonly user = this.currentUser.asReadonly();
-  readonly accessToken = this.token.asReadonly();
+  readonly role = computed(() => this.currentUser()?.role ?? null);
+  readonly accessToken = this.tokenStorage.token;
 
   readonly status = signal<AuthStatus>('unauthenticated');
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
 
   constructor() {
-    this.validateSession().subscribe();
+    // If an access token exists in cookies on startup, validate and fetch the current user
+    if (this.tokenStorage.token()) {
+      this.validateSession().subscribe();
+    }
   }
 
-  validateSession(): Observable<AuthStatus> {
-    const token = this.token();
-
-    if (!token) {
-      this.status.set('unauthenticated');
-      return of('unauthenticated');
-    }
-
-    this.status.set('checking');
-    this.error.set(null);
-
+  /**
+   * Requests the current user session from the backend via HttpClient.
+   * Updates in-memory user state and sets status to authenticated.
+   */
+  getCurrentUser(): Observable<AuthUser> {
     return this.authApi.getCurrentUser().pipe(
       tap((user) => {
         this.setAuthenticatedUser(user);
       }),
+    );
+  }
 
+  /**
+   * Validates the session token and populates the current user.
+   */
+  validateSession(): Observable<AuthStatus> {
+    const token = this.tokenStorage.token();
+
+    if (!token) {
+      this.clearSession();
+      return of('unauthenticated');
+    }
+
+    this.status.set('checking');
+
+    return this.getCurrentUser().pipe(
       map((): AuthStatus => 'authenticated'),
-
       catchError((err: unknown) => {
         if (err instanceof HttpErrorResponse && err.status === 401) {
           this.clearSession();
-          this.error.set('Your session has expired. Please log in again.');
+          this.alertService.warning('Your session has expired. Please log in again.');
           return of('unauthenticated' as AuthStatus);
         }
 
+        console.error('[Session] Validation error:', err);
         this.status.set('error');
-        this.error.set('Unable to verify your session. Please try again.');
+        this.alertService.error('Unable to verify your session. Please try again.');
 
         return of('error' as AuthStatus);
       }),
@@ -70,40 +84,39 @@ export class AuthService {
 
   login(request: LoginRequest, returnUrl?: string | null): void {
     this.loading.set(true);
-    this.error.set(null);
     this.status.set('checking');
 
     this.authApi
       .login(request)
       .pipe(
+        // 1. Store only the accessToken in cookies
         tap((response) => {
-          this.token.set(response.accessToken);
-          sessionStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+          this.tokenStorage.setToken(response.accessToken, response.expiresIn);
         }),
 
-        switchMap(() => this.authApi.getCurrentUser()),
+        // 2. Request the session from the backend via getCurrentUser
+        switchMap(() => this.getCurrentUser()),
 
-        tap((user) => {
-          this.setAuthenticatedUser(user);
-
+        tap(() => {
+          this.alertService.success('Logged in successfully.');
           void this.router.navigateByUrl(this.safeReturnUrl(returnUrl));
         }),
 
         catchError((err: unknown) => {
-          this.error.set(this.getErrorMessage(err));
+          this.getErrorMessage(err);
           this.clearSession();
-
           return EMPTY;
         }),
 
-        finalize(() => this.loading.set(false)),
+        finalize(() => {
+          this.loading.set(false);
+        }),
       )
       .subscribe();
   }
 
   register(request: RegisterRequest, avatarFile: File | null, returnUrl?: string | null): void {
     this.loading.set(true);
-    this.error.set(null);
 
     this.authApi
       .register(request)
@@ -116,10 +129,9 @@ export class AuthService {
           }),
         ),
 
-        // 2. Store the JWT before calling protected endpoints.
+        // 2. Store only the accessToken in cookies before calling protected endpoints.
         tap((loginResponse) => {
-          this.token.set(loginResponse.accessToken);
-          sessionStorage.setItem(ACCESS_TOKEN_KEY, loginResponse.accessToken);
+          this.tokenStorage.setToken(loginResponse.accessToken, loginResponse.expiresIn);
         }),
 
         // 3. Upload the avatar only if one was selected.
@@ -134,7 +146,7 @@ export class AuthService {
         // 4. Associate the uploaded media ID with the user.
         switchMap((uploadResponse) => {
           if (!uploadResponse) {
-            return this.authApi.getCurrentUser();
+            return this.getCurrentUser();
           }
 
           return this.authApi.updateAvatarId({
@@ -143,22 +155,25 @@ export class AuthService {
           });
         }),
 
-        // 5. Save the final user state.
+        // 5. Save the final user state in memory.
         tap((user) => {
           this.setAuthenticatedUser(user);
         }),
 
         // 6. Navigate after the workflow completes.
         tap(() => {
+          this.alertService.success('Account created successfully. Welcome!');
           void this.router.navigateByUrl(this.safeReturnUrl(returnUrl));
         }),
 
         catchError((err: unknown) => {
-          this.error.set(this.getErrorMessage(err));
+          this.getErrorMessage(err);
           return EMPTY;
         }),
 
-        finalize(() => this.loading.set(false)),
+        finalize(() => {
+          this.loading.set(false);
+        }),
       )
       .subscribe();
   }
@@ -166,71 +181,38 @@ export class AuthService {
   setAuthenticatedUser(user: AuthUser): void {
     this.currentUser.set(user);
     this.status.set('authenticated');
-
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
   }
 
   logout(): void {
     this.clearSession();
-    this.error.set(null);
-
     void this.router.navigateByUrl('/auth/login');
+    this.alertService.success('You have been logged out successfully.');
   }
 
   isAuthenticated(): boolean {
     return this.status() === 'authenticated';
   }
 
+  hasRole(role: 'USER' | 'ADMIN'): boolean {
+    return this.currentUser()?.role === role;
+  }
+
   private clearSession(): void {
     this.currentUser.set(null);
-    this.token.set(null);
+    this.tokenStorage.clearToken();
     this.status.set('unauthenticated');
-
-    sessionStorage.removeItem(SESSION_STORAGE_KEY);
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
   }
 
-  private restoreSession(): AuthUser | null {
-    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
-
-    if (!raw) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(raw) as AuthUser;
-    } catch {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
-      return null;
-    }
-  }
-
-  private getErrorMessage(error: unknown): string {
+  private getErrorMessage(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 0) {
-        return 'Cannot connect to the server.';
+        this.alertService.error('Cannot connect to the server.');
+        return;
       }
-
-      if (error.status === 401) {
-        return 'Invalid credentials or expired session.';
-      }
-
-      if (error.status === 403) {
-        return 'You do not have permission to perform this action.';
-      }
-
-      if (error.status === 409) {
-        return 'An account with this email or username already exists.';
-      }
-
       const message = error.error?.message;
-
-      if (typeof message === 'string') {
-        return message;
-      }
+      return this.alertService.error(message);
     }
-
-    return 'An unexpected error occurred. Please try again.';
+    this.alertService.error('An unexpected error occurred. Please try again.');
   }
 
   private safeReturnUrl(returnUrl: string | null | undefined): string {
