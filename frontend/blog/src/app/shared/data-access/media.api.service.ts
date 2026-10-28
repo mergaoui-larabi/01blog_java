@@ -9,6 +9,13 @@ export class MediaApiService {
   private readonly env = environment;
 
   getMediaContent(mediaId: string): Observable<Blob> {
+    const url = this.env.getMediaContentEndpoint.replace('{mediaId}', encodeURIComponent(mediaId));
+    return this.http.get(url, {
+      responseType: 'blob',
+    });
+  }
+
+  getAvatarMedia(mediaId: string): Observable<Blob> {
     const url = this.env.getAvatarMediaEndpoint.replace('{mediaId}', encodeURIComponent(mediaId));
     return this.http.get(url, {
       responseType: 'blob',

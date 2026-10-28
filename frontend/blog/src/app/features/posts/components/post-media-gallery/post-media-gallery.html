@@ -1,0 +1,57 @@
+@if (mediaCount() > 0) {
+  <div class="relative flex min-h-0 w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-background">
+    @if (loading()) {
+      <div class="flex h-[300px] w-full items-center justify-center">
+        <p class="text-sm text-text-muted">Loading media...</p>
+      </div>
+    } @else if (activePreviewUrl(); as previewUrl) {
+      @if (activePreviewType() === 'video' || activePreviewType() === 'unknown') {
+        <video
+          [src]="previewUrl"
+          controls
+          playsinline
+          class="h-full max-h-[500px] w-full object-contain"
+        ></video>
+      } @else {
+        <img
+          [src]="previewUrl"
+          alt="Post media"
+          class="h-full max-h-[500px] w-full object-contain"
+          loading="lazy"
+        />
+      }
+
+      @if (mediaPreviews().length > 1) {
+        <button
+          type="button"
+          (click)="previous()"
+          aria-label="Previous media"
+          class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/90 text-text shadow transition hover:bg-primary hover:text-white"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          (click)="next()"
+          aria-label="Next media"
+          class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/90 text-text shadow transition hover:bg-primary hover:text-white"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-surface/90 px-3 py-1 text-xs text-text shadow">
+          {{ activeIndex() + 1 }} / {{ mediaPreviews().length }}
+        </div>
+      }
+    } @else {
+      <div class="flex h-[200px] w-full items-center justify-center">
+        <p class="text-sm text-text-muted">Unable to load media</p>
+      </div>
+    }
+  </div>
+}

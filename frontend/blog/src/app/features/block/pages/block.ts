@@ -1,26 +1,26 @@
-import { Component, inject } from '@angular/core';
-import { FeedService } from '../../feed/state/feed.service';
+import { Component, inject, viewChild } from '@angular/core';
 import { Post } from '../../posts/data-access/post.api.service';
 import { PostCard } from '../../posts/components/post-card/post-card';
 import { CreatePostButton } from '../../posts/components/create-post-button/create-post-button';
 import { BlockService } from '../state/block.service';
 import { CreatePostDialog } from '../../posts/components/create-post-dialog/create-post-dialog';
+import { PostViewDialog } from '../../posts/components/post-view-dialog/post-view-dialog';
 
 @Component({
   selector: 'app-block',
-  imports: [CreatePostButton, PostCard, CreatePostDialog],
+  imports: [CreatePostButton, PostCard, CreatePostDialog, PostViewDialog],
   templateUrl: './block.html',
 })
 export class Block {
   readonly blockService = inject(BlockService);
+  private readonly postViewDialog = viewChild.required(PostViewDialog);
 
   ngOnInit(): void {
     this.blockService.loadFeed();
   }
 
   openPost(post: Post): void {
-    // TODO: Open the post-detail dialog.
-    console.log('Selected post:', post.id);
+    this.postViewDialog().open(post);
   }
 
   onPostPublished(post: Post | null) {

@@ -3,20 +3,36 @@ export const environment = {
 
   // auth
   postLoginEndPoint: 'http://localhost:5000/api/v1/auth/signin',
+  authPingEndpoint: 'http://localhost:5000/api/v1/auth/ping',
 
   // user
   postRegisterEndPoint: 'http://localhost:5000/api/v1/users/signup',
   getMeEndpoint: 'http://localhost:5000/api/v1/users/me',
   patchAvatarIdEndpoint: 'http://localhost:5000/api/v1/users/update',
+  updateUserAvatarEndpoint: 'http://localhost:5000/api/v1/users/update',
   getUsersEndPoint:
     'http://localhost:5000/api/v1/users?cursor={lastUserId}&cursorInstant={cursorInstant}&search={search}&size=20',
+  getUserByIdEndpoint: 'http://localhost:5000/api/v1/users/{userId}',
   postFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
   deleteFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
+  followUserEndpoint: 'http://localhost:5000/api/v1/users/{userId}/follow',
+  unfollowUserEndpoint: 'http://localhost:5000/api/v1/users/{userId}/follow',
+  banUserEndpoint: 'http://localhost:5000/api/v1/users/{userId}/ban',
+  unbanUserEndpoint: 'http://localhost:5000/api/v1/users/{userId}/unban',
+  deleteUserEndpoint: 'http://localhost:5000/api/v1/users/{userId}',
+  userPingEndpoint: 'http://localhost:5000/api/v1/users/ping',
+
   // media
   postAvatarEndpoint: 'http://localhost:5000/api/v1/medias/avatars',
+  uploadAvatarEndpoint: 'http://localhost:5000/api/v1/medias/avatars',
   uploadpostsMediaEndpoint: 'http://localhost:5000/api/v1/medias/posts',
+  uploadPostMediaEndpoint: 'http://localhost:5000/api/v1/medias/posts',
   getAvatarMediaEndpoint: 'http://localhost:5000/api/v1/medias/{mediaId}/avatar',
   getMediaEndpoint: 'http://localhost:5000/api/v1/medias/{mediaId}/content',
+  getMediaContentEndpoint: 'http://localhost:5000/api/v1/medias/{mediaId}/content',
+  updateMediaEndpoint: 'http://localhost:5000/api/v1/medias/{mediaId}',
+  deleteMediaEndpoint: 'http://localhost:5000/api/v1/medias/{mediaId}',
+  mediaPingEndpoint: 'http://localhost:5000/api/v1/medias/ping',
 
   // post
   fetchFeedEndPoint: 'http://localhost:5000/api/v1/posts/feed?cursor={lastPostId}&size=20',

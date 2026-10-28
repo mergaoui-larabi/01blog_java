@@ -1,0 +1,109 @@
+<dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="post-view-title" class="m-auto h-[90dvh] max-h-[90dvh] w-[80vw] max-w-2xl
+         overflow-y-auto rounded-2xl border border-border
+         bg-surface p-0 text-text shadow-2xl
+         backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+  <div class="flex items-center justify-between border-b border-border px-6 py-4">
+    <h2 id="post-view-title" class="text-lg font-semibold">
+      Post
+    </h2>
+
+    <button type="button" (click)="close()" aria-label="Close dialog" class="flex h-9 w-9 items-center justify-center rounded-full
+         text-text-muted transition
+         hover:bg-text-bg hover:text-text
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <section class="flex min-h-0 flex-col gap-4 p-6">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-10">
+        <p class="text-text-muted">Loading...</p>
+      </div>
+    } @else if (error()) {
+      <div class="flex items-center justify-center py-10">
+        <p class="text-danger">{{ error() }}</p>
+      </div>
+    } @else if (post()) {
+      <article class="flex flex-col gap-4">
+        <!-- Post content -->
+        <div>
+          <p class="whitespace-pre-wrap break-words text-base leading-7 text-text">
+            {{ post()!.content }}
+          </p>
+        </div>
+
+        <!-- Media gallery -->
+        @if (post()!.mediaIds.length > 0) {
+          <app-post-media-gallery [mediaIds]="post()!.mediaIds" />
+        }
+
+        <!-- Post statistics -->
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-3
+             border-t border-border pt-4 text-sm text-text-muted">
+          <!-- Likes -->
+          <span class="inline-flex items-center gap-2">
+            <svg class="size-5" [class.text-danger]="post()!.likedByCurrentUser" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5
+                   5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5
+                   5.5 0 0 0-.1-7.8Z" />
+            </svg>
+
+            <span>
+              {{ post()!.likesCount }}
+              {{ post()!.likesCount === 1 ? 'like' : 'likes' }}
+            </span>
+          </span>
+
+          <!-- Comments -->
+          <span class="inline-flex items-center gap-2">
+            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                 aria-hidden="true">
+              <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
+                   8.5 8.5 0 0 1-7.6 4.7
+                   8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
+                   a8.4 8.4 0 0 1-.9-3.8
+                   8.5 8.5 0 0 1 4.7-7.6
+                   8.4 8.4 0 0 1 3.8-.9h.5
+                   a8.5 8.5 0 0 1 8 8v.5Z" />
+            </svg>
+
+            <span>
+              {{ post()!.commentsCount }}
+              {{ post()!.commentsCount === 1 ? 'comment' : 'comments' }}
+            </span>
+          </span>
+
+          <!-- Timestamp -->
+          <span class="ml-auto inline-flex items-center gap-1.5">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                 aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+
+            <time [attr.datetime]="post()!.createdAt">
+              {{ post()!.createdAt | date: 'medium' }}
+            </time>
+          </span>
+        </div>
+
+        <!-- Edited indicator -->
+        @if (isEdited()) {
+          <p class="text-xs text-text-muted">
+            Edited
+            <time [attr.datetime]="post()!.updatedAt">
+              {{ post()!.updatedAt | date: 'medium' }}
+            </time>
+          </p>
+        }
+      </article>
+    }
+  </section>
+</dialog>

@@ -1,5 +1,5 @@
 <section class="flex-1 p-4">
-  <app-create-post-button  (published)="onPostPublished($event)"/>
+  <app-create-post-button (published)="onPostPublished($event)" />
   @for (post of feedService.posts(); track post.id) {
   <app-post-card [post]="post" (clicked)="openPost($event)" />
   } @empty {
@@ -10,3 +10,5 @@
   }
   }
 </section>
+
+<app-post-view-dialog />
