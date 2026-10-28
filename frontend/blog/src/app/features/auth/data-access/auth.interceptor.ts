@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { TokenStorageService } from './token-storage.service';
+import { environment } from '../../../../environments/environments';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const tokenStorage = inject(TokenStorageService);
@@ -11,13 +12,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   if (!token || request.headers.has('Authorization')) {
     return next(request);
   }
-
-  // Do not attach token to public authentication endpoints (signin / signup)
-  // to avoid 401 errors from expired/stale tokens on public routes.
   const isAuthEndpoint =
-    request.url.includes('/auth/signin') ||
-    request.url.includes('/users/signup');
-
+    request.url.startsWith(environment.postLoginEndPoint) ||
+    request.url.startsWith(environment.postRegisterEndPoint);
   if (isAuthEndpoint) {
     return next(request);
   }
@@ -31,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   return next(authReq).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        // Clear token from cookie and state when 401 Unauthorized occurs on a protected endpoint
+        // Clear the stored token when a protected endpoint rejects with 401
         tokenStorage.clearToken();
       }
       return throwError(() => error);

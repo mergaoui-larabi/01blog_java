@@ -16,49 +16,50 @@ import java.util.UUID;
 @Repository
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
-    Optional<Post> findByIdAndAuthorId(UUID id, UUID authorId);
+        Optional<Post> findByIdAndAuthorId(UUID id, UUID authorId);
 
-    @Query("""
-            SELECT p FROM Post p
-            WHERE p.authorId IN (:authorIds)
-              AND p.hidden = true
-            ORDER BY p.createdAt DESC, p.id DESC
-            """)
-    List<Post> findFeedFirstPage(
-            @Param("authorIds") Collection<UUID> authorIds,
-            Pageable pageable);
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE p.authorId IN (:authorIds)
+                          AND p.hidden = false
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findFeedFirstPage(
+                        @Param("authorIds") Collection<UUID> authorIds,
+                        Pageable pageable);
 
-    @Query("""
-            SELECT p FROM Post p
-            WHERE p.authorId IN (:authorIds)
-              AND p.hidden = true
-              AND (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
-            ORDER BY p.createdAt DESC, p.id DESC
-            """)
-    List<Post> findFeedWithCursor(
-            @Param("authorIds") Collection<UUID> authorIds,
-            @Param("cursorId") UUID cursorId,
-            @Param("cursorCreatedAt") Instant cursorCreatedAt,
-            Pageable pageable);
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE p.authorId IN (:authorIds)
+                          AND p.hidden = false
+                          AND (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findFeedWithCursor(
+                        @Param("authorIds") Collection<UUID> authorIds,
+                        @Param("cursorId") UUID cursorId,
+                        @Param("cursorCreatedAt") Instant cursorCreatedAt,
+                        Pageable pageable);
 
-    @Query("""
-            SELECT p FROM Post p
-            WHERE p.authorId = :authorId
-            ORDER BY p.createdAt DESC, p.id DESC
-            """)
-    List<Post> findMyPostsFirstPage(
-            @Param("authorId") UUID authorId,
-            Pageable pageable);
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE p.authorId = :authorId
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findMyPostsFirstPage(
+                        @Param("authorId") UUID authorId,
+                        Pageable pageable);
 
-    @Query("""
-            SELECT p FROM Post p
-            WHERE p.authorId = :authorId
-              AND (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
-            ORDER BY p.createdAt DESC, p.id DESC
-            """)
-    List<Post> findMyPostsWithCursor(
-            @Param("authorId") UUID authorId,
-            @Param("cursorId") UUID cursorId,
-            @Param("cursorCreatedAt") Instant cursorCreatedAt,
-            Pageable pageable);
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE p.authorId = :authorId
+                          AND (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
+                          AND p.hidden = false
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findMyPostsWithCursor(
+                        @Param("authorId") UUID authorId,
+                        @Param("cursorId") UUID cursorId,
+                        @Param("cursorCreatedAt") Instant cursorCreatedAt,
+                        Pageable pageable);
 }

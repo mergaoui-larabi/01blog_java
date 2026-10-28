@@ -60,6 +60,18 @@ public class MediaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
 
+    // validate that the media exists and the given user is the owner (owner or
+    // admin)
+    // @GetMapping("/{mediaId}")
+    // public ResponseEntity<Void> validateMediaOwnership(
+    //         @PathVariable UUID mediaId,
+    //         @AuthenticationPrincipal Jwt jwt) {
+
+    //     mediaService.validateMediaOwnership(mediaId, userId(jwt));
+
+    //     return ResponseEntity.noContent().build();
+    // }
+
     // avatar bytes (owner only)
     @GetMapping("/{mediaId}/avatar")
     public ResponseEntity<org.springframework.core.io.Resource> getAvatar(

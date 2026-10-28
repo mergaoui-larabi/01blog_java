@@ -1,6 +1,8 @@
-
 package com.blog.user.service;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,20 +19,57 @@ import com.blog.user.domain.valueobject.Email;
 import com.blog.user.domain.valueobject.Gender;
 import com.blog.user.domain.valueobject.Password;
 import com.blog.user.domain.valueobject.Username;
+import com.blog.user.exception.BannedUserNotFoundException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import com.blog.user.exception.EmailAlreadyExistsException;
 import com.blog.user.exception.InvalidCredentialsException;
 import com.blog.user.exception.UsernameAlreadyExistsException;
 import com.blog.user.repository.UserRepository;
+
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @SuppressWarnings("checkstyle:Indentation")
+    @Transactional(readOnly = true)
+    public Page<User> getUsersList(UUID cursor, Instant cursorInstant, String search, int size, Jwt jwt) {
+        if (search == null || search.isBlank()) {
+            search = "";
+        }
+        String subject = jwt.getSubject();
+        UUID requesterId = UUID.fromString(subject);
+        Pageable pageable = PageRequest.ofSize(size + 1);
+        if (cursor == null && cursorInstant == null) {
+            return userRepository.findFirstUsersByUsername(
+                    search, requesterId, pageable);
+        }
+        Page<User> users = userRepository.findUsersByUsername(cursor, cursorInstant, search, requesterId, pageable);
+
+        return users;
+    }
+
+    public UserResponse toResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getAge(),
+                user.getGender(),
+                user.getRole(),
+                user.getAvatarMediaId(),
+                user.getBanned(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
     }
 
     @Transactional
@@ -88,5 +127,49 @@ public class UserService {
         }
 
         return new UserAuthenticationResponse(user.getId(), user.getRole());
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isAdmin(Jwt jwt) {
+        String subject = jwt.getSubject();
+        return userRepository.findById(UUID.fromString(subject))
+                .map(User::getRole)
+                .map(role -> role.equals(UserRole.ADMIN))
+                .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isAdmin(String userId) {
+        return userRepository.findById(UUID.fromString(userId))
+                .map(User::getRole)
+                .map(role -> role.equals(UserRole.ADMIN))
+                .orElse(false);
+    }
+
+    @Transactional
+    public User banUser(UUID userId, Jwt authenticatedJwt) {
+        if (!isAdmin(authenticatedJwt)) {
+            throw new BannedUserNotFoundException("Only admins can ban users");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BannedUserNotFoundException("User not found"));
+        user.ban();
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User unbanUser(UUID userId, Jwt authenticatedJwt) {
+        if (!isAdmin(authenticatedJwt)) {
+            throw new BannedUserNotFoundException("Only admins can unban users");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BannedUserNotFoundException("User not found"));
+        user.unban();
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(UUID userId) {
+        userRepository.deleteById(userId);
     }
 }

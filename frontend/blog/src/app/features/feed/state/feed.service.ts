@@ -1,0 +1,73 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { EMPTY } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
+
+import { FeedApiService, Post } from '../data-access/feed.api.service';
+import { AlertService } from '../../../core/alerts/alert.service';
+
+@Injectable({ providedIn: 'root' })
+export class FeedService {
+  private readonly alertService = inject(AlertService);
+  private readonly feedApi = inject(FeedApiService);
+
+  readonly loading = signal(false);
+  readonly posts = signal<Post[]>([]);
+  readonly nextCursor = signal<string | null>(null);
+
+  loadFeed(): void {
+    this.fetchPage(null, false);
+  }
+
+  loadMore(): void {
+    if (this.loading()) return;
+
+    this.fetchPage(this.nextCursor(), true);
+  }
+
+  private fetchPage(cursor: string | null, append: boolean): void {
+    if (this.loading()) return;
+
+    this.loading.set(true);
+
+    this.feedApi
+      .fetchFeed(cursor)
+      .pipe(
+        catchError((error: unknown) => {
+          this.getErrorMessage(error);
+          return EMPTY;
+        }),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe((page) => {
+        this.posts.update((currentPosts) => {
+          if (!append) return page.content;
+
+          const existingIds = new Set(currentPosts.map((post) => post.id));
+          const newPosts = page.content.filter((post) => !existingIds.has(post.id));
+
+          return [...currentPosts, ...newPosts];
+        });
+
+        this.nextCursor.set(page.nextCursor);
+      });
+  }
+
+  addPostToFeed(post: Post): void {
+    this.posts.update((posts) => [post, ...posts]);
+  }
+
+  private getErrorMessage(error: unknown): void {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 0) {
+        this.alertService.error('Cannot connect to the server.');
+        return;
+      }
+
+      this.alertService.error(error.error?.message ?? 'Failed to load posts. Please try again.');
+      return;
+    }
+
+    this.alertService.error('An unexpected error occurred. Please try again.');
+  }
+}

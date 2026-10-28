@@ -4,9 +4,10 @@
     [class.h-12]="size() === 'lg'" [class.w-12]="size() === 'lg'" [class.text-sm]="size() === 'lg'"
     [class.h-16]="size() === 'xl'" [class.w-16]="size() === 'xl'" [class.text-base]="size() === 'xl'"
     [attr.aria-label]="name() ? name() + '\'s avatar' : 'User avatar'">
-    @if (imageSrc() && !imageFailed()) {
-    <img [src]="imageSrc()" [alt]="name() ?? 'User avatar'" (error)="onImageError()" />
+    @if (avatarUrl() && !imageFailed()) {
+    <img [src]="avatarUrl()" [alt]="name() ? name() + '\'s avatar' : 'User avatar'" (error)="onImageError()"
+        class="h-full w-full rounded-full object-cover" />
     } @else {
-    <span>{{ initials() }}</span>
+    <span aria-hidden="true">{{ initials() }}</span>
     }
 </div>

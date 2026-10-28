@@ -1,6 +1,8 @@
 import { Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
 import { MediaUploadPreview } from '../media-upload-preview/media-upload-preview';
 import { PostService } from '../../state/post.service';
+import { Post } from '../../data-access/post.api.service';
+import { finalize, pipe } from 'rxjs';
 
 @Component({
   selector: 'app-create-post-dialog',
@@ -10,12 +12,14 @@ import { PostService } from '../../state/post.service';
 export class CreatePostDialog {
   readonly postService = inject(PostService);
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly mediaPreview = viewChild.required(MediaUploadPreview);
 
   readonly content = signal('');
   readonly selectedFiles = signal<File[]>([]);
   readonly uploading = signal(false);
   readonly uploadProgress = signal<number | null>(null);
   readonly closed = output<void>();
+  readonly published = output<Post | null>();
 
   onFilesChange(files: File[]): void {
     this.selectedFiles.set(files);
@@ -46,10 +50,21 @@ export class CreatePostDialog {
 
   publishPost(): void {
     const content = this.content().trim();
+
     if (!content || this.uploading()) {
       return;
     }
+    this.uploading.set(true);
 
-    this.postService.createPost(content, this.selectedFiles());
+    this.postService
+      .createPost(content, this.selectedFiles())
+      .pipe(finalize(() => this.uploading.set(false)))
+      .subscribe((post) => {
+        this.published.emit(post);
+        this.mediaPreview().clear();
+        this.selectedFiles.set([]);
+        this.content.set('');
+        this.close();
+      });
   }
 }

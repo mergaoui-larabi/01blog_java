@@ -119,7 +119,7 @@ public class PostService {
     public PostResponse createPost(CreatePostRequest request, UUID userId, String authHeader) {
         List<UUID> mediaUuids = parseAndDeduplicateMediaIds(request.mediaIds());
         if (!mediaUuids.isEmpty()) {
-            mediaServiceClient.validateAllMediaOwnership(mediaUuids, authHeader);
+            // mediaServiceClient.validateAllMediaOwnership(mediaUuids, authHeader);
         }
 
         Post post = new Post(
@@ -137,7 +137,7 @@ public class PostService {
 
         List<UUID> mediaUuids = parseAndDeduplicateMediaIds(request.mediaIds());
         if (!mediaUuids.isEmpty()) {
-            mediaServiceClient.validateAllMediaOwnership(mediaUuids, authHeader);
+            // mediaServiceClient.validateAllMediaOwnership(mediaUuids, authHeader);
         }
 
         post.setContent(new PostContent(request.content()));
@@ -160,7 +160,7 @@ public class PostService {
         if (request.mediaIds() != null) {
             List<UUID> mediaUuids = parseAndDeduplicateMediaIds(request.mediaIds());
             if (!mediaUuids.isEmpty()) {
-                mediaServiceClient.validateAllMediaOwnership(mediaUuids, authHeader);
+                // mediaServiceClient.validateAllMediaOwnership(mediaUuids, authHeader);
             }
             post.setMediaIds(mediaUuids);
         }

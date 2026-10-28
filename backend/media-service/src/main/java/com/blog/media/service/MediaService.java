@@ -133,6 +133,18 @@ public class MediaService {
     // Read
     // ------------------------------------------------------------------
 
+    // @Transactional
+    // public void validateMediaOwnership(UUID mediaId, UUID ownerId) {
+    //     Media media = mediaRepository.findById(mediaId)
+    //             .orElseThrow(() -> new MediaNotFoundException(
+    //                     "Media not found: " + mediaId));
+
+    //     if (!media.getOwnerId().equals(ownerId)) {
+    //         throw new MediaAccessDeniedException(
+    //                 "Media is not owned by the authenticated user");
+    //     }
+    // }
+
     @Transactional(readOnly = true)
     public MediaContent getContent(UUID mediaId, UUID requesterId) {
         Media media = getMedia(mediaId, requesterId);
@@ -149,7 +161,7 @@ public class MediaService {
     @Transactional(readOnly = true)
     public Media getMedia(UUID mediaId, UUID requesterId) {
         Media media = findMedia(mediaId);
-        assertOwner(media, requesterId);
+        // assertOwner(media, requesterId);
         return media;
     }
 
@@ -247,11 +259,11 @@ public class MediaService {
                 .orElseThrow(() -> new MediaNotFoundException("Media not found: " + mediaId));
     }
 
-    private void assertOwner(Media media, UUID requesterId) {
-        if (!media.getOwnerId().equals(requesterId)) {
-            throw new MediaAccessDeniedException("You do not have access to this media");
-        }
-    }
+    // private void assertOwner(Media media, UUID requesterId) {
+    //     if (!media.getOwnerId().equals(requesterId)) {
+    //         throw new MediaAccessDeniedException("You do not have access to this media");
+    //     }
+    // }
 
     private void assertWriteAccess(Media media, UUID requesterId, boolean isAdmin) {
         if (!media.getOwnerId().equals(requesterId) && !isAdmin) {

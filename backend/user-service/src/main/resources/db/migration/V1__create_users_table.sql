@@ -9,7 +9,7 @@ CREATE TABLE
         gender VARCHAR(30) NOT NULL,
         role VARCHAR(50) NOT NULL,
         avatar_media_id UUID,
-        is_banned BOOLEAN NOT NULL DEFAULT FALSE,
+        banned BOOLEAN NOT NULL DEFAULT FALSE,
         created_at TIMESTAMP
         WITH
             TIME ZONE NOT NULL,
@@ -34,5 +34,7 @@ CREATE TABLE
             CONSTRAINT fk_followers_followed FOREIGN KEY (followed_id) REFERENCES users (id) ON DELETE CASCADE,
             CONSTRAINT followers_no_self_follow CHECK (follower_id <> followed_id)
     );
+
+CREATE INDEX idx_users_created_at ON users (created_at);
 
 CREATE INDEX idx_followers_followed_id ON followers (followed_id);

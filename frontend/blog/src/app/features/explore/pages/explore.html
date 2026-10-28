@@ -1,4 +1,47 @@
-<div class="p-4">
-  <h1>Explore</h1>
-  <p class="text-text-muted">Place your explore markup here.</p>
-</div>
+<section class="flex-1 min-w-0 p-4 sm:p-6">
+  <div class="mx-auto max-w-3xl space-y-6">
+
+    <header>
+      <h1 class="text-2xl font-bold text-text">Explore</h1>
+      <p class="mt-1 text-sm text-text-muted">
+        Discover people in your community.
+      </p>
+    </header>
+
+    <!-- Search -->
+    <input #searchInput type="search" placeholder="Search users by username..." aria-label="Search users"
+      (input)="search(searchInput.value)" class="w-full rounded-xl border border-border bg-surface px-4 py-3
+             text-sm text-text outline-none
+             focus:border-primary focus:ring-2 focus:ring-primary/20" />
+
+    <!-- Loading -->
+    @if (exploreService.loading() && !exploreService.hasUsers()) {
+    <p class="py-8 text-center text-text-muted">Loading users...</p>
+    }
+
+    <!-- User cards -->
+    <div class="space-y-3">
+      @for (user of exploreService.users(); track user.id) {
+      <app-user-card [user]="user" (followChange)="onFollowChange($event)" />
+      } @empty {
+      @if (!exploreService.loading()) {
+      <p class="py-8 text-center text-text-muted">
+        No users found.
+      </p>
+      }
+      }
+    </div>
+
+    <!-- Load more -->
+    @if (exploreService.hasUsers()) {
+    <button type="button" (click)="loadMore()" [disabled]="exploreService.loading() || !exploreService.nextCursor()"
+      class="w-full rounded-xl border border-border bg-surface px-4 py-3
+               text-sm font-semibold text-text transition
+               hover:bg-background disabled:cursor-not-allowed
+               disabled:opacity-50">
+      {{ exploreService.loading() ? 'Loading...' : 'Load more' }}
+    </button>
+    }
+
+  </div>
+</section>

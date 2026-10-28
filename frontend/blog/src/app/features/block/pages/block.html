@@ -1,4 +1,12 @@
-<div class="p-4">
-  <h1>Block</h1>
-  <p class="text-text-muted">Place your block markup here.</p>
-</div>
+<section class="flex-1 p-4">
+  <app-create-post-button (published)="onPostPublished($event)" />
+  @for (post of blockService.posts(); track post.id) {
+  <app-post-card [post]="post" (clicked)="openPost($event)" />
+  } @empty {
+  @if (!blockService.loading()) {
+  <p class="py-10 text-center text-text-muted">
+    No posts to display.
+  </p>
+  }
+  }
+</section>

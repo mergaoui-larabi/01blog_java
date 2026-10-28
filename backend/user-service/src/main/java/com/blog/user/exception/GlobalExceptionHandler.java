@@ -63,6 +63,15 @@ public class GlobalExceptionHandler {
                 return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
         }
 
+        // 403
+        @ExceptionHandler(BannedUserNotFoundException.class)
+        public ResponseEntity<UserErrorResponse> handleBannedUserNotFound(
+                        BannedUserNotFoundException exception,
+                        HttpServletRequest request) {
+
+                return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage(), request);
+        }
+
         // 404
         @ExceptionHandler(NoResourceFoundException.class)
         public ResponseEntity<UserErrorResponse> handleNoResourceFound(

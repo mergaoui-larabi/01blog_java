@@ -22,7 +22,7 @@ export class AuthService {
   private readonly alertService = inject(AlertService);
   private readonly tokenStorage = inject(TokenStorageService);
 
-  // User session is stored in reactive memory only (not persisted in sessionStorage or cookies)
+  // Access token is persisted in localStorage only; the user session lives in memory.
   private readonly currentUser = signal<AuthUser | null>(null);
 
   readonly user = this.currentUser.asReadonly();
@@ -33,10 +33,14 @@ export class AuthService {
   readonly loading = signal(false);
 
   constructor() {
-    // If an access token exists in cookies on startup, validate and fetch the current user
+    // If an access token exists in localStorage on startup, validate and fetch the current user
     if (this.tokenStorage.token()) {
       this.validateSession().subscribe();
     }
+  }
+
+  getAuthenticatedUser() {
+    return this.currentUser();
   }
 
   /**
@@ -89,9 +93,9 @@ export class AuthService {
     this.authApi
       .login(request)
       .pipe(
-        // 1. Store only the accessToken in cookies
+        // 1. Store only the accessToken in localStorage
         tap((response) => {
-          this.tokenStorage.setToken(response.accessToken, response.expiresIn);
+          this.tokenStorage.setToken(response.accessToken);
         }),
 
         // 2. Request the session from the backend via getCurrentUser
@@ -129,9 +133,9 @@ export class AuthService {
           }),
         ),
 
-        // 2. Store only the accessToken in cookies before calling protected endpoints.
+        // 2. Store only the accessToken in localStorage before calling protected endpoints.
         tap((loginResponse) => {
-          this.tokenStorage.setToken(loginResponse.accessToken, loginResponse.expiresIn);
+          this.tokenStorage.setToken(loginResponse.accessToken);
         }),
 
         // 3. Upload the avatar only if one was selected.

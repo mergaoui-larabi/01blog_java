@@ -8,7 +8,10 @@ export const environment = {
   postRegisterEndPoint: 'http://localhost:5000/api/v1/users/signup',
   getMeEndpoint: 'http://localhost:5000/api/v1/users/me',
   patchAvatarIdEndpoint: 'http://localhost:5000/api/v1/users/update',
-
+  getUsersEndPoint:
+    'http://localhost:5000/api/v1/users?cursor={lastUserId}&cursorInstant={cursorInstant}&search={search}&size=20',
+  postFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
+  deleteFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
   // media
   postAvatarEndpoint: 'http://localhost:5000/api/v1/medias/avatars',
   uploadpostsMediaEndpoint: 'http://localhost:5000/api/v1/medias/posts',

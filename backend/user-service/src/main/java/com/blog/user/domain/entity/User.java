@@ -1,4 +1,3 @@
-
 package com.blog.user.domain.entity;
 
 import jakarta.persistence.AttributeOverride;
@@ -13,6 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.EnumType;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.blog.user.domain.model.UserRole;
@@ -55,6 +55,9 @@ public class User {
     @Column(name = "avatar_media_id")
     private UUID avatarMediaId;
 
+    @Column(name = "banned", nullable = false)
+    private Boolean banned = false;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -79,6 +82,7 @@ public class User {
         this.age = age;
         this.gender = gender;
         this.role = role;
+        this.banned = false;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }
@@ -116,6 +120,10 @@ public class User {
         return avatarMediaId;
     }
 
+    public Boolean getBanned() {
+        return banned;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -127,5 +135,63 @@ public class User {
     // update
     public void updateAvatarMediaId(UUID avatarMediaId) {
         this.avatarMediaId = avatarMediaId;
+    }
+
+    public void ban() {
+        if (banned) {
+            throw new IllegalStateException("User is already banned");
+        }
+        this.banned = true;
+        this.updatedAt = Instant.now();
+    }
+
+    public void unban() {
+        if (!banned) {
+            throw new IllegalStateException("User is not banned");
+        }
+        this.banned = false;
+        this.updatedAt = Instant.now();
+    }
+
+    void setId(UUID id) {
+        this.id = id;
+    }
+
+    void setBanned(boolean banned) {
+        this.banned = banned;
+    }
+
+    // test helpers
+    UUID createTestId() {
+        return id = UUID.randomUUID();
+    }
+
+    void createTestBanned(boolean banned) {
+        this.banned = banned;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User that)) {
+            return false;
+        }
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", banned=" + banned +
+                '}';
     }
 }

@@ -1,35 +1,39 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-  OnDestroy,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, signal, OnDestroy } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+
 import { MediaApiService } from '../../data-access/media.api.service';
+import { AuthService } from '../../../features/auth/state/auth.service';
 
 export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
-
-const SESSION_STORAGE_KEY = '01blog.session';
 
 @Component({
   selector: 'app-avatar',
   templateUrl: './avatar.html',
 })
 export class Avatar implements OnDestroy {
+  private readonly authService = inject(AuthService);
   private readonly mediaApi = inject(MediaApiService);
 
+  readonly mediaId = input<string | null | undefined>(undefined);
   readonly src = input<string | null>(null);
   readonly name = input<string | null>(null);
   readonly size = input<AvatarSize>('md');
 
   readonly imageFailed = signal(false);
-  readonly imageSrc = signal<string | null>(null);
+  readonly avatarUrl = signal<string | null>(null);
 
   private objectUrl: string | null = null;
   private requestId = 0;
+
+  readonly resolvedMediaId = computed(() => {
+    const explicitMediaId = this.mediaId();
+
+    if (explicitMediaId !== undefined) {
+      return explicitMediaId;
+    }
+
+    return this.authService.getAuthenticatedUser()?.avatarMediaId ?? null;
+  });
 
   readonly initials = computed(() => {
     const name = this.name()?.trim();
@@ -50,14 +54,21 @@ export class Avatar implements OnDestroy {
   constructor() {
     effect(() => {
       const src = this.src();
+      const mediaId = this.resolvedMediaId();
 
-      // A supplied URL takes precedence over the session avatar.
+      // A supplied URL takes precedence over the media ID.
       if (src) {
-        this.setImageSource(src);
+        this.loadImageUrl(src);
         return;
       }
 
-      this.loadSessionAvatar();
+      if (!mediaId) {
+        this.invalidatePendingRequest();
+        this.setAvatarUrl(null);
+        return;
+      }
+
+      this.loadMediaAvatar(mediaId);
     });
   }
 
@@ -65,71 +76,54 @@ export class Avatar implements OnDestroy {
     this.imageFailed.set(true);
   }
 
-  private async loadSessionAvatar(): Promise<void> {
+  private async loadMediaAvatar(mediaId: string): Promise<void> {
     const requestId = ++this.requestId;
-    const mediaId = this.getAvatarMediaId();
-
-    if (!mediaId) {
-      this.setImageSource(null);
-      return;
-    }
 
     try {
-      const blob = await firstValueFrom(
-        this.mediaApi.getMediaContent(mediaId),
-      );
+      const blob = await firstValueFrom(this.mediaApi.getMediaContent(mediaId));
 
-      // Ignore responses from an older request.
+      // Ignore responses from outdated requests.
       if (requestId !== this.requestId) {
         return;
       }
 
-      this.setImageSource(URL.createObjectURL(blob));
+      this.setAvatarUrl(URL.createObjectURL(blob));
     } catch {
       if (requestId === this.requestId) {
-        this.setImageSource(null);
+        this.setAvatarUrl(null);
       }
     }
   }
 
-  private setImageSource(src: string | null): void {
+  private loadImageUrl(src: string): void {
+    this.invalidatePendingRequest();
+    this.setAvatarUrl(src);
+  }
+
+  private invalidatePendingRequest(): void {
+    this.requestId++;
+  }
+
+  private setAvatarUrl(url: string | null): void {
     if (this.objectUrl) {
       URL.revokeObjectURL(this.objectUrl);
       this.objectUrl = null;
     }
 
-    // Track object URLs so they can be revoked later.
-    if (src?.startsWith('blob:')) {
-      this.objectUrl = src;
+    if (url?.startsWith('blob:')) {
+      this.objectUrl = url;
     }
 
     this.imageFailed.set(false);
-    this.imageSrc.set(src);
-  }
-
-  private getAvatarMediaId(): string | null {
-    const session = sessionStorage.getItem(SESSION_STORAGE_KEY);
-
-    if (!session) {
-      return null;
-    }
-
-    try {
-      const user = JSON.parse(session);
-      return typeof user.avatarMediaId === 'string'
-        ? user.avatarMediaId
-        : null;
-    } catch {
-      return null;
-    }
+    this.avatarUrl.set(url);
   }
 
   ngOnDestroy(): void {
-    // Invalidate any outstanding request.
-    this.requestId++;
+    this.invalidatePendingRequest();
 
     if (this.objectUrl) {
       URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = null;
     }
   }
 }

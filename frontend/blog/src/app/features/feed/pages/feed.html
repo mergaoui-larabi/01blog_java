@@ -1,3 +1,12 @@
 <section class="flex-1 p-4">
-  <app-create-post-button />
+  <app-create-post-button  (published)="onPostPublished($event)"/>
+  @for (post of feedService.posts(); track post.id) {
+  <app-post-card [post]="post" (clicked)="openPost($event)" />
+  } @empty {
+  @if (!feedService.loading()) {
+  <p class="py-10 text-center text-text-muted">
+    No posts to display.
+  </p>
+  }
+  }
 </section>
