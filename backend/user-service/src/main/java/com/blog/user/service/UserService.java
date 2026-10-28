@@ -79,6 +79,12 @@ public class UserService {
     }
 
     @Transactional
+    public User getUserByUser(Username username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+    }
+
+    @Transactional
     public User createUser(CreateUserRequest request) {
         Email email = new Email(request.email());
         Username username = new Username(request.username());

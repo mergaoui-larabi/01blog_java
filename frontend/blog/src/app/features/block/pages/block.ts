@@ -5,10 +5,11 @@ import { CreatePostButton } from '../../posts/components/create-post-button/crea
 import { BlockService } from '../state/block.service';
 import { CreatePostDialog } from '../../posts/components/create-post-dialog/create-post-dialog';
 import { PostViewDialog } from '../../posts/components/post-view-dialog/post-view-dialog';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
 
 @Component({
   selector: 'app-block',
-  imports: [CreatePostButton, PostCard, CreatePostDialog, PostViewDialog],
+  imports: [CreatePostButton, PostCard, CreatePostDialog, PostViewDialog, Avatar],
   templateUrl: './block.html',
 })
 export class Block {

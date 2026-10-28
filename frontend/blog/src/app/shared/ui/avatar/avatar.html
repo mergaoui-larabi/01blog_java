@@ -2,12 +2,13 @@
     [class.h-6]="size() === 'sm'" [class.w-6]="size() === 'sm'" [class.text-[10px]]="size() === 'sm'"
     [class.h-9]="size() === 'md'" [class.w-9]="size() === 'md'" [class.text-xs]="size() === 'md'"
     [class.h-12]="size() === 'lg'" [class.w-12]="size() === 'lg'" [class.text-sm]="size() === 'lg'"
-    [class.h-16]="size() === 'xl'" [class.w-16]="size() === 'xl'" [class.text-base]="size() === 'xl'"
+    [class.h-40]="size() === 'xl'" [class.w-40]="size() === 'xl'" [class.text-base]="size() === 'xl'"
     [attr.aria-label]="name() ? name() + '\'s avatar' : 'User avatar'">
     @if (avatarUrl() && !imageFailed()) {
     <img [src]="avatarUrl()" [alt]="name() ? name() + '\'s avatar' : 'User avatar'" (error)="onImageError()"
         class="h-full w-full rounded-full object-cover" />
     } @else {
-    <span aria-hidden="true">{{ initials() }}</span>
+    <img src="/assets/avatar/avatar.webp" [alt]="name() ? name() + '\'s avatar' : 'User avatar'"
+        (error)="onImageError()" class="h-full w-full rounded-full object-cover" />
     }
 </div>

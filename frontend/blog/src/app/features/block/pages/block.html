@@ -1,14 +1,35 @@
 <section class="flex-1 p-4">
+  <!-- Profile header -->
+  <div class="mb-6 flex flex-col items-center rounded-xl border border-border bg-surface p-6 text-center">
+    <app-avatar size="xl" />
+
+    <h2 class="mt-3 text-lg font-semibold text-text">
+      <!-- {{ blockService.user()?.username }} -->
+    </h2>
+
+    <p class="mt-1 text-sm text-text-muted">
+      <span class="font-semibold text-text">
+        <!-- {{ blockService.user()?.followersCount ?? 0 }} -->
+      </span>
+      <!-- {{ blockService.user()?.followersCount === 1 ? 'follower' : 'followers' }} -->
+    </p>
+  </div>
+
+  <!-- Create post -->
   <app-create-post-button (published)="onPostPublished($event)" />
-  @for (post of blockService.posts(); track post.id) {
-  <app-post-card [post]="post" (clicked)="openPost($event)" />
-  } @empty {
-  @if (!blockService.loading()) {
-  <p class="py-10 text-center text-text-muted">
-    No posts to display.
-  </p>
-  }
-  }
+
+  <!-- Posts -->
+  <div class="mt-4 space-y-4">
+    @for (post of blockService.posts(); track post.id) {
+    <app-post-card [post]="post" (clicked)="openPost($event)" />
+    } @empty {
+    @if (!blockService.loading()) {
+    <p class="py-10 text-center text-text-muted">
+      No posts to display.
+    </p>
+    }
+    }
+  </div>
 </section>
 
 <app-post-view-dialog />

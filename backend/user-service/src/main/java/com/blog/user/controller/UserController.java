@@ -28,6 +28,8 @@ import com.blog.user.exception.InvalidValueException;
 import com.blog.user.service.FollowerService;
 import com.blog.user.service.UserService;
 import com.blog.user.domain.entity.User;
+import com.blog.user.domain.valueobject.Username;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -148,6 +150,13 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
         User user = userService.getUserById(userId);
+        return ResponseEntity.ok(userService.toResponse(user));
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String username) {
+        Username u = new Username(username);
+        User user = userService.getUserByUser(u);
         return ResponseEntity.ok(userService.toResponse(user));
     }
 

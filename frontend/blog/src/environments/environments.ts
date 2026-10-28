@@ -58,6 +58,4 @@ export const environment = {
   // report
 
   // notification
-
-  // feed
 } as const;

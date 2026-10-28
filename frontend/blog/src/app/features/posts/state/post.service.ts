@@ -45,6 +45,7 @@ export class PostService {
       toArray(),
       switchMap((mediaIds) => this.postApi.createPost({ content, mediaIds })),
       tap(() => {
+        this.router.navigate(['/block/me']);
         this.alertService.success('Post published!');
       }),
       catchError((error: unknown) => {

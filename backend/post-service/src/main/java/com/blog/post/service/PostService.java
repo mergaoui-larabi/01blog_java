@@ -77,7 +77,7 @@ public class PostService {
 
         List<UUID> followedUserIds = userServiceClient.getFollowedUserIds(currentUserId);
         Set<UUID> authorIds = new HashSet<>(followedUserIds);
-        authorIds.add(currentUserId);
+        // authorIds.add(currentUserId);
 
         Pageable pageable = PageRequest.ofSize(size + 1);
         List<Post> posts;
