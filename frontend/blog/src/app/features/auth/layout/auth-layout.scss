@@ -2,7 +2,7 @@
 
 .app-auth-shell {
   position: relative;
-  min-height: calc(100vh - 4rem);
+  min-height: 100svh;
   background-color: var(--app-color-surface);
 }
 
@@ -22,17 +22,18 @@
 }
 
 .app-auth-card {
+  margin-top: 30px;
   width: 100%;
   max-width: 28rem;
   border: 1px solid var(--app-color-border);
   border-radius: var(--bs-border-radius-2xl);
   background-color: var(--app-color-surface);
-  padding: 2rem 1.5rem;
+  padding: 0;
   box-shadow: 0 20px 50px rgb(15 23 42 / 0.12);
 }
 
 @media (min-width: 576px) {
   .app-auth-card {
-    padding: 2rem 2.5rem;
+    padding: 1rem 1.5rem;
   }
 }

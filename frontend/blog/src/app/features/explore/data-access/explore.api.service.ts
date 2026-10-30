@@ -13,6 +13,7 @@ export interface UserSearch {
   avatarMediaId: string | null;
   banned: boolean;
   followedByCurrentUser: boolean;
+  sameUser: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,6 +26,7 @@ export interface PageResponse<T> {
 @Service()
 export class ExploreApiService {
   private readonly http = inject(HttpClient);
+
   private readonly env = environment;
 
   //get
@@ -51,6 +53,14 @@ export class ExploreApiService {
     const url = this.env.getUsersEndPoint.split('?')[0];
 
     return this.http.get<PageResponse<UserSearch>>(url, { params });
+  }
+
+  getUser(username: string): Observable<UserSearch> {
+    const url = this.env.getUserByUsernameEndpoint.replace(
+      '{username}',
+      encodeURIComponent(username),
+    );
+    return this.http.get<UserSearch>(url);
   }
 
   //post

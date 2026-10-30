@@ -1,19 +1,6 @@
-<section class="flex-grow-1 p-4">
+<section class="flex-grow-1 w-100 p-4">
   <!-- Profile header -->
-  <div class="app-card-static mb-6 d-flex flex-column align-items-center text-center p-4 p-sm-5">
-    <app-avatar size="xl" />
-
-    <h2 class="mt-3 mb-0 fs-5 fw-semibold text-body">
-      <!-- {{ blockService.user()?.username }} -->
-    </h2>
-
-    <p class="mt-1 mb-0 text-sm text-secondary">
-      <span class="fw-semibold text-body">
-        <!-- {{ blockService.user()?.followersCount ?? 0 }} -->
-      </span>
-      <!-- {{ blockService.user()?.followersCount === 1 ? 'follower' : 'followers' }} -->
-    </p>
-  </div>
+  <app-user-profile [user]="user()" (followChange)="onFollowChange($event)" />
 
   <!-- Create post -->
   <app-create-post-button (published)="onPostPublished($event)" />

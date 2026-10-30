@@ -13,6 +13,7 @@ export const environment = {
   getUsersEndPoint:
     'http://localhost:5000/api/v1/users?cursor={lastUserId}&cursorInstant={cursorInstant}&search={search}&size=20',
   getUserByIdEndpoint: 'http://localhost:5000/api/v1/users/{userId}',
+  getUserByUsernameEndpoint: 'http://localhost:5000/api/v1/users/{username}',
   postFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
   deleteFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
   followUserEndpoint: 'http://localhost:5000/api/v1/users/{userId}/follow',

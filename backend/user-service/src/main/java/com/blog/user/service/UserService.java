@@ -113,7 +113,7 @@ public class UserService {
 
     @Transactional
     public User updateAvatarMediaId(UpdateUserAvatarRequest request) {
-        System.out.println("OwnerId: " + request.ownerId() + "avatar media id" + request.avatarMediaId());
+        // System.out.println("OwnerId: " + request.ownerId() + "avatar media id" + request.avatarMediaId());
         User user = userRepository.findById(request.ownerId())
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
         user.updateAvatarMediaId(request.avatarMediaId());

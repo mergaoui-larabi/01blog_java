@@ -24,6 +24,7 @@ import com.blog.user.application.dto.request.PageResponse;
 import com.blog.user.application.dto.request.UpdateUserAvatarRequest;
 import com.blog.user.application.dto.response.UserResponse;
 import com.blog.user.application.dto.response.UserSearchResponse;
+import com.blog.user.application.dto.response.UsernameSearchResponse;
 import com.blog.user.exception.InvalidValueException;
 import com.blog.user.service.FollowerService;
 import com.blog.user.service.UserService;
@@ -147,17 +148,45 @@ public class UserController {
         return ResponseEntity.ok(userService.toResponse(user));
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
+    @GetMapping("/id/{userId}")
+    public ResponseEntity<UserSearchResponse> getUserById(
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal Jwt jwt) {
         User user = userService.getUserById(userId);
-        return ResponseEntity.ok(userService.toResponse(user));
+        UserSearchResponse response = new UserSearchResponse(user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getAge(),
+                user.getGender(),
+                user.getRole(),
+                user.getAvatarMediaId(),
+                user.getBanned(),
+                followerService.isFollowing(UUID.fromString(jwt.getSubject()), user.getId()),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable String username) {
+    public ResponseEntity<UsernameSearchResponse> getUserByUsername(
+            @PathVariable String username,
+            @AuthenticationPrincipal Jwt jwt) {
         Username u = new Username(username);
         User user = userService.getUserByUser(u);
-        return ResponseEntity.ok(userService.toResponse(user));
+        // System.out.println("the user is : " + UUID.fromString(jwt.getSubject()) + "-------" + user.getId());
+        UsernameSearchResponse response = new UsernameSearchResponse(user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getAge(),
+                user.getGender(),
+                user.getRole(),
+                user.getAvatarMediaId(),
+                user.getBanned(),
+                followerService.isFollowing(UUID.fromString(jwt.getSubject()), user.getId()),
+                (UUID.fromString(jwt.getSubject()).equals(user.getId())),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{userId}")

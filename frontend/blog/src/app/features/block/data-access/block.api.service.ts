@@ -2,6 +2,7 @@ import { inject, Service } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environments';
+import { UserSearch } from '../../explore/data-access/explore.api.service';
 
 export interface Post {
   id: string;
@@ -125,5 +126,11 @@ export class BlockApiService {
     return this.http.get<PageResponse<Post>>(url, { params });
   }
 
-  
+  getUser(username: string): Observable<UserSearch> {
+    const url = this.env.getUserByUsernameEndpoint.replace(
+      '{username}',
+      encodeURIComponent(username),
+    );
+    return this.http.get<UserSearch>(url);
+  }
 }

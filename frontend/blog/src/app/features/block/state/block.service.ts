@@ -1,12 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { EMPTY } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { BlockApiService, Post } from '../data-access/block.api.service';
 import { AlertService } from '../../../core/alerts/alert.service';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class BlockService {
   private readonly alertService = inject(AlertService);
   private readonly blockApi = inject(BlockApiService);
@@ -55,6 +55,15 @@ export class BlockService {
 
   addPostToFeed(post: Post): void {
     this.posts.update((posts) => [post, ...posts]);
+  }
+
+  getUserByUsername(username: string) {
+    return this.blockApi.getUser(username).pipe(
+      catchError((error: unknown) => {
+        this.getErrorMessage(error);
+        return EMPTY;
+      }),
+    );
   }
 
   private getErrorMessage(error: unknown): void {

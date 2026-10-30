@@ -173,6 +173,15 @@ hr {
    Kept global because each rule below is used by more than one component;
    anything owned by a single component lives in that component's .scss file. */
 
+/* ---------- Routed pages ---------- */
+
+/* Angular renders routed components as siblings of <router-outlet>, and
+   custom-element hosts are inline by default, so they never fill the width. */
+router-outlet + * {
+  display: block;
+  width: 100%;
+}
+
 /* ---------- Cards ---------- */
 
 .app-card-static {
@@ -257,7 +266,9 @@ hr {
   border-radius: var(--bs-border-radius-pill);
   background: transparent;
   color: var(--app-color-text-muted);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .app-dialog-close:hover {
@@ -284,7 +295,9 @@ hr {
   border: 1px solid var(--app-color-border);
   border-radius: var(--bs-border-radius-xl);
   background-color: var(--app-color-background);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .app-media-frame > img,
@@ -308,7 +321,9 @@ hr {
   background-color: var(--app-surface-raised);
   color: var(--app-color-text);
   box-shadow: var(--bs-box-shadow-sm);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .app-nav-btn:hover {
@@ -365,24 +380,50 @@ hr {
 
 /* Bootstrap's spacing scale stops at level 5; extend it with 6 (1.5rem)
    and 8 (2rem), matching the multiplier the rest of the scale uses. */
-.p-6 { padding: 1.5rem !important; }
-.px-6 { padding-inline: 1.5rem !important; }
-.pt-6 { padding-top: 1.5rem !important; }
-.mt-6 { margin-top: 1.5rem !important; }
-.mb-6 { margin-bottom: 1.5rem !important; }
-.gap-6 { gap: 1.5rem !important; }
-.py-8 { padding-block: 2rem !important; }
-.mt-8 { margin-top: 2rem !important; }
-.min-h-0 { min-height: 0 !important; }
-.rounded-xl { border-radius: var(--bs-border-radius-xl) !important; }
+.p-6 {
+  padding: 1.5rem !important;
+}
+.px-6 {
+  padding-inline: 1.5rem !important;
+}
+.pt-6 {
+  padding-top: 1.5rem !important;
+}
+.mt-6 {
+  margin-top: 1.5rem !important;
+}
+.mb-6 {
+  margin-bottom: 1.5rem !important;
+}
+.gap-6 {
+  gap: 1.5rem !important;
+}
+.py-8 {
+  padding-block: 2rem !important;
+}
+.mt-8 {
+  margin-top: 2rem !important;
+}
+.min-h-0 {
+  min-height: 0 !important;
+}
+.rounded-xl {
+  border-radius: var(--bs-border-radius-xl) !important;
+}
 
 @media (min-width: 576px) {
-  .p-sm-6 { padding: 1.5rem !important; }
-  .px-sm-6 { padding-inline: 1.5rem !important; }
+  .p-sm-6 {
+    padding: 1.5rem !important;
+  }
+  .px-sm-6 {
+    padding-inline: 1.5rem !important;
+  }
 }
 
 @media (min-width: 992px) {
-  .px-lg-8 { padding-inline: 2rem !important; }
+  .px-lg-8 {
+    padding-inline: 2rem !important;
+  }
 }
 
 .text-xs {
@@ -440,34 +481,68 @@ hr {
    that generate them (display, background, borders, border-radius, shadow,
    opacity) are excluded from this build ---------- */
 
-.d-none { display: none !important; }
-.d-block { display: block !important; }
-.d-flex { display: flex !important; }
-.d-inline-flex { display: inline-flex !important; }
+.d-none {
+  display: none !important;
+}
+.d-block {
+  display: block !important;
+}
+.d-flex {
+  display: flex !important;
+}
+.d-inline-flex {
+  display: inline-flex !important;
+}
 
 @media (min-width: 576px) {
-  .d-sm-flex { display: flex !important; }
-  .d-sm-none { display: none !important; }
+  .d-sm-flex {
+    display: flex !important;
+  }
+  .d-sm-none {
+    display: none !important;
+  }
 }
 
 @media (min-width: 768px) {
-  .d-md-flex { display: flex !important; }
-  .d-md-block { display: block !important; }
-  .d-md-none { display: none !important; }
+  .d-md-flex {
+    display: flex !important;
+  }
+  .d-md-block {
+    display: block !important;
+  }
+  .d-md-none {
+    display: none !important;
+  }
 }
 
-.bg-transparent { background-color: transparent !important; }
+.bg-transparent {
+  background-color: transparent !important;
+}
 
-.border-0 { border: 0 !important; }
+.border-0 {
+  border: 0 !important;
+}
 
 .border-top {
   border-top: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
 }
 
-.rounded { border-radius: var(--bs-border-radius) !important; }
-.rounded-0 { border-radius: 0 !important; }
-.rounded-circle { border-radius: 50% !important; }
-.rounded-pill { border-radius: var(--bs-border-radius-pill) !important; }
+.rounded {
+  border-radius: var(--bs-border-radius) !important;
+}
+.rounded-0 {
+  border-radius: 0 !important;
+}
+.rounded-circle {
+  border-radius: 50% !important;
+}
+.rounded-pill {
+  border-radius: var(--bs-border-radius-pill) !important;
+}
 
-.shadow-sm { box-shadow: var(--bs-box-shadow-sm) !important; }
-.shadow { box-shadow: var(--bs-box-shadow) !important; }
+.shadow-sm {
+  box-shadow: var(--bs-box-shadow-sm) !important;
+}
+.shadow {
+  box-shadow: var(--bs-box-shadow) !important;
+}

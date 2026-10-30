@@ -21,22 +21,30 @@ export class ExploreService {
   // Derived state
   readonly hasUsers = computed(() => this.users().length > 0);
 
-  followUser(userId: string): void {
+  followUser(userId: string, onSettled?: (followed: boolean) => void): void {
     this.exploreApi.followUser(userId).subscribe({
-      next: () => this.updateFollowState(userId, true),
+      next: () => {
+        this.updateFollowState(userId, true);
+        onSettled?.(true);
+      },
       error: (error: unknown) => {
         this.getErrorMessage(error);
         this.updateFollowState(userId, false);
+        onSettled?.(false);
       },
     });
   }
 
-  unfollowUser(userId: string): void {
+  unfollowUser(userId: string, onSettled?: (followed: boolean) => void): void {
     this.exploreApi.unfollowUser(userId).subscribe({
-      next: () => this.updateFollowState(userId, false),
+      next: () => {
+        this.updateFollowState(userId, false);
+        onSettled?.(false);
+      },
       error: (error: unknown) => {
         this.getErrorMessage(error);
         this.updateFollowState(userId, true);
+        onSettled?.(true);
       },
     });
   }

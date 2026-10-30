@@ -154,7 +154,13 @@
       "Bash(cd /home/mlarbi/Desktop/01blog_java/frontend/blog && grep -n \"stylePreprocessorOptions\" -A8 angular.json | head -30)",
       "Bash(cd /home/mlarbi/Desktop/01blog_java/frontend/blog/src/app/features && cat feed/pages/feed.scss notifications/pages/notifications.scss && grep -n \"styleUrl\\\\|templateUrl\" feed/pages/feed.ts notifications/pages/notifications.ts)",
       "Bash(cd /home/mlarbi/Desktop/01blog_java/frontend/blog/src && grep -rn \"type='number'\\\\|type=\\\\\"number\\\\\"\" --include=\"*.html\" . ; echo ---; ls app/features/explore/components/user-card/ ; echo ---; grep -rn \"spinner\" app/features/auth/pages/login/login.html)",
-      "Bash(cd /home/mlarbi/Desktop/01blog_java/frontend/blog && npx ng build --configuration development 2>&1 | tail -20)"
+      "Bash(cd /home/mlarbi/Desktop/01blog_java/frontend/blog && npx ng build --configuration development 2>&1 | tail -20)",
+      "Bash(find /home/mlarbi/Desktop/01blog_java/frontend/blog/src/app/features/explore -type f | head -50)",
+      "Bash(cat > /home/mlarbi/Desktop/01blog_java/frontend/blog/src/app/features/explore/components/user-profile/user-profile.ts <<'EOF'\nimport { Component, input, output } from '@angular/core';\nimport { Avatar } from '../../../../shared/ui/avatar/avatar';\nimport { FollowButton } from '../../../../shared/ui/buttons/follow/follow-button';\nimport { ExploreUser } from '../user-card/user-card';\n\n@Component\\({\n  selector: 'app-user-profile',\n  imports: [Avatar, FollowButton],\n  templateUrl: './user-profile.html',\n}\\)\nexport class UserProfile {\n  readonly user = input.required<ExploreUser>\\(\\);\n  readonly followersCount = input\\(0\\);\n\n  readonly followChange = output<{\n    userId: string;\n    followed: boolean;\n  }>\\(\\);\n  readonly report = output<string>\\(\\);\n\n  onFollowChange\\(followed: boolean\\): void {\n    this.followChange.emit\\({\n      userId: this.user\\(\\).id,\n      followed,\n    }\\);\n  }\n\n  onReport\\(\\): void {\n    this.report.emit\\(this.user\\(\\).id\\);\n  }\n}\nEOF)",
+      "Bash(find /home/mlarbi/Desktop/01blog_java/frontend/blog/src/app/layout /home/mlarbi/Desktop/01blog_java/frontend/blog/src/app/features -maxdepth 3 -name \"*.html\" -o -maxdepth 3 -name \"*.scss\" | head -50)",
+      "Bash(head:*)",
+      "Bash(cd /home/mlarbi/Desktop/01blog_java/frontend/blog && npx ng build --configuration development 2>&1 | tail -15)",
+      "Bash(npx ng build --configuration development 2>&1 | grep -E \"ERROR|error|Output location\" | head)"
     ]
   }
 }

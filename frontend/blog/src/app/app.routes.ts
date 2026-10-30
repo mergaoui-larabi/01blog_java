@@ -26,16 +26,13 @@ export const routes: Routes = [
           {
             path: 'login',
             title: 'Log in · 01Blog',
-            loadComponent: () =>
-              import('./features/auth/pages/login/login').then((m) => m.Login),
+            loadComponent: () => import('./features/auth/pages/login/login').then((m) => m.Login),
           },
           {
             path: 'register',
             title: 'Sign up · 01Blog',
             loadComponent: () =>
-              import('./features/auth/pages/register/register').then(
-                (m) => m.Register
-              ),
+              import('./features/auth/pages/register/register').then((m) => m.Register),
           },
         ],
       },
@@ -60,10 +57,6 @@ export const routes: Routes = [
       {
         path: 'notifications',
         component: Notifications,
-      },
-      {
-        path: 'block/me',
-        component: Block,
       },
       {
         path: 'block/:username',

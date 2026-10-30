@@ -22,8 +22,8 @@
         </label>
 
         <textarea id="post-content" [value]="content()" (input)="content.set($any($event.target).value)"
-            placeholder="Share something with your community..."
-            class="form-control bg-surface w-100 flex-grow-0" style="min-height: 6rem; resize: vertical"></textarea>
+            placeholder="Share something with your community..." class="form-control bg-surface w-100 flex-grow-0"
+            style="min-height: 6rem; resize: none"></textarea>
 
         <div class="min-w-0 w-100" style="height: 50%; min-height: 0">
             <app-media-upload-preview (filesChange)="onFilesChange($event)" (uploadCancelled)="onUploadCancelled()"
@@ -31,7 +31,7 @@
         </div>
 
         <button type="button" (click)="publishPost()" [disabled]="uploading() || !content().trim()"
-            class="btn btn-primary rounded-xl px-4 py-3 fw-semibold align-self-start">
+            class="btn btn-primary rounded-xl px-4 py-3 fw-semibold align-self-start w-100">
             {{ uploading() ? 'Publishing...' : 'Publish' }}
         </button>
     </section>
