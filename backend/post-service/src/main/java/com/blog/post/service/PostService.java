@@ -219,20 +219,36 @@ public class PostService {
     @Transactional(readOnly = true)
     public PageResponse<CommentModel> fetchComments(UUID postId, UUID cursor, int size) {
         requirePost(postId);
+
         Pageable pageable = PageRequest.ofSize(size + 1);
 
-        Instant cursorTime = null;
-        if (cursor != null) {
-            cursorTime = commentRepository.findById(cursor)
-                    .map(Comment::getCreatedAt)
-                    .orElse(null);
+        List<Comment> comments;
+
+        if (cursor == null) {
+            // First page: no cursor required
+            comments = commentRepository.findByPostIdOrderByCreatedAtAsc(
+                    postId,
+                    pageable);
+        } else {
+            // Subsequent pages: retrieve the cursor's creation timestamp
+            Comment cursorComment = commentRepository.findById(cursor)
+                    .filter(comment -> comment.getPostId().equals(postId))
+                    .orElseThrow(() -> new CommentNotFoundException(
+                            "Comment cursor not found: " + cursor));
+
+            comments = commentRepository.findNextPage(
+                    postId,
+                    cursor,
+                    cursorComment.getCreatedAt(),
+                    pageable);
         }
 
-        List<Comment> comments = commentRepository.findCommentsByPostIdWithCursor(
-                postId, cursor, cursorTime, pageable);
-
         boolean hasNext = comments.size() > size;
-        List<Comment> pageContent = hasNext ? comments.subList(0, size) : comments;
+
+        List<Comment> pageContent = hasNext
+                ? comments.subList(0, size)
+                : comments;
+
         String nextCursor = hasNext && !pageContent.isEmpty()
                 ? pageContent.get(pageContent.size() - 1).getId().toString()
                 : null;

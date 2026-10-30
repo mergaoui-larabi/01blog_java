@@ -42,7 +42,6 @@ public class Comment {
     }
 
     public Comment(UUID postId, UUID authorId, CommentContent content) {
-        this.id = UUID.randomUUID();
         this.postId = postId;
         this.authorId = authorId;
         this.content = content;
