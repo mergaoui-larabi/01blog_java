@@ -1,0 +1,75 @@
+<dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="edit-post-title"
+    class="app-dialog">
+    <div class="app-dialog-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img"
+            aria-label="Edit post">
+            <path d="M12 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" />
+            <path d="M16 4l4 4" />
+            <path d="M10 14l8.5-8.5a2.12 2.12 0 0 1 3 3L13 17l-4 1z" />
+        </svg>
+
+        <label for="edit-post-content" class="fw-medium">
+            Edit your post
+        </label>
+
+        <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"
+                aria-hidden="true">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <section class="app-dialog-body app-dialog-body-fill">
+
+        <textarea id="edit-post-content" [value]="content()" (input)="content.set($any($event.target).value)"
+            placeholder="Share something with your community..." class="form-control bg-surface w-100 flex-grow-0"
+            style="min-height: 6rem; resize: none"></textarea>
+
+        @if (existingIds().length > 0) {
+        <div>
+            <p class="mb-2 text-sm fw-medium text-secondary">Attached media</p>
+
+            <div class="app-edit-media-grid">
+                @for (mediaId of existingIds(); track mediaId) {
+                <div class="app-edit-media-item">
+                    @if (mediaUrls.urlOf(mediaId); as url) {
+                    @if (mediaUrls.kindOf(mediaId) === 'video') {
+                    <video [src]="url" muted playsinline preload="metadata"
+                        aria-label="Existing video attachment"></video>
+                    } @else {
+                    <img [src]="url" alt="Existing attachment" loading="lazy" />
+                    }
+                    } @else {
+                    <div class="app-edit-media-placeholder" role="status">Loading…</div>
+                    }
+
+                    <button type="button" (click)="removeExistingMedia(mediaId)"
+                        class="btn btn-sm app-edit-media-remove" [attr.aria-label]="'Remove attachment'">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"
+                            aria-hidden="true">
+                            <path d="M18 6 6 18" />
+                            <path d="m6 6 12 12" />
+                        </svg>
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <div class="min-w-0 w-100" style="height: 40%; min-height: 0">
+            <app-media-upload-preview (filesChange)="onFilesChange($event)" [uploading]="saving()"
+                [uploadProgress]="null" />
+        </div>
+
+        <button type="button" (click)="save()" [disabled]="saving() || !content().trim()"
+            class="btn btn-primary rounded-xl px-4 py-3 fw-semibold align-self-start w-100">
+            {{ saving() ? 'Saving...' : 'Save changes' }}
+        </button>
+    </section>
+</dialog>

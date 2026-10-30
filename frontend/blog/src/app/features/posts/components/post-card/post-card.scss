@@ -38,3 +38,140 @@
   font-size: 0.875rem;
   color: var(--app-color-text-muted);
 }
+
+/* Actions footer with like/comment buttons and owner menu. */
+
+.app-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-top: 1px solid var(--app-color-border);
+  padding: 0.25rem 0.75rem;
+}
+
+.app-interaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: var(--bs-border-radius-lg);
+  background-color: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--app-color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: rgb(var(--app-rgb-primary) / 0.06);
+    color: var(--app-color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-color-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &.liked {
+    color: var(--app-color-danger);
+  }
+}
+
+/* Owner actions menu. */
+
+.app-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.app-menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 21;
+  min-width: 9rem;
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--bs-border-radius-xl);
+  background-color: var(--app-color-surface);
+  box-shadow: 0 12px 32px rgb(15 23 42 / 0.14);
+  padding: 0.25rem;
+}
+
+.app-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: 0;
+  border-radius: var(--bs-border-radius-lg);
+  background-color: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--app-color-text);
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgb(var(--app-rgb-primary) / 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-color-primary);
+    outline-offset: -2px;
+  }
+}
+
+/* Media thumbnails grid. */
+
+.app-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.5rem;
+}
+
+.app-media-tile {
+  position: relative;
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--bs-border-radius-xl);
+  overflow: hidden;
+  background-color: var(--app-color-background);
+
+  img,
+  video {
+    display: block;
+    width: 100%;
+    height: 7rem;
+    object-fit: cover;
+  }
+}
+
+.app-media-tile-placeholder {
+  height: 7rem;
+}
+
+.app-media-more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 0.45);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+div[role="button"] {
+  cursor: pointer;
+}
+
+div[role="button"]:focus-visible {
+  outline: 2px solid var(--app-color-primary);
+  outline-offset: 2px;
+}

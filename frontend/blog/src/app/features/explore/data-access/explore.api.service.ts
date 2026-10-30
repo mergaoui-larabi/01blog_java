@@ -63,6 +63,11 @@ export class ExploreApiService {
     return this.http.get<UserSearch>(url);
   }
 
+  getUserById(userId: string): Observable<UserSearch> {
+    const url = this.env.getUserByIdEndpoint.replace('{userId}', encodeURIComponent(userId));
+    return this.http.get<UserSearch>(url);
+  }
+
   //post
   followUser(userId: string): Observable<void> {
     const url = this.env.postFollowUser.replace('{userId}', encodeURIComponent(userId));

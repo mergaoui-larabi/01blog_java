@@ -1,102 +1,218 @@
 <dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="post-view-title"
     class="app-dialog app-dialog-narrow">
-  <div class="app-dialog-header">
-    <h2 id="post-view-title" class="fs-5 fw-semibold mb-0">
-      Post
-    </h2>
+    <div class="app-dialog-header">
+        <app-dead-logo />
 
-    <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true">
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      </svg>
-    </button>
-  </div>
+        <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"
+                aria-hidden="true">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+    </div>
 
-  <section class="app-dialog-body">
-    @if (loading()) {
-      <div class="d-flex align-items-center justify-content-center py-8">
-        <p class="mb-0 text-secondary">Loading...</p>
-      </div>
-    } @else if (error()) {
-      <div class="d-flex align-items-center justify-content-center py-8">
-        <p class="mb-0 text-danger">{{ error() }}</p>
-      </div>
-    } @else if (post()) {
-      <article class="d-flex flex-column gap-4">
-        <!-- Post content -->
-        <div>
-          <p class="text-wrap-pretty mb-0 text-body" style="font-size: 1rem; line-height: 1.75rem">
-            {{ post()!.content }}
-          </p>
+    <section class="app-dialog-body">
+        @if (loading()) {
+        <div class="d-flex align-items-center justify-content-center py-8">
+            <p class="mb-0 text-secondary">Loading...</p>
         </div>
-
-        <!-- Media gallery -->
-        @if (post()!.mediaIds.length > 0) {
-          <app-post-media-gallery [mediaIds]="post()!.mediaIds" />
-        }
-
-        <!-- Post statistics -->
-        <div class="app-stats">
-          <!-- Likes -->
-          <span class="app-stat">
-            <svg width="20" height="20" [class.text-danger]="post()!.likedByCurrentUser" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5
-                   5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5
-                   5.5 0 0 0-.1-7.8Z" />
-            </svg>
-
-            <span>
-              {{ post()!.likesCount }}
-              {{ post()!.likesCount === 1 ? 'like' : 'likes' }}
-            </span>
-          </span>
-
-          <!-- Comments -->
-          <span class="app-stat">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                 aria-hidden="true">
-              <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
-                   8.5 8.5 0 0 1-7.6 4.7
-                   8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
-                   a8.4 8.4 0 0 1-.9-3.8
-                   8.5 8.5 0 0 1 4.7-7.6
-                   8.4 8.4 0 0 1 3.8-.9h.5
-                   a8.5 8.5 0 0 1 8 8v.5Z" />
-            </svg>
-
-            <span>
-              {{ post()!.commentsCount }}
-              {{ post()!.commentsCount === 1 ? 'comment' : 'comments' }}
-            </span>
-          </span>
-
-          <!-- Timestamp -->
-          <span class="app-stat app-stat-late">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                 aria-hidden="true">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 2" />
-            </svg>
-
-            <time [attr.datetime]="post()!.createdAt">
-              {{ post()!.createdAt | date: 'medium' }}
-            </time>
-          </span>
+        } @else if (error()) {
+        <div class="d-flex align-items-center justify-content-center py-8">
+            <p class="mb-0 text-danger">{{ error() }}</p>
         </div>
+        } @else if (post(); as currentPost) {
+        <article class="d-flex flex-column gap-4">
+            <!-- Author -->
+            <header class="d-flex w-100 align-items-center gap-3">
+                <app-avatar [mediaId]="authorOf(currentPost.authorId)?.avatarMediaId"
+                    [name]="authorOf(currentPost.authorId)?.username ?? null" size="md" />
 
-        <!-- Edited indicator -->
-        @if (isEdited()) {
-          <p class="mb-0 text-xs text-secondary">
-            Edited
-            <time [attr.datetime]="post()!.updatedAt">
-              {{ post()!.updatedAt | date: 'medium' }}
-            </time>
-          </p>
+                <div class="min-w-0">
+                    <p class="mb-0 text-truncate fw-semibold text-body">
+                        {{ authorOf(currentPost.authorId)?.username ?? 'Unknown user' }}
+                    </p>
+                    <p class="mb-0 text-xs text-secondary">
+                        <time [attr.datetime]="currentPost.createdAt">{{ currentPost.createdAt | timeAgo }}</time>
+                    </p>
+                </div>
+            </header>
+
+            <!-- Post content -->
+            <div>
+                <p class="text-wrap-pretty mb-0 text-body" style="font-size: 1rem; line-height: 1.75rem">
+                    {{ currentPost.content }}
+                </p>
+            </div>
+
+            <!-- Media gallery -->
+            @if (currentPost.mediaIds.length > 0) {
+            <app-post-media-gallery [mediaIds]="currentPost.mediaIds" />
+            }
+
+            <!-- Post statistics -->
+            <div class="app-stats">
+                <!-- Like -->
+                <button type="button" class="app-interaction-btn border-0 bg-transparent"
+                    [class.text-danger]="currentPost.likedByCurrentUser" [disabled]="likePending()"
+                    (click)="toggleLike()"
+                    [attr.aria-label]="currentPost.likedByCurrentUser ? 'Unlike post' : 'Like post'"
+                    [attr.aria-pressed]="currentPost.likedByCurrentUser">
+                    <svg width="20" height="20" viewBox="0 0 24 24"
+                        [attr.fill]="currentPost.likedByCurrentUser ? 'currentColor' : 'none'" stroke="currentColor"
+                        stroke-width="1.7" aria-hidden="true">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5
+                       5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5
+                       5.5 0 0 0-.1-7.8Z" />
+                    </svg>
+
+                    <span>
+                        {{ currentPost.likesCount }}
+                        {{ currentPost.likesCount === 1 ? 'like' : 'likes' }}
+                    </span>
+                </button>
+
+                <!-- Comments -->
+                <span class="app-stat">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                        aria-hidden="true">
+                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
+                       8.5 8.5 0 0 1-7.6 4.7
+                       8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
+                       a8.4 8.4 0 0 1-.9-3.8
+                       8.5 8.5 0 0 1 4.7-7.6
+                       8.4 8.4 0 0 1 3.8-.9h.5
+                       a8.5 8.5 0 0 1 8 8v.5Z" />
+                    </svg>
+
+                    <span>
+                        {{ currentPost.commentsCount }}
+                        {{ currentPost.commentsCount === 1 ? 'comment' : 'comments' }}
+                    </span>
+                </span>
+
+                <!-- Timestamp -->
+                <span class="app-stat app-stat-late">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                        aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 2" />
+                    </svg>
+
+                    <time [attr.datetime]="currentPost.createdAt">
+                        {{ currentPost.createdAt | date: 'medium' }}
+                    </time>
+                </span>
+            </div>
+
+            <!-- Edited indicator -->
+            @if (isEdited()) {
+            <p class="mb-0 text-xs text-secondary">
+                Edited
+                <time [attr.datetime]="currentPost.updatedAt">
+                    {{ currentPost.updatedAt | date: 'medium' }}
+                </time>
+            </p>
+            }
+        </article>
+
+        <!-- Comments -->
+        <div class="app-comments mt-2">
+            <h3 class="fs-6 fw-semibold mb-3">Comments</h3>
+
+            <!-- Composer -->
+            <div class="d-flex gap-2 mb-4">
+                <textarea id="new-comment" [value]="newCommentContent()"
+                    (input)="newCommentContent.set($any($event.target).value)" placeholder="Write a comment..." rows="2"
+                    class="form-control bg-surface" style="resize: none"></textarea>
+
+                <button type="button" (click)="addComment()"
+                    [disabled]="submittingComment() || !newCommentContent().trim()"
+                    class="btn btn-primary rounded-xl px-4 fw-semibold align-self-end flex-shrink-0">
+                    {{ submittingComment() ? 'Posting...' : 'Post' }}
+                </button>
+            </div>
+
+            @if (commentsLoading()) {
+            <p class="py-5 mb-0 text-center text-secondary">Loading comments...</p>
+            } @else if (commentsError()) {
+            <div class="py-5 text-center">
+                <p class="mb-2 text-danger">{{ commentsError() }}</p>
+                <button type="button" (click)="loadComments()" class="btn btn-outline-secondary btn-sm rounded-xl"
+                    aria-label="Retry loading comments">
+                    Try again
+                </button>
+            </div>
+            } @else {
+            @for (comment of comments(); track comment.id) {
+            <div class="app-comment d-flex gap-3 py-3">
+                <app-avatar [mediaId]="authorOf(comment.authorId)?.avatarMediaId"
+                    [name]="authorOf(comment.authorId)?.username ?? null" size="sm" />
+
+                <div class="min-w-0 flex-grow-1">
+                    <p class="mb-1 text-sm fw-semibold text-body">
+                        {{ authorOf(comment.authorId)?.username ?? 'Unknown user' }}
+                        <span class="ms-2 fw-normal text-xs text-secondary">
+                            <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | timeAgo }}</time>
+                        </span>
+                    </p>
+
+                    @if (editingCommentId() === comment.id) {
+                    <div class="d-flex flex-column gap-2">
+                        <textarea [value]="editContent()" (input)="editContent.set($any($event.target).value)" rows="2"
+                            class="form-control bg-surface" style="resize: none" aria-label="Edit comment"></textarea>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" (click)="saveEdit(comment)"
+                                [disabled]="savingCommentId() === comment.id || !editContent().trim()"
+                                class="btn btn-primary btn-sm rounded-xl px-3 fw-semibold">
+                                {{ savingCommentId() === comment.id ? 'Saving...' : 'Save' }}
+                            </button>
+                            <button type="button" (click)="cancelEdit()"
+                                class="btn btn-outline-secondary btn-sm rounded-xl px-3">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                    } @else {
+                    <p class="text-wrap-pretty mb-0 text-sm text-body">{{ comment.content }}</p>
+
+                    @if (isOwnedComment(comment)) {
+                    <div class="mt-1 d-flex gap-2">
+                        <button type="button" (click)="startEdit(comment)" class="btn btn-link btn-sm p-0 fw-semibold"
+                            aria-label="Edit comment">
+                            Edit
+                        </button>
+
+                        <button type="button" (click)="requestDelete(comment)"
+                            [disabled]="deletingCommentId() === comment.id"
+                            class="btn btn-link btn-sm p-0 fw-semibold text-danger" aria-label="Delete comment">
+                            {{ deletingCommentId() === comment.id ? 'Deleting...' : 'Delete' }}
+                        </button>
+                    </div>
+                    }
+                    }
+                </div>
+            </div>
+            } @empty {
+            <p class="py-5 mb-0 text-center text-secondary">
+                No comments yet. Be the first to comment.
+            </p>
+            }
+
+            @if (commentsHasNext()) {
+            <div class="d-flex justify-content-center py-3">
+                <button type="button" (click)="loadMoreComments()" [disabled]="commentsLoadingMore()"
+                    class="btn btn-outline-secondary btn-sm rounded-xl px-4">
+                    {{ commentsLoadingMore() ? 'Loading...' : 'Load more comments' }}
+                </button>
+            </div>
+            }
+            }
+        </div>
         }
-      </article>
-    }
-  </section>
+    </section>
 </dialog>
+
+<app-confirm-dialog #confirmDialog (confirmed)="confirmDeleteComment()" />

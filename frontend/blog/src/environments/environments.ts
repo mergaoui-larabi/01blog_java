@@ -12,7 +12,7 @@ export const environment = {
   updateUserAvatarEndpoint: 'http://localhost:5000/api/v1/users/update',
   getUsersEndPoint:
     'http://localhost:5000/api/v1/users?cursor={lastUserId}&cursorInstant={cursorInstant}&search={search}&size=20',
-  getUserByIdEndpoint: 'http://localhost:5000/api/v1/users/{userId}',
+  getUserByIdEndpoint: 'http://localhost:5000/api/v1/users/id/{userId}',
   getUserByUsernameEndpoint: 'http://localhost:5000/api/v1/users/{username}',
   postFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
   deleteFollowUser: 'http://localhost:5000/api/v1/users/{userId}/follow',
@@ -57,6 +57,11 @@ export const environment = {
   deleteCommentEndPoint: 'http://localhost:5000/api/v1/posts/{postId}/comments/{commentId}',
 
   // report
+  createReportEndpoint: 'http://localhost:5000/api/v1/reports',
+  getMyReportsEndpoint: 'http://localhost:5000/api/v1/reports/mine',
+  getReportEndpoint: 'http://localhost:5000/api/v1/reports/{reportId}',
+  updateReportEndpoint: 'http://localhost:5000/api/v1/reports/{reportId}',
+  deleteReportEndpoint: 'http://localhost:5000/api/v1/reports/{reportId}',
 
   // notification
 } as const;

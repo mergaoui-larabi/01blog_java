@@ -9,7 +9,7 @@ import { Avatar } from '../../../shared/ui/avatar/avatar';
 import { UserProfile } from '../../explore/components/user-profile/user-profile';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { distinctUntilChanged, map, switchMap } from 'rxjs';
+import { distinctUntilChanged, map, switchMap, tap } from 'rxjs';
 import { UserSearch } from '../../explore/data-access/explore.api.service';
 import { ExploreService } from '../../explore/state/explore.service';
 
@@ -34,6 +34,13 @@ export class Block {
   constructor() {
     this.username
       .pipe(
+        // The component is reused when the :username param changes, so clear
+        // any previously shown posts before fetching the new profile's data.
+        tap(() => {
+          this.user.set(null);
+          this.blockService.reset();
+          this.blockService.loadFeed();
+        }),
         switchMap((username) => {
           if (!username) {
             throw new Error('Username route parameter is missing');
@@ -44,10 +51,6 @@ export class Block {
         takeUntilDestroyed(),
       )
       .subscribe((user) => this.user.set(user));
-  }
-
-  ngOnInit(): void {
-    this.blockService.loadFeed();
   }
 
   onFollowChange(event: { userId: string; followed: boolean }): void {

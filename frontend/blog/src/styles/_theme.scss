@@ -82,7 +82,9 @@ html.dark {
   --bs-tertiary-color: color-mix(in srgb, var(--app-color-text-muted) 65%, var(--app-color-text));
   --bs-secondary-bg: var(--app-color-text-bg);
   --bs-tertiary-bg: var(--app-color-background);
-  --bs-primary-rgb: var(--app-rgb-primary);
+  /* Comma-separated: Bootstrap utilities interpolate these into legacy
+     rgba(..., var(--bs-text-opacity)), which rejects space-separated channels. */
+  --bs-primary-rgb: 96, 165, 250;
   --bs-body-color-rgb: var(--app-rgb-text);
   --bs-emphasis-color-rgb: var(--app-rgb-text);
   --bs-border-color-rgb: var(--app-rgb-border);
@@ -106,7 +108,9 @@ html.dark {
   --bs-tertiary-bg: var(--app-color-background);
 
   --bs-primary: var(--app-color-primary);
-  --bs-primary-rgb: var(--app-rgb-primary);
+  /* Comma-separated: Bootstrap utilities interpolate these into legacy
+     rgba(..., var(--bs-text-opacity)), which rejects space-separated channels. */
+  --bs-primary-rgb: 37, 99, 235;
   --bs-success: var(--app-color-success);
   --bs-success-rgb: var(--app-rgb-success);
   --bs-danger: var(--app-color-danger);

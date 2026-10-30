@@ -57,6 +57,16 @@ export class FeedService {
     this.posts.update((posts) => [post, ...posts]);
   }
 
+  patchPost(postId: string, patch: Partial<Post>): void {
+    this.posts.update((posts) =>
+      posts.map((post) => (post.id === postId ? { ...post, ...patch } : post)),
+    );
+  }
+
+  removePost(postId: string): void {
+    this.posts.update((posts) => posts.filter((post) => post.id !== postId));
+  }
+
   private getErrorMessage(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 0) {

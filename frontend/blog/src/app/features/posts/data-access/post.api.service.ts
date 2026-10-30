@@ -11,6 +11,7 @@ export interface Post {
   likesCount: number;
   commentsCount: number;
   likedByCurrentUser: boolean;
+  ownedByCurrentUser: boolean;
   hidden: boolean;
   createdAt: string;
   updatedAt: string;
@@ -38,7 +39,7 @@ export interface CreatePostRequest {
 
 export interface ReplacePostRequest {
   content: string;
-  mediaId: string | null;
+  mediaIds: string[];
 }
 
 export interface UpdatePostRequest {

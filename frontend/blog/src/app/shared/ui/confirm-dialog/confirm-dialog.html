@@ -1,0 +1,32 @@
+<dialog #dialog (click)="onBackdropClick($event)" class="app-dialog app-confirm-dialog"
+    [attr.aria-labelledby]="'confirm-dialog-title'">
+    <div class="app-dialog-header">
+        <h2 id="confirm-dialog-title" class="fs-5 fw-semibold mb-0">
+            {{ data()?.title }}
+        </h2>
+
+        <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"
+                aria-hidden="true">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <section class="app-dialog-body">
+        <p class="mb-0 text-body">{{ data()?.message }}</p>
+
+        <div class="d-flex gap-2 justify-content-end">
+            <button type="button" (click)="close()" class="btn btn-outline-secondary rounded-xl px-4 fw-semibold">
+                {{ data()?.cancelLabel ?? 'Cancel' }}
+            </button>
+
+            <button type="button" (click)="onConfirm()"
+                [class]="data()?.danger ? 'btn btn-danger rounded-xl px-4 fw-semibold' : 'btn btn-primary rounded-xl px-4 fw-semibold'">
+                {{ data()?.confirmLabel ?? 'Confirm' }}
+            </button>
+        </div>
+    </section>
+</dialog>

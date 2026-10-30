@@ -1,0 +1,69 @@
+/* Reusable report button: flag trigger plus a reason dialog. */
+
+:host {
+  display: inline-block;
+}
+
+.app-report-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: var(--bs-border-radius-lg);
+  background-color: transparent;
+  padding: 0.25rem;
+  color: var(--app-color-danger);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: rgb(var(--app-rgb-danger) / 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.app-report-trigger-menu {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--app-color-text);
+
+  &:hover:not(:disabled) {
+    background-color: rgb(var(--app-rgb-primary) / 0.06);
+  }
+
+  svg {
+    color: var(--app-color-danger);
+  }
+}
+
+.app-report-dialog {
+  width: auto;
+  max-width: 28rem;
+  height: auto;
+  max-height: none;
+}
+
+.app-report-reason {
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--bs-border-radius-lg);
+  background-color: var(--app-color-background);
+  color: var(--app-color-text);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  resize: vertical;
+
+  &:focus {
+    outline: 2px solid var(--app-color-primary);
+    outline-offset: -1px;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+}

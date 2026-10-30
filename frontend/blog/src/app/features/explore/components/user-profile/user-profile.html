@@ -10,15 +10,7 @@
         @if (!user()?.sameUser && !isOwnProfile()){
         <app-follow-button [followed]="currentUser.followedByCurrentUser" (followChange)="onFollowChange($event)" />
 
-        <button type="button" class="btn btn-link p-1 text-danger" title="Report user" aria-label="Report user"
-            (click)="onReport()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                aria-hidden="true">
-                <path d="M5 21V4" />
-                <path d="M5 4c5-4 9 4 14 0v12c-5 4-9-4-14 0" />
-            </svg>
-        </button>
+        <app-report-button targetType="USER" [targetId]="currentUser.id" />
         }
     </div>
 </div>

@@ -3,3 +3,46 @@
 .app-dialog-narrow {
   max-width: 672px;
 }
+
+/* Comments list separators. */
+
+.app-comment + .app-comment {
+  border-top: 1px solid var(--app-color-border);
+}
+
+.app-comments {
+  border-top: 1px solid var(--app-color-border);
+}
+
+/* In-dialog like button (matches the post card interaction button). */
+
+.app-interaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--bs-border-radius-lg);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--app-color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: rgb(var(--app-rgb-primary) / 0.06);
+    color: var(--app-color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-color-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &.text-danger {
+    color: var(--app-color-danger);
+  }
+}

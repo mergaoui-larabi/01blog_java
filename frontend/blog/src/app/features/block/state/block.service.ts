@@ -57,6 +57,21 @@ export class BlockService {
     this.posts.update((posts) => [post, ...posts]);
   }
 
+  reset(): void {
+    this.posts.set([]);
+    this.nextCursor.set(null);
+  }
+
+  patchPost(postId: string, patch: Partial<Post>): void {
+    this.posts.update((posts) =>
+      posts.map((post) => (post.id === postId ? { ...post, ...patch } : post)),
+    );
+  }
+
+  removePost(postId: string): void {
+    this.posts.update((posts) => posts.filter((post) => post.id !== postId));
+  }
+
   getUserByUsername(username: string) {
     return this.blockApi.getUser(username).pipe(
       catchError((error: unknown) => {

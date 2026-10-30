@@ -1,10 +1,7 @@
 <dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="create-post-title"
     class="app-dialog">
     <div class="app-dialog-header">
-        <h2 id="create-post-title" class="fs-5 fw-semibold mb-0">
-            Create a post
-        </h2>
-
+        <app-dead-logo />
         <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"

@@ -249,6 +249,7 @@ router-outlet + * {
 }
 
 .app-dialog-body {
+  margin: auto;
   display: flex;
   min-height: 0;
   flex-direction: column;

@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Avatar } from '../../../../shared/ui/avatar/avatar';
 import { FollowButton } from '../../../../shared/ui/buttons/follow/follow-button';
+import { ReportButton } from '../../../../shared/ui/buttons/report/report-button';
 import { UserSearch } from '../../data-access/explore.api.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
@@ -8,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [Avatar, FollowButton],
+  imports: [Avatar, FollowButton, ReportButton],
   templateUrl: './user-profile.html',
 })
 export class UserProfile {
@@ -29,7 +30,6 @@ export class UserProfile {
     userId: string;
     followed: boolean;
   }>();
-  readonly report = output<string>();
 
   onFollowChange(followed: boolean): void {
     const user = this.user();
@@ -39,11 +39,5 @@ export class UserProfile {
       userId: user.id,
       followed,
     });
-  }
-
-  onReport(): void {
-    const user = this.user();
-    if (!user) return;
-    this.report.emit(user.id);
   }
 }

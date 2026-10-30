@@ -1,6 +1,20 @@
 <article class="app-card app-card-hover mb-3">
-    <button type="button" class="d-block w-100 text-start border-0 bg-transparent p-5 rounded-2xl app-card-trigger"
-        (click)="openPost()" [attr.aria-label]="'Open post: ' + previewContent()">
+    <div class="p-5 rounded-2xl" (click)="openPost()" role="button" tabindex="0" (keydown.enter)="openPost()"
+        (keydown.space)="openPost(); $event.preventDefault()" [attr.aria-label]="'Open post: ' + previewContent()">
+        <!-- Author -->
+        <header class="d-flex align-items-center gap-3 mb-4">
+            <app-avatar [mediaId]="author()?.avatarMediaId" [name]="author()?.username ?? null" size="md" />
+
+            <div class="min-w-0 flex-grow-1">
+                <p class="mb-0 text-truncate fw-semibold text-body">
+                    {{ author()?.username ?? 'Unknown user' }}
+                </p>
+                <p class="mb-0 text-xs text-secondary">
+                    <time [attr.datetime]="post().createdAt">{{ post().createdAt | timeAgo }}</time>
+                </p>
+            </div>
+        </header>
+
         <!-- Post content -->
         <div>
             <p class="text-wrap-pretty mb-0 text-sm text-body" style="line-height: 1.75rem">
@@ -8,72 +22,28 @@
             </p>
         </div>
 
-        <!-- Media preview placeholder -->
+        <!-- Media thumbnails -->
         @if (post().mediaIds.length > 0) {
-        <div class="app-media-strip mt-4">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                class="flex-shrink-0" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="3" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <path d="m21 15-5-5L5 21" />
-            </svg>
+        <div class="app-media-grid mt-4">
+            @for (mediaId of visibleMediaIds(); track mediaId) {
+            <div class="app-media-tile">
+                @if (mediaUrls.urlOf(mediaId); as url) {
+                @if (mediaUrls.kindOf(mediaId) === 'video') {
+                <video [src]="url" muted playsinline preload="metadata" aria-hidden="true"></video>
+                } @else {
+                <img [src]="url" alt="Post attachment" loading="lazy" />
+                }
 
-            <span>
-                {{ post().mediaIds.length }}
-                {{ post().mediaIds.length === 1 ? 'attachment' : 'attachments' }}
-            </span>
+                @if (hiddenMediaCount() > 0 && $index === visibleMediaIds().length - 1) {
+                <span class="app-media-more">+{{ hiddenMediaCount() }}</span>
+                }
+                } @else {
+                <div class="app-media-tile-placeholder" role="presentation"></div>
+                }
+            </div>
+            }
         </div>
         }
-
-        <!-- Post statistics -->
-        <div class="app-stats mt-5">
-            <!-- Likes -->
-            <span class="app-stat">
-                <svg width="20" height="20" [class.text-danger]="post().likedByCurrentUser" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5
-               5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5
-               5.5 0 0 0-.1-7.8Z" />
-                </svg>
-
-                <span>
-                    {{ post().likesCount }}
-                    {{ post().likesCount === 1 ? 'like' : 'likes' }}
-                </span>
-            </span>
-
-            <!-- Comments -->
-            <span class="app-stat">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                    aria-hidden="true">
-                    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
-               8.5 8.5 0 0 1-7.6 4.7
-               8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
-               a8.4 8.4 0 0 1-.9-3.8
-               8.5 8.5 0 0 1 4.7-7.6
-               8.4 8.4 0 0 1 3.8-.9h.5
-               a8.5 8.5 0 0 1 8 8v.5Z" />
-                </svg>
-
-                <span>
-                    {{ post().commentsCount }}
-                    {{ post().commentsCount === 1 ? 'comment' : 'comments' }}
-                </span>
-            </span>
-
-            <!-- Timestamp -->
-            <span class="app-stat app-stat-late">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                    aria-hidden="true">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3 2" />
-                </svg>
-
-                <time [attr.datetime]="post().createdAt">
-                    {{ post().createdAt | date: 'mediumDate' }}
-                </time>
-            </span>
-        </div>
 
         <!-- Edited indicator -->
         @if (isEdited()) {
@@ -84,5 +54,102 @@
             </time>
         </p>
         }
-    </button>
+    </div>
+
+    <!-- Actions -->
+    <footer class="app-card-actions">
+        <!-- Like -->
+        <button type="button" class="app-interaction-btn" [class.liked]="post().likedByCurrentUser"
+            [disabled]="likePending()" (click)="toggleLike($event)"
+            [attr.aria-label]="post().likedByCurrentUser ? 'Unlike post' : 'Like post'"
+            [attr.aria-pressed]="post().likedByCurrentUser">
+            <svg width="20" height="20" viewBox="0 0 24 24"
+                [attr.fill]="post().likedByCurrentUser ? 'currentColor' : 'none'" stroke="currentColor"
+                stroke-width="1.7" aria-hidden="true">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5
+               5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5
+               5.5 0 0 0-.1-7.8Z" />
+            </svg>
+
+            <span>
+                {{ post().likesCount }}
+                {{ post().likesCount === 1 ? 'like' : 'likes' }}
+            </span>
+        </button>
+
+        <!-- Comments / details -->
+        <button type="button" class="app-interaction-btn" (click)="openPost(); $event.stopPropagation()"
+            aria-label="Open post details and comments">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                aria-hidden="true">
+                <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
+               8.5 8.5 0 0 1-7.6 4.7
+               8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
+               a8.4 8.4 0 0 1-.9-3.8
+               8.5 8.5 0 0 1 4.7-7.6
+               8.4 8.4 0 0 1 3.8-.9h.5
+               a8.5 8.5 0 0 1 8 8v.5Z" />
+            </svg>
+
+            <span>
+                {{ post().commentsCount }}
+                {{ post().commentsCount === 1 ? 'comment' : 'comments' }}
+            </span>
+        </button>
+
+        <!-- Report (others' posts only) -->
+        @if (!post().ownedByCurrentUser) {
+        <app-report-button targetType="POST" [targetId]="post().id" />
+        }
+
+        <!-- Timestamp -->
+        <span class="ms-auto text-xs text-secondary">
+            <time [attr.datetime]="post().createdAt">{{ post().createdAt | date: 'short' }}</time>
+        </span>
+
+        <!-- Owner actions menu -->
+        @if (post().ownedByCurrentUser) {
+        <div class="app-card-menu position-relative">
+            <button type="button" class="app-interaction-btn app-menu-trigger" (click)="toggleMenu($event)"
+                aria-label="Post actions" [attr.aria-expanded]="menuOpen()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <circle cx="5" cy="12" r="1.6" />
+                    <circle cx="12" cy="12" r="1.6" />
+                    <circle cx="19" cy="12" r="1.6" />
+                </svg>
+            </button>
+
+            @if (menuOpen()) {
+            <div class="app-menu-backdrop" (click)="closeMenu()"></div>
+
+            <div class="app-menu" role="menu" aria-label="Post actions">
+                <button type="button" role="menuitem" class="app-menu-item" (click)="editPost($event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"
+                        aria-hidden="true">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                    Edit
+                </button>
+
+                <button type="button" role="menuitem" class="app-menu-item text-danger" (click)="deletePost($event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"
+                        aria-hidden="true">
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    </svg>
+                    Delete
+                </button>
+            </div>
+            }
+        </div>
+        }
+    </footer>
 </article>
+
+<app-edit-post-dialog #editDialog />
+
+<app-confirm-dialog #confirmDialog (confirmed)="onConfirmDelete()" />

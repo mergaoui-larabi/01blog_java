@@ -3,10 +3,11 @@ import { MediaUploadPreview } from '../media-upload-preview/media-upload-preview
 import { PostService } from '../../state/post.service';
 import { Post } from '../../data-access/post.api.service';
 import { finalize, pipe } from 'rxjs';
+import { DeadLogo } from '../../../../shared/components/dead-logo/dead-logo';
 
 @Component({
   selector: 'app-create-post-dialog',
-  imports: [MediaUploadPreview],
+  imports: [MediaUploadPreview, DeadLogo],
   templateUrl: './create-post-dialog.html',
   styleUrl: './create-post-dialog.scss',
 })
