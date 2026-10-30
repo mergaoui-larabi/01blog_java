@@ -14,6 +14,7 @@ import { Avatar } from '../../shared/ui/avatar/avatar';
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
+  styleUrl: './header.scss',
   imports: [RouterLink, RouterLinkActive, Logo, ThemeToggle, Avatar],
 })
 export class Header {

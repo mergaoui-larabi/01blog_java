@@ -1,0 +1,21 @@
+/* Register page: floating-label geometry stays Bootstrap's, palette is ours. */
+
+.form-floating > .form-control-plaintext ~ label,
+.form-floating > label {
+  color: var(--app-color-text-muted);
+}
+
+.form-floating > .auth-input:focus ~ label {
+  color: var(--app-color-primary);
+}
+
+/* Browser quirk: the age field is the only number input in the app. */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}

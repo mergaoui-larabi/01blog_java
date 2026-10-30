@@ -1,0 +1,16 @@
+/* 404 page. */
+
+.error-page {
+  min-height: 100vh;
+}
+
+.error-icon {
+  width: 4rem;
+  height: 4rem;
+  background-color: rgb(var(--app-rgb-danger) / 0.1);
+}
+
+.error-copy {
+  max-width: 20rem;
+  line-height: 1.625;
+}

@@ -6,6 +6,7 @@ import { Post } from '../../data-access/post.api.service';
   selector: 'app-create-post-button',
   imports: [CreatePostDialog],
   templateUrl: './create-post-button.html',
+  styleUrl: './create-post-button.scss',
 })
 export class CreatePostButton {
   private readonly createPostDialog = viewChild.required(CreatePostDialog);

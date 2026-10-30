@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input, signal, OnDestroy } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 
 import { MediaApiService } from '../../data-access/media.api.service';
@@ -9,6 +10,8 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 @Component({
   selector: 'app-avatar',
   templateUrl: './avatar.html',
+  styleUrl: './avatar.scss',
+  imports: [NgClass],
 })
 export class Avatar implements OnDestroy {
   private readonly authService = inject(AuthService);

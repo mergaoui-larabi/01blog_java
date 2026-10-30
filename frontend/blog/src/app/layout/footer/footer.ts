@@ -8,6 +8,7 @@ import { Logo } from "../../shared/components/logo/logo";
         Logo,
         RouterLink,
     ],
-    templateUrl: './footer.html'
+    templateUrl: './footer.html',
+    styleUrl: './footer.scss'
 })
 export class Footer { }

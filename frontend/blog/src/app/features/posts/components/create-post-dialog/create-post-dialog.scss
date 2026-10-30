@@ -1,0 +1,5 @@
+/* Create post dialog: the body fills the dialog height below its header. */
+
+.app-dialog-body-fill {
+  height: calc(90dvh - 4.5rem);
+}

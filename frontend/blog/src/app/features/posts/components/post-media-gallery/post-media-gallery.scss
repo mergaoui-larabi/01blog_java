@@ -1,0 +1,18 @@
+/* Post media gallery: the media stage and its counter badge. */
+
+.app-media-stage {
+  min-height: 300px;
+}
+
+.app-media-counter {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: var(--bs-border-radius-pill);
+  background-color: var(--app-surface-raised);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--app-color-text);
+  box-shadow: var(--bs-box-shadow-sm);
+}

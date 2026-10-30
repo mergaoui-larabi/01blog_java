@@ -1,20 +1,20 @@
-<header class="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur">
-  <nav class="relative flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
-    aria-label="Main navigation">
+<header class="app-header position-sticky top-0 shadow-sm">
+  <nav class="position-relative d-flex align-items-center justify-content-between gap-4 px-4 px-sm-6 px-lg-8"
+    style="height: 4rem" aria-label="Main navigation">
     <!-- Brand -->
     <a routerLink="/" (click)="closeMenus()"
-      class="flex items-center gap-2 text-xl font-bold tracking-tight text-text transition-colors hover:text-primary"
+      class="d-flex align-items-center gap-2 fs-5 fw-bold tracking-tight text-decoration-none text-body app-header-brand"
       aria-label="01Blog home">
       <app-logo />
     </a>
 
     <!-- Desktop primary navigation -->
-    <ul class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
+    <ul class="position-absolute top-50 start-50 translate-middle d-none d-md-flex align-items-center gap-1 list-unstyled mb-0">
       <li>
-        <a routerLink="/" routerLinkActive="text-text bg-background" [routerLinkActiveOptions]="{ exact: true }"
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
           #rlaFeed="routerLinkActive" [attr.aria-current]="rlaFeed.isActive ? 'page' : null"
-          class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          class="app-nav-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
           </svg>
@@ -24,10 +24,9 @@
       </li>
 
       <li>
-        <a routerLink="/explore" routerLinkActive="text-text bg-background" #rlaExplore="routerLinkActive"
-          [attr.aria-current]="rlaExplore.isActive ? 'page' : null"
-          class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        <a routerLink="/explore" routerLinkActive="active" #rlaExplore="routerLinkActive"
+          [attr.aria-current]="rlaExplore.isActive ? 'page' : null" class="app-nav-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M21 21l-4.35-4.35M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0z" />
@@ -38,10 +37,9 @@
       </li>
 
       <li>
-        <a routerLink="/notifications" routerLinkActive="text-text bg-background" #rlaNotif="routerLinkActive"
-          [attr.aria-current]="rlaNotif.isActive ? 'page' : null"
-          class="relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        <a routerLink="/notifications" routerLinkActive="active" #rlaNotif="routerLinkActive"
+          [attr.aria-current]="rlaNotif.isActive ? 'page' : null" class="app-nav-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
@@ -53,43 +51,37 @@
     </ul>
 
     <!-- Right side -->
-    <div class="flex items-center gap-2">
+    <div class="d-flex align-items-center gap-2">
       <!-- Account (desktop) -->
       @if (user(); as currentUser) {
       <app-avatar />
-      <div class="relative hidden md:block">
+      <div class="position-relative d-none d-md-block">
         <button type="button" (click)="toggleAccountMenu()" [attr.aria-expanded]="accountMenuOpen()"
-          aria-haspopup="menu" aria-controls="account-menu"
-          class="flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
-          <!-- <app-avatar [user]="{ username: currentUser.username }" size="sm" [decorative]="true" /> -->
-
-          <span class="max-w-32 truncate text-sm font-medium text-text">
+          aria-haspopup="menu" aria-controls="account-menu" class="app-account-toggle">
+          <span class="text-truncate max-w-8 fw-medium text-body" style="font-size: 0.875rem">
             {{ currentUser.username }}
           </span>
 
-          <svg class="h-4 w-4 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            class="text-secondary" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
           </svg>
         </button>
 
         @if (accountMenuOpen()) {
-        <div id="account-menu" role="menu"
-          class="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-surface p-1 shadow-lg">
-          <a role="menuitem" routerLink="/block/me" (click)="closeMenus()"
-            class="block rounded-lg px-3 py-2 text-sm text-text transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <div id="account-menu" role="menu" class="app-dropdown">
+          <a role="menuitem" routerLink="/block/me" (click)="closeMenus()" class="app-dropdown-item">
             My Block
           </a>
 
-          <a role="menuitem" routerLink="/notifications" (click)="closeMenus()"
-            class="block rounded-lg px-3 py-2 text-sm text-text transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <a role="menuitem" routerLink="/notifications" (click)="closeMenus()" class="app-dropdown-item">
             Notifications
           </a>
 
-          <hr class="my-1 border-border" />
+          <hr class="my-1 border-top border-0" />
 
           <button type="button" role="menuitem" (click)="logout()"
-            class="block w-full rounded-lg px-3 py-2 text-left text-sm text-danger transition-colors hover:bg-danger/10 focus:outline-none focus:ring-2 focus:ring-primary/30">
+            class="app-dropdown-item app-dropdown-item-danger">
             Log out
           </button>
         </div>
@@ -103,13 +95,16 @@
       <!-- Mobile menu toggle -->
       <button type="button" (click)="toggleMobileMenu()" [attr.aria-expanded]="mobileMenuOpen()"
         aria-controls="mobile-menu" aria-label="Toggle navigation menu"
-        class="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30 md:hidden">
+        class="btn btn-ghost d-flex align-items-center justify-content-center d-md-none"
+        style="width: 2.5rem; height: 2.5rem">
         @if (mobileMenuOpen()) {
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
         } @else {
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
         </svg>
         }
@@ -119,43 +114,39 @@
 
   <!-- Mobile menu (pushes content down; never overlaps) -->
   @if (mobileMenuOpen()) {
-  <div id="mobile-menu" class="border-t border-border bg-surface px-4 py-3 md:hidden">
-    <ul class="space-y-1">
+  <div id="mobile-menu" class="border-top bg-body px-4 py-3 d-md-none">
+    <ul class="list-unstyled mb-0 d-flex flex-column gap-1">
       <li>
-        <a routerLink="/" (click)="closeMenus()" routerLinkActive="bg-background text-text"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="block rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <a routerLink="/" (click)="closeMenus()" routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }" class="app-nav-link">
           Feed
         </a>
       </li>
 
       <li>
-        <a routerLink="/explore" (click)="closeMenus()" routerLinkActive="bg-background text-text"
-          class="block rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <a routerLink="/explore" (click)="closeMenus()" routerLinkActive="active" class="app-nav-link">
           Explore
         </a>
       </li>
 
       <li>
-        <a routerLink="/notifications" (click)="closeMenus()" routerLinkActive="bg-background text-text"
-          class="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <a routerLink="/notifications" (click)="closeMenus()" routerLinkActive="active"
+          class="app-nav-link justify-content-between">
           Notifications
         </a>
       </li>
 
       <li>
-        <a routerLink="/block/me" (click)="closeMenus()" routerLinkActive="bg-background text-text"
-          class="block rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-background hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <a routerLink="/block/me" (click)="closeMenus()" routerLinkActive="active" class="app-nav-link">
           My Block
         </a>
       </li>
 
       @if (user()) {
       <li>
-        <hr class="my-2 border-border" />
+        <hr class="my-2 border-top border-0" />
 
-        <button type="button" (click)="logout()"
-          class="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-danger transition-colors hover:bg-danger/10 focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <button type="button" (click)="logout()" class="app-dropdown-item app-dropdown-item-danger px-3 py-2">
           Log out
         </button>
       </li>

@@ -1,17 +1,16 @@
-<div class="error-page flex min-h-screen items-center justify-center bg-background px-4">
-  <div class="mx-auto flex w-full max-w-sm flex-col items-center gap-4 text-center">
-    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10">
-      <span class="text-3xl font-bold text-danger" aria-hidden="true">404</span>
+<div class="error-page d-flex align-items-center justify-content-center bg-background px-4">
+  <div class="mx-auto d-flex flex-column align-items-center text-center w-100 gap-4" style="max-width: 24rem">
+    <div class="error-icon rounded-circle d-flex align-items-center justify-content-center">
+      <span class="fs-1 fw-bold text-danger" aria-hidden="true">404</span>
     </div>
 
-    <h1 class="text-xl font-bold text-text">Page not found</h1>
+    <h1 class="fs-5 fw-bold mb-0">Page not found</h1>
 
-    <p class="max-w-xs text-sm leading-relaxed text-text-muted">
+    <p class="error-copy text-sm text-secondary">
       The link you followed either doesn't exist, or has been moved.
     </p>
 
-    <a routerLink="/"
-      class="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/30">
+    <a routerLink="/" class="btn btn-primary rounded-pill px-4 py-2 fw-medium text-decoration-none">
       Go back
     </a>
   </div>

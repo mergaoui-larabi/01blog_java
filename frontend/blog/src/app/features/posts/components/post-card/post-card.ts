@@ -6,6 +6,7 @@ import { Post } from '../../../feed/data-access/feed.api.service';
   selector: 'app-post-card',
   imports: [DatePipe],
   templateUrl: './post-card.html',
+  styleUrl: './post-card.scss',
 })
 export class PostCard {
   readonly post = input.required<Post>();

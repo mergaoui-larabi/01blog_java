@@ -1,17 +1,9 @@
-<div class="pointer-events-none fixed left-1/2 top-4 z-[100] flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 flex-col gap-3 sm:top-6"
-    aria-label="Alerts">
+<div class="app-alert-stack" aria-label="Alerts">
     @for (alert of alertService.alerts(); track alert.id) {
-    <div class="pointer-events-auto flex items-start gap-3 rounded-xl border bg-surface p-4 shadow-lg"
-        [class.border-success]="alert.type === 'success'" [class.border-danger]="alert.type === 'error'"
-        [class.border-amber-500]="alert.type === 'warning'" [class.border-primary]="alert.type === 'info'"
+    <div class="app-alert" [ngClass]="'app-alert-' + alert.type"
         [attr.role]="alert.type === 'error' ? 'alert' : 'status'"
         [attr.aria-live]="alert.type === 'error' ? 'assertive' : 'polite'">
-        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
-            [class.bg-success/10]="alert.type === 'success'" [class.text-success]="alert.type === 'success'"
-            [class.bg-danger/10]="alert.type === 'error'" [class.text-danger]="alert.type === 'error'"
-            [class.bg-amber-500/10]="alert.type === 'warning'" [class.text-amber-600]="alert.type === 'warning'"
-            [class.bg-primary/10]="alert.type === 'info'" [class.text-primary]="alert.type === 'info'"
-            aria-hidden="true">
+        <div class="app-alert-icon" [ngClass]="'app-alert-icon-' + alert.type" aria-hidden="true">
             @switch (alert.type) {
             @case ('success') { ✓ }
             @case ('error') { ! }
@@ -20,14 +12,13 @@
             }
         </div>
 
-        <p class="min-w-0 flex-1 pt-1 text-sm leading-5 text-text">
+        <p class="min-w-0 flex-1 pt-1 mb-0" style="font-size: 0.875rem; line-height: 1.25rem">
             {{ alert.message }}
         </p>
 
-        <button type="button"
-            class="-mr-1 -mt-1 rounded-md p-1 text-text-muted transition-colors hover:bg-text-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            aria-label="Dismiss alert" (click)="alertService.dismiss(alert.id)">
-            <span aria-hidden="true" class="text-lg leading-none">&times;</span>
+        <button type="button" class="app-alert-dismiss" aria-label="Dismiss alert"
+            (click)="alertService.dismiss(alert.id)">
+            <span aria-hidden="true">&times;</span>
         </button>
     </div>
     }

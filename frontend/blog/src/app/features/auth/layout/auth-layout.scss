@@ -1,0 +1,38 @@
+/* Auth layout: masked backdrop behind the centered card that hosts login / register. */
+
+.app-auth-shell {
+  position: relative;
+  min-height: calc(100vh - 4rem);
+  background-color: var(--app-color-surface);
+}
+
+.app-auth-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgb(var(--app-rgb-primary) / 0.1);
+  mask-image: url('/assets/auth/standalone-auth-bg.svg');
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-type: alpha;
+  -webkit-mask-image: url('/assets/auth/standalone-auth-bg.svg');
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.app-auth-card {
+  width: 100%;
+  max-width: 28rem;
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--bs-border-radius-2xl);
+  background-color: var(--app-color-surface);
+  padding: 2rem 1.5rem;
+  box-shadow: 0 20px 50px rgb(15 23 42 / 0.12);
+}
+
+@media (min-width: 576px) {
+  .app-auth-card {
+    padding: 2rem 2.5rem;
+  }
+}

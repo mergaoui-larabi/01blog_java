@@ -10,6 +10,7 @@ import { PostMediaGallery } from '../post-media-gallery/post-media-gallery';
   selector: 'app-post-view-dialog',
   imports: [DatePipe, PostMediaGallery],
   templateUrl: './post-view-dialog.html',
+  styleUrl: './post-view-dialog.scss',
 })
 export class PostViewDialog {
   private readonly postApi = inject(PostApiService);

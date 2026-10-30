@@ -1,33 +1,20 @@
-<header class="fixed inset-x-0 top-0 z-50
-       flex h-16 items-center justify-between
-       border-b border-border
-       bg-surface
-       px-6 sm:px-8">
+<header class="position-fixed top-0 start-0 end-0 shadow-sm bg-surface d-flex align-items-center justify-content-between gap-2 px-4 px-sm-6 px-lg-8"
+  style="height: 4rem; z-index: 1030">
   <app-logo />
   <app-theme-toggle />
 </header>
 
-<section class="relative mt-16 min-h-[calc(100vh-4rem)] bg-surface">
+<section class="app-auth-shell mt-8">
 
-  <div class="absolute inset-0 bg-primary/10" style="
-    mask-image: url('/assets/auth/standalone-auth-bg.svg');
-    mask-size: cover;
-    mask-position: center;
-    mask-repeat: no-repeat;
-    mask-type: alpha;
-    -webkit-mask-image: url('/assets/auth/standalone-auth-bg.svg');
-    -webkit-mask-size: cover;
-    -webkit-mask-position: center;
-    -webkit-mask-repeat: no-repeat;
-  " aria-hidden="true"></div>
+  <div class="app-auth-backdrop" aria-hidden="true"></div>
 
-  <div class="relative z-10 flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-20">
+  <div class="position-relative d-flex align-items-center justify-content-center px-4 py-8"
+    style="min-height: calc(100vh - 4rem); z-index: 1">
 
-    <div class="w-full max-w-md rounded-2xl border border-border
-       bg-surface px-6 py-8 shadow-xl sm:px-10">
+    <div class="app-auth-card">
       <router-outlet />
     </div>
 
   </div>
 
-</section>    
+</section>

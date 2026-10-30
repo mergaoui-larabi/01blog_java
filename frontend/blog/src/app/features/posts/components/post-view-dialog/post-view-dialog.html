@@ -1,39 +1,33 @@
-<dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="post-view-title" class="m-auto h-[90dvh] max-h-[90dvh] w-[80vw] max-w-2xl
-         overflow-y-auto rounded-2xl border border-border
-         bg-surface p-0 text-text shadow-2xl
-         backdrop:bg-black/50 backdrop:backdrop-blur-sm">
-  <div class="flex items-center justify-between border-b border-border px-6 py-4">
-    <h2 id="post-view-title" class="text-lg font-semibold">
+<dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="post-view-title"
+    class="app-dialog app-dialog-narrow">
+  <div class="app-dialog-header">
+    <h2 id="post-view-title" class="fs-5 fw-semibold mb-0">
       Post
     </h2>
 
-    <button type="button" (click)="close()" aria-label="Close dialog" class="flex h-9 w-9 items-center justify-center rounded-full
-         text-text-muted transition
-         hover:bg-text-bg hover:text-text
-         focus-visible:outline-none focus-visible:ring-2
-         focus-visible:ring-primary">
+    <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true">
         <path d="M18 6 6 18" />
         <path d="m6 6 12 12" />
       </svg>
     </button>
   </div>
 
-  <section class="flex min-h-0 flex-col gap-4 p-6">
+  <section class="app-dialog-body">
     @if (loading()) {
-      <div class="flex items-center justify-center py-10">
-        <p class="text-text-muted">Loading...</p>
+      <div class="d-flex align-items-center justify-content-center py-8">
+        <p class="mb-0 text-secondary">Loading...</p>
       </div>
     } @else if (error()) {
-      <div class="flex items-center justify-center py-10">
-        <p class="text-danger">{{ error() }}</p>
+      <div class="d-flex align-items-center justify-content-center py-8">
+        <p class="mb-0 text-danger">{{ error() }}</p>
       </div>
     } @else if (post()) {
-      <article class="flex flex-col gap-4">
+      <article class="d-flex flex-column gap-4">
         <!-- Post content -->
         <div>
-          <p class="whitespace-pre-wrap break-words text-base leading-7 text-text">
+          <p class="text-wrap-pretty mb-0 text-body" style="font-size: 1rem; line-height: 1.75rem">
             {{ post()!.content }}
           </p>
         </div>
@@ -44,12 +38,11 @@
         }
 
         <!-- Post statistics -->
-        <div class="flex flex-wrap items-center gap-x-5 gap-y-3
-             border-t border-border pt-4 text-sm text-text-muted">
+        <div class="app-stats">
           <!-- Likes -->
-          <span class="inline-flex items-center gap-2">
-            <svg class="size-5" [class.text-danger]="post()!.likedByCurrentUser" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <span class="app-stat">
+            <svg width="20" height="20" [class.text-danger]="post()!.likedByCurrentUser" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
               <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5
                    5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5
                    5.5 0 0 0-.1-7.8Z" />
@@ -62,8 +55,8 @@
           </span>
 
           <!-- Comments -->
-          <span class="inline-flex items-center gap-2">
-            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+          <span class="app-stat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
                  aria-hidden="true">
               <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
                    8.5 8.5 0 0 1-7.6 4.7
@@ -81,8 +74,8 @@
           </span>
 
           <!-- Timestamp -->
-          <span class="ml-auto inline-flex items-center gap-1.5">
-            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+          <span class="app-stat app-stat-late">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
                  aria-hidden="true">
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 2" />
@@ -96,7 +89,7 @@
 
         <!-- Edited indicator -->
         @if (isEdited()) {
-          <p class="text-xs text-text-muted">
+          <p class="mb-0 text-xs text-secondary">
             Edited
             <time [attr.datetime]="post()!.updatedAt">
               {{ post()!.updatedAt | date: 'medium' }}

@@ -30,10 +30,10 @@ export class ThemeService {
   }
 
   private applyTheme(theme: Theme): void {
-    this.document.documentElement.classList.toggle(
-      'dark',
-      theme === 'dark',
-    );
+    const root = this.document.documentElement;
+
+    root.classList.toggle('dark', theme === 'dark');
+    root.setAttribute('data-bs-theme', theme);
   }
 
   private getInitialTheme(): Theme {

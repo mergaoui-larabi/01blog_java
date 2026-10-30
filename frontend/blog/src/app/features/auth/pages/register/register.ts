@@ -23,7 +23,7 @@ interface RegisterData {
   selector: 'app-register',
   imports: [FormField, FormRoot, RouterLink],
   templateUrl: './register.html',
-  styleUrl: './register.css',
+  styleUrl: './register.scss'
 })
 export class Register implements OnDestroy {
   private readonly authService = inject(AuthService);

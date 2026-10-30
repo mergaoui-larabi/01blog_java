@@ -1,0 +1,103 @@
+/* Alerts: fixed stack of dismissible toasts, tinted per severity. */
+
+.app-alert-stack {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  z-index: 1050;
+  display: flex;
+  width: calc(100% - 2rem);
+  max-width: 24rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@media (min-width: 576px) {
+  .app-alert-stack {
+    top: 1.5rem;
+  }
+}
+
+.app-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--bs-border-radius-xl);
+  background-color: var(--app-color-surface);
+  padding: 1rem;
+  box-shadow: var(--bs-box-shadow-lg);
+  pointer-events: auto;
+}
+
+.app-alert-success {
+  border-color: var(--app-color-success);
+}
+
+.app-alert-error {
+  border-color: var(--app-color-danger);
+}
+
+.app-alert-warning {
+  border-color: var(--app-color-warning);
+}
+
+.app-alert-info {
+  border-color: var(--app-color-primary);
+}
+
+.app-alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--bs-border-radius-pill);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.app-alert-icon-success {
+  background-color: rgb(var(--app-rgb-success) / 0.1);
+  color: var(--app-color-success);
+}
+
+.app-alert-icon-error {
+  background-color: rgb(var(--app-rgb-danger) / 0.1);
+  color: var(--app-color-danger);
+}
+
+.app-alert-icon-warning {
+  background-color: rgb(var(--app-rgb-warning) / 0.1);
+  color: var(--app-color-warning);
+}
+
+.app-alert-icon-info {
+  background-color: rgb(var(--app-rgb-primary) / 0.1);
+  color: var(--app-color-primary);
+}
+
+.app-alert-dismiss {
+  margin: -0.25rem -0.25rem 0 0;
+  padding: 0.25rem;
+  border: 0;
+  border-radius: var(--bs-border-radius);
+  background: transparent;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--app-color-text-muted);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-alert-dismiss:hover {
+  background-color: var(--app-color-text-bg);
+  color: var(--app-color-text);
+}
+
+.app-alert-dismiss:focus-visible {
+  outline: 2px solid var(--app-color-primary);
+  outline-offset: 2px;
+}

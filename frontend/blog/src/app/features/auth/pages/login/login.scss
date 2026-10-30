@@ -1,0 +1,10 @@
+/* Login page: floating-label geometry stays Bootstrap's, palette is ours. */
+
+.form-floating > .form-control-plaintext ~ label,
+.form-floating > label {
+  color: var(--app-color-text-muted);
+}
+
+.form-floating > .auth-input:focus ~ label {
+  color: var(--app-color-primary);
+}

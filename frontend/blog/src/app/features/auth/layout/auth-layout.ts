@@ -12,5 +12,6 @@ import { ThemeToggle } from "../../../shared/ui/theme-toggle/theme-toggle";
         ThemeToggle
     ],
     templateUrl: 'auth-layout.html',
+    styleUrl: 'auth-layout.scss',
 })
 export class AuthLayout { }

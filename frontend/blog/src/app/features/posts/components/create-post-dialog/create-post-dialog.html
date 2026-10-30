@@ -1,19 +1,14 @@
-<dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="create-post-title" class="m-auto h-[90dvh] max-h-[90dvh] w-[80vw] max-w-none
-         overflow-y-auto rounded-2xl border border-border
-         bg-surface p-0 text-text shadow-2xl
-         backdrop:bg-black/50 backdrop:backdrop-blur-sm">
-    <div class="flex items-center justify-between border-b border-border px-6 py-4">
-        <h2 id="create-post-title" class="text-lg font-semibold">
+<dialog #dialog (click)="onBackdropClick($event)" (close)="onClose()" aria-labelledby="create-post-title"
+    class="app-dialog">
+    <div class="app-dialog-header">
+        <h2 id="create-post-title" class="fs-5 fw-semibold mb-0">
             Create a post
         </h2>
 
-        <button type="button" (click)="close()" aria-label="Close dialog" class="flex h-9 w-9 items-center justify-center rounded-full
-         text-text-muted transition
-         hover:bg-text-bg hover:text-text
-         focus-visible:outline-none focus-visible:ring-2
-         focus-visible:ring-primary">
+        <button type="button" (click)="close()" aria-label="Close dialog" class="app-dialog-close">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true">
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"
+                aria-hidden="true">
                 <path d="M18 6 6 18" />
                 <path d="m6 6 12 12" />
             </svg>
@@ -21,25 +16,22 @@
 
     </div>
 
-    <section class="flex h-[calc(90dvh-4.5rem)] min-h-0 flex-col gap-4 p-6">
-        <label for="post-content" class="text-sm font-medium text-text">
+    <section class="app-dialog-body app-dialog-body-fill">
+        <label for="post-content" class="fw-medium">
             What's on your mind?
         </label>
 
         <textarea id="post-content" [value]="content()" (input)="content.set($any($event.target).value)"
-            placeholder="Share something with your community..." class="min-h-24 w-full resize-y rounded-xl border border-border
-           bg-background p-3 text-text outline-none transition
-           placeholder:text-text-muted focus:border-primary
-           focus:ring-2 focus:ring-primary/20"></textarea>
+            placeholder="Share something with your community..."
+            class="form-control bg-surface w-100 flex-grow-0" style="min-height: 6rem; resize: vertical"></textarea>
 
-        <div class="h-1/2 min-h-0 w-full">
+        <div class="min-w-0 w-100" style="height: 50%; min-height: 0">
             <app-media-upload-preview (filesChange)="onFilesChange($event)" (uploadCancelled)="onUploadCancelled()"
                 [uploading]="uploading()" [uploadProgress]="uploadProgress()" />
         </div>
 
-        <button type="button" (click)="publishPost()" [disabled]="uploading() || !content().trim()" class="rounded-xl bg-primary px-6 py-3 font-semibold
-           text-white transition hover:bg-primary-hover
-           disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="button" (click)="publishPost()" [disabled]="uploading() || !content().trim()"
+            class="btn btn-primary rounded-xl px-4 py-3 fw-semibold align-self-start">
             {{ uploading() ? 'Publishing...' : 'Publish' }}
         </button>
     </section>

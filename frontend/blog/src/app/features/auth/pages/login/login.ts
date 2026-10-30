@@ -23,7 +23,7 @@ interface LoginData {
     RouterLink
   ],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrl: './login.scss'
 })
 export class Login {
   private readonly authService = inject(AuthService);

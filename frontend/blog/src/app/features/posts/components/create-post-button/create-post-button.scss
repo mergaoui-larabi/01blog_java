@@ -1,0 +1,43 @@
+/* Create post: floating action button pinned to the bottom corner. */
+
+.app-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0;
+  border-radius: var(--bs-border-radius-pill);
+  background-color: var(--app-color-primary);
+  color: #ffffff;
+  box-shadow: var(--bs-box-shadow-lg);
+  transition: transform 0.2s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.app-fab:hover {
+  background-color: rgb(var(--app-rgb-primary) / 0.9);
+  box-shadow: 0 16px 40px rgb(15 23 42 / 0.2);
+  transform: scale(1.05);
+}
+
+.app-fab:active {
+  transform: scale(0.95);
+}
+
+.app-fab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.25rem rgb(var(--app-rgb-primary) / 0.5);
+}
+
+@media (min-width: 576px) {
+  .app-fab {
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: 4rem;
+    height: 4rem;
+  }
+}

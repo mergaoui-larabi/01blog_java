@@ -1,0 +1,17 @@
+/* Theme toggle: the icon swap animation played whenever the theme changes. */
+
+.app-theme-icon {
+  animation: app-theme-icon 0.35s ease;
+}
+
+@keyframes app-theme-icon {
+  from {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}

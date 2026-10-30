@@ -1,18 +1,9 @@
 @if (followed()) {
-<button type="button" (click)="toggleFollow()" class="shrink-0 rounded-lg border border-border bg-surface
-           px-4 py-2 text-sm font-semibold text-text
-           transition-colors
-           hover:border-danger/40 hover:bg-danger/10 hover:text-danger
-           focus-visible:outline-2 focus-visible:outline-offset-2
-           focus-visible:outline-primary">
+<button type="button" (click)="toggleFollow()" class="btn btn-soft-danger btn-sm flex-shrink-0 fw-semibold px-4">
     Following
 </button>
 } @else {
-<button type="button" (click)="toggleFollow()" class="shrink-0 rounded-lg bg-primary px-4 py-2
-           text-sm font-semibold text-white
-           transition-colors hover:bg-primary-hover
-           focus-visible:outline-2 focus-visible:outline-offset-2
-           focus-visible:outline-primary">
+<button type="button" (click)="toggleFollow()" class="btn btn-primary btn-sm flex-shrink-0 fw-semibold px-4">
     Follow
 </button>
 }

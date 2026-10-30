@@ -12,6 +12,7 @@ interface MediaPreview {
   selector: 'app-post-media-gallery',
   imports: [],
   templateUrl: './post-media-gallery.html',
+  styleUrl: './post-media-gallery.scss',
 })
 export class PostMediaGallery implements OnDestroy {
   private readonly mediaApi = inject(MediaApiService);

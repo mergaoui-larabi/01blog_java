@@ -8,6 +8,7 @@ import { finalize, pipe } from 'rxjs';
   selector: 'app-create-post-dialog',
   imports: [MediaUploadPreview],
   templateUrl: './create-post-dialog.html',
+  styleUrl: './create-post-dialog.scss',
 })
 export class CreatePostDialog {
   readonly postService = inject(PostService);

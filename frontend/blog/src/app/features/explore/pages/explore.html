@@ -1,31 +1,29 @@
-<section class="flex-1 min-w-0 p-4 sm:p-6">
-  <div class="mx-auto max-w-3xl space-y-6">
+<section class="flex-grow-1 min-w-0 p-4 p-sm-6">
+  <div class="mx-auto w-100 d-flex flex-column gap-6" style="max-width: 48rem">
 
     <header>
-      <h1 class="text-2xl font-bold text-text">Explore</h1>
-      <p class="mt-1 text-sm text-text-muted">
+      <h1 class="fs-3 fw-bold mb-0">Explore</h1>
+      <p class="mt-1 mb-0 text-sm text-secondary">
         Discover people in your community.
       </p>
     </header>
 
     <!-- Search -->
     <input #searchInput type="search" placeholder="Search users by username..." aria-label="Search users"
-      (input)="search(searchInput.value)" class="w-full rounded-xl border border-border bg-surface px-4 py-3
-             text-sm text-text outline-none
-             focus:border-primary focus:ring-2 focus:ring-primary/20" />
+      (input)="search(searchInput.value)" class="form-control form-control-lg rounded-xl" />
 
     <!-- Loading -->
     @if (exploreService.loading() && !exploreService.hasUsers()) {
-    <p class="py-8 text-center text-text-muted">Loading users...</p>
+    <p class="py-8 text-center text-secondary">Loading users...</p>
     }
 
     <!-- User cards -->
-    <div class="space-y-3">
+    <div class="d-flex flex-column gap-3">
       @for (user of exploreService.users(); track user.id) {
       <app-user-card [user]="user" (followChange)="onFollowChange($event)" />
       } @empty {
       @if (!exploreService.loading()) {
-      <p class="py-8 text-center text-text-muted">
+      <p class="py-8 text-center text-secondary">
         No users found.
       </p>
       }
@@ -35,10 +33,7 @@
     <!-- Load more -->
     @if (exploreService.hasUsers()) {
     <button type="button" (click)="loadMore()" [disabled]="exploreService.loading() || !exploreService.nextCursor()"
-      class="w-full rounded-xl border border-border bg-surface px-4 py-3
-               text-sm font-semibold text-text transition
-               hover:bg-background disabled:cursor-not-allowed
-               disabled:opacity-50">
+      class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
       {{ exploreService.loading() ? 'Loading...' : 'Load more' }}
     </button>
     }

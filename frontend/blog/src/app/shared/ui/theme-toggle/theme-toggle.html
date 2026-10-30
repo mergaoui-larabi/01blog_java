@@ -1,4 +1,4 @@
-<div class="flex items-center gap-2">
+<div class="d-flex align-items-center gap-2">
 
   <button
     type="button"
@@ -8,13 +8,8 @@
         ? 'Switch to dark mode'
         : 'Switch to light mode'
     "
-    class="flex h-9 w-9 items-center justify-center
-           rounded-full text-text-muted
-           transition-colors duration-200
-           hover:bg-background
-           hover:text-text
-           focus:outline-none
-           focus:ring-2 focus:ring-primary/30"
+    class="btn btn-ghost rounded-circle d-flex align-items-center justify-content-center"
+    style="width: 3rem; height: 3rem"
   >
     @if (themeService.theme() === 'light') {
 
@@ -24,7 +19,9 @@
         fill="none"
         stroke="currentColor"
         stroke-width="2"
-        class="h-5 w-5 text-primary animate-theme-icon"
+        width="40"
+        height="40"
+        class="text-primary app-theme-icon"
         aria-hidden="true"
       >
         <circle cx="12" cy="12" r="4" />
@@ -50,7 +47,9 @@
         fill="none"
         stroke="currentColor"
         stroke-width="2"
-        class="h-5 w-5 text-primary animate-theme-icon"
+        width="40"
+        height="40"
+        class="text-primary app-theme-icon"
         aria-hidden="true"
       >
         <path

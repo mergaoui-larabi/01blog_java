@@ -1,0 +1,14 @@
+/* Follow button: the "Following" state reads as neutral until hovered, when it turns soft danger. */
+
+.btn-soft-danger {
+  --bs-btn-color: var(--app-color-text);
+  --bs-btn-border-color: var(--app-color-border);
+  --bs-btn-bg: var(--app-color-surface);
+  --bs-btn-hover-color: var(--app-color-danger);
+  --bs-btn-hover-bg: rgb(var(--app-rgb-danger) / 0.1);
+  --bs-btn-hover-border-color: rgb(var(--app-rgb-danger) / 0.4);
+  --bs-btn-active-color: var(--app-color-danger);
+  --bs-btn-active-bg: rgb(var(--app-rgb-danger) / 0.15);
+  --bs-btn-active-border-color: rgb(var(--app-rgb-danger) / 0.4);
+  --bs-btn-focus-shadow-rgb: var(--app-rgb-primary);
+}

@@ -10,6 +10,7 @@ interface MediaItem {
 @Component({
   selector: 'app-media-upload-preview',
   templateUrl: './media-upload-preview.html',
+  styleUrl: './media-upload-preview.scss',
 })
 export class MediaUploadPreview implements OnDestroy {
   readonly uploadProgress = input<number | null>(null);
