@@ -12,6 +12,7 @@ import com.blog.user.application.dto.request.CreateUserRequest;
 import com.blog.user.application.dto.request.UpdateUserAvatarRequest;
 import com.blog.user.application.dto.response.UserAuthenticationResponse;
 import com.blog.user.application.dto.response.UserResponse;
+import com.blog.user.application.dto.response.UserRoleResponse;
 import com.blog.user.domain.entity.User;
 import com.blog.user.domain.model.UserRole;
 import com.blog.user.domain.valueobject.Age;
@@ -150,6 +151,14 @@ public class UserService {
                 .map(User::getRole)
                 .map(role -> role.equals(UserRole.ADMIN))
                 .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    public UserRoleResponse fetchUserRole(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BannedUserNotFoundException("User not found"));
+
+        return new UserRoleResponse(user.getId(), user.getRole(), user.getBanned());
     }
 
     @Transactional

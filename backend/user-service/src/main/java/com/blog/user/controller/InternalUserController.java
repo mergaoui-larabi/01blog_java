@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blog.user.application.dto.request.AuthenticateUserRequest;
 import com.blog.user.application.dto.response.FollowedUsersResponse;
+import com.blog.user.application.dto.response.UserRoleResponse;
 import com.blog.user.application.dto.response.UserAuthenticationResponse;
 import com.blog.user.service.FollowerService;
 import com.blog.user.service.UserService;
@@ -39,5 +40,10 @@ public class InternalUserController {
     public FollowedUsersResponse getFollowedUsers(@PathVariable UUID userId) {
         List<UUID> followedUserIds = followerService.getFollowedUserIds(userId);
         return new FollowedUsersResponse(userId, followedUserIds);
+    }
+
+    @GetMapping("/{userId}/role")
+    public UserRoleResponse getUserRole(@PathVariable UUID userId) {
+        return userService.fetchUserRole(userId);
     }
 }

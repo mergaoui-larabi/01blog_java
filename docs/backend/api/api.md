@@ -50,13 +50,88 @@
 
 ### GET
 
+#### 1. Fetch reports
+
+`GET /api/v1/reports?status=OPEN&cursor=<lastReportId>&size=20`
+
+- Administrator only: the caller's **current** role is re-checked against User Service on every request, so the `role` claim of an already-issued JWT is never trusted for moderation operations.
+- `status`: optional filter (`OPEN`, `UNDER_REVIEW`, `RESOLVED`, `DISMISSED`).
+- `cursor`: ID of the last report returned in the previous response, omitted for the first chunk.
+- `size`: number of reports to fetch (1-100, default 20).
+- Ordered by `(created_at, id)` descending.
+
+Example response:
+
+```json
+{
+  "content": [
+    {
+      "id": "report-uuid",
+      "reporterId": "user-uuid",
+      "targetType": "POST",
+      "targetId": "post-uuid",
+      "reason": "Spam and repeated harassment in the comments",
+      "status": "OPEN",
+      "createdAt": "2026-10-18T10:00:00Z",
+      "updatedAt": "2026-10-18T10:00:00Z"
+    }
+  ],
+  "nextCursor": "report-uuid",
+  "hasNext": true
+}
+```
+
 ### POST
+
+#### 1. Report a post
+
+`POST /api/v1/reports/posts`
+
+Requires any authenticated user. The reporter is taken from the authenticated identity; a `reporterId` in the body is ignored.
+
+```json
+{
+  "postId": "post-uuid",
+  "reason": "Spam and repeated harassment in the comments"
+}
+```
+
+- Responds `201 Created` with the report body shown above, `status` always starting at `OPEN`.
+- `reason` is required, non-blank and at most 2000 characters.
+
+#### 2. Report a user
+
+`POST /api/v1/reports/users`
+
+Same contract as the post report, with `userId` instead of `postId` and `targetType` `USER`.
 
 ### PUT
 
 ### PATCH
 
+#### 1. Update report status
+
+`PATCH /api/v1/reports/{reportId}`
+
+Administrator only (verified against User Service).
+
+```json
+{
+  "status": "UNDER_REVIEW"
+}
+```
+
+- Responds `200` with the updated report, `400` for an unknown status, `403` when the caller is not currently an administrator, `404` for an unknown report.
+- Each accepted change writes a `STATUS_CHANGED` row in `moderation_actions` (`OPEN -> UNDER_REVIEW` in `details`) within the same transaction.
+
 ### DELETE
+
+#### 1. Delete a report
+
+`DELETE /api/v1/reports/{reportId}`
+
+- Administrator only (verified against User Service), responds `204 No Content`.
+- Responds `409 Conflict` when the report already carries moderation actions, since its audit history must not be discarded.
 
 ## notification-service
 

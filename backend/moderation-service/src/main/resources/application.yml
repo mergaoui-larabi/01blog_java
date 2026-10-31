@@ -1,7 +1,7 @@
 logging:
   level:
     root: WARN
-    com.blog.user: INFO
+    com.blog.moderation: INFO
 
 server:
   port: 5006
@@ -26,6 +26,10 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+
+moderation:
+  user-service:
+    url: ${USER_SERVICE_URL:http://localhost:5001}
 
 #Actuator
 management:
