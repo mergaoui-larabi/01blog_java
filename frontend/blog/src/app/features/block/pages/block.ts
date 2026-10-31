@@ -3,9 +3,7 @@ import { Post } from '../../posts/data-access/post.api.service';
 import { PostCard } from '../../posts/components/post-card/post-card';
 import { CreatePostButton } from '../../posts/components/create-post-button/create-post-button';
 import { BlockService } from '../state/block.service';
-import { CreatePostDialog } from '../../posts/components/create-post-dialog/create-post-dialog';
 import { PostViewDialog } from '../../posts/components/post-view-dialog/post-view-dialog';
-import { Avatar } from '../../../shared/ui/avatar/avatar';
 import { UserProfile } from '../../explore/components/user-profile/user-profile';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -15,7 +13,7 @@ import { ExploreService } from '../../explore/state/explore.service';
 
 @Component({
   selector: 'app-block',
-  imports: [CreatePostButton, PostCard, CreatePostDialog, PostViewDialog, Avatar, UserProfile],
+  imports: [CreatePostButton, PostCard, PostViewDialog, UserProfile],
   templateUrl: './block.html',
 })
 export class Block {

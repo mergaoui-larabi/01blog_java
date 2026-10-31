@@ -1,136 +1,141 @@
-/* Global theme and application styles.
-   Bootstrap 5 is loaded first from angular.json, so everything here can
-   override Bootstrap defaults by cascade order alone. */
+/* Theme tokens.
 
-:root {
-  /* Application design tokens (single source of truth for colors). */
-  --app-color-primary: #2563eb;
-  --app-color-primary-hover: #1d4ed8;
+   Exposed as a mixin rather than top-level CSS so that styles.scss can emit it with
+   @include at an exact cascade position: it has to come after Bootstrap's own :root
+   block (scss/root) to win, and @use cannot do that — @use rules must be written at
+   the top of the file and emit wherever they are loaded. */
 
-  --app-color-background: #f8fafc;
-  --app-color-surface: #ffffff;
+@mixin theme-tokens {
+  :root {
+    /* Application design tokens (single source of truth for colors). */
+    --app-color-primary: #2563eb;
+    --app-color-primary-hover: #1d4ed8;
 
-  --app-color-text: #111827;
-  --app-color-text-bg: #dbe4e9;
-  --app-color-text-muted: #6b7280;
+    --app-color-background: #f8fafc;
+    --app-color-surface: #ffffff;
 
-  --app-color-border: #e5e7eb;
+    --app-color-text: #111827;
+    --app-color-text-bg: #dbe4e9;
+    --app-color-text-muted: #6b7280;
 
-  --app-color-danger: #dc2626;
-  --app-color-success: #16a34a;
-  --app-color-warning: #b45309;
+    --app-color-border: #e5e7eb;
 
-  /* RGB channels so surfaces can be reused with an alpha value. */
-  --app-rgb-primary: 37 99 235;
-  --app-rgb-background: 248 250 252;
-  --app-rgb-surface: 255 255 255;
-  --app-rgb-text: 17 24 39;
-  --app-rgb-text-bg: 219 228 233;
-  --app-rgb-text-muted: 107 114 128;
-  --app-rgb-border: 229 231 235;
-  --app-rgb-danger: 220 38 38;
-  --app-rgb-success: 22 163 74;
-  --app-rgb-warning: 180 83 9;
+    --app-color-danger: #dc2626;
+    --app-color-success: #16a34a;
+    --app-color-warning: #b45309;
 
-  /* Radii: Bootstrap's scale plus the larger app radii. */
-  --bs-border-radius: 0.375rem;
-  --bs-border-radius-sm: 0.25rem;
-  --bs-border-radius-lg: 0.5rem;
-  --bs-border-radius-xl: 0.75rem;
-  --bs-border-radius-2xl: 1rem;
+    /* RGB channels so surfaces can be reused with an alpha value. */
+    --app-rgb-primary: 37 99 235;
+    --app-rgb-background: 248 250 252;
+    --app-rgb-surface: 255 255 255;
+    --app-rgb-text: 17 24 39;
+    --app-rgb-text-bg: 219 228 233;
+    --app-rgb-text-muted: 107 114 128;
+    --app-rgb-border: 229 231 235;
+    --app-rgb-danger: 220 38 38;
+    --app-rgb-success: 22 163 74;
+    --app-rgb-warning: 180 83 9;
 
-  --app-surface-raised: rgb(var(--app-rgb-surface) / 0.9);
-}
+    /* Radii: Bootstrap's scale plus the larger app radii. */
+    --bs-border-radius: 0.375rem;
+    --bs-border-radius-sm: 0.25rem;
+    --bs-border-radius-lg: 0.5rem;
+    --bs-border-radius-xl: 0.75rem;
+    --bs-border-radius-2xl: 1rem;
 
-html.dark {
-  --app-color-primary: #60a5fa;
-  --app-color-primary-hover: #93c5fd;
+    --app-surface-raised: rgb(var(--app-rgb-surface) / 0.9);
+  }
 
-  --app-color-background: #090f11;
-  --app-color-surface: #11181c;
+  html.dark {
+    --app-color-primary: #60a5fa;
+    --app-color-primary-hover: #93c5fd;
 
-  --app-color-text: #f2f4f5;
-  --app-color-text-bg: #1d272b;
-  --app-color-text-muted: #a8b3b8;
+    --app-color-background: #090f11;
+    --app-color-surface: #11181c;
 
-  --app-color-border: #2a353a;
+    --app-color-text: #f2f4f5;
+    --app-color-text-bg: #1d272b;
+    --app-color-text-muted: #a8b3b8;
 
-  --app-color-danger: #f87171;
-  --app-color-success: #4ade80;
-  --app-color-warning: #fbbf24;
+    --app-color-border: #2a353a;
 
-  --app-rgb-primary: 96 165 250;
-  --app-rgb-background: 9 15 17;
-  --app-rgb-surface: 17 24 28;
-  --app-rgb-text: 242 244 245;
-  --app-rgb-text-bg: 29 39 43;
-  --app-rgb-text-muted: 168 179 184;
-  --app-rgb-border: 42 53 58;
-  --app-rgb-danger: 248 113 113;
-  --app-rgb-success: 74 222 128;
-  --app-rgb-warning: 251 191 36;
+    --app-color-danger: #f87171;
+    --app-color-success: #4ade80;
+    --app-color-warning: #fbbf24;
 
-  /* Bootstrap variable overrides are inherited by [data-bs-theme=dark],
+    --app-rgb-primary: 96 165 250;
+    --app-rgb-background: 9 15 17;
+    --app-rgb-surface: 17 24 28;
+    --app-rgb-text: 242 244 245;
+    --app-rgb-text-bg: 29 39 43;
+    --app-rgb-text-muted: 168 179 184;
+    --app-rgb-border: 42 53 58;
+    --app-rgb-danger: 248 113 113;
+    --app-rgb-success: 74 222 128;
+    --app-rgb-warning: 251 191 36;
+
+    /* Bootstrap variable overrides are inherited by [data-bs-theme=dark],
      so re-declaring them here keeps the app palette authoritative. */
-  --bs-body-bg: var(--app-color-background);
-  --bs-body-color: var(--app-color-text);
-  --bs-emphasis-color: var(--app-color-text);
-  --bs-border-color: var(--app-color-border);
-  --bs-link-color: var(--app-color-primary);
-  --bs-link-hover-color: var(--app-color-primary-hover);
-  --bs-secondary-color: var(--app-color-text-muted);
-  --bs-tertiary-color: color-mix(in srgb, var(--app-color-text-muted) 65%, var(--app-color-text));
-  --bs-secondary-bg: var(--app-color-text-bg);
-  --bs-tertiary-bg: var(--app-color-background);
-  /* Comma-separated: Bootstrap utilities interpolate these into legacy
+    --bs-body-bg: var(--app-color-background);
+    --bs-body-color: var(--app-color-text);
+    --bs-emphasis-color: var(--app-color-text);
+    --bs-border-color: var(--app-color-border);
+    --bs-link-color: var(--app-color-primary);
+    --bs-link-hover-color: var(--app-color-primary-hover);
+    --bs-secondary-color: var(--app-color-text-muted);
+    --bs-tertiary-color: color-mix(in srgb, var(--app-color-text-muted) 65%, var(--app-color-text));
+    --bs-secondary-bg: var(--app-color-text-bg);
+    --bs-tertiary-bg: var(--app-color-background);
+    /* Comma-separated: Bootstrap utilities interpolate these into legacy
      rgba(..., var(--bs-text-opacity)), which rejects space-separated channels. */
-  --bs-primary-rgb: 96, 165, 250;
-  --bs-body-color-rgb: var(--app-rgb-text);
-  --bs-emphasis-color-rgb: var(--app-rgb-text);
-  --bs-border-color-rgb: var(--app-rgb-border);
-  --bs-secondary-color-rgb: var(--app-rgb-text-muted);
-}
+    --bs-primary-rgb: 96, 165, 250;
+    --bs-body-color-rgb: var(--app-rgb-text);
+    --bs-emphasis-color-rgb: var(--app-rgb-text);
+    --bs-border-color-rgb: var(--app-rgb-border);
+    --bs-secondary-color-rgb: var(--app-rgb-text-muted);
+  }
 
-/* Remap Bootstrap's palette onto the application tokens. */
-:root,
-[data-bs-theme='light'],
-[data-bs-theme='dark'] {
-  --bs-body-bg: var(--app-color-background);
-  --bs-body-color: var(--app-color-text);
-  --bs-emphasis-color: var(--app-color-text);
-  --bs-border-color: var(--app-color-border);
-  --bs-link-color: var(--app-color-primary);
-  --bs-link-hover-color: var(--app-color-primary-hover);
-  --bs-link-opacity: 1;
-  --bs-secondary-color: var(--app-color-text-muted);
-  --bs-tertiary-color: color-mix(in srgb, var(--app-color-text-muted) 65%, var(--app-color-text));
-  --bs-secondary-bg: var(--app-color-text-bg);
-  --bs-tertiary-bg: var(--app-color-background);
+  /* Remap Bootstrap's palette onto the application tokens. */
+  :root,
+  [data-bs-theme='light'],
+  [data-bs-theme='dark'] {
+    --bs-body-bg: var(--app-color-background);
+    --bs-body-color: var(--app-color-text);
+    --bs-emphasis-color: var(--app-color-text);
+    --bs-border-color: var(--app-color-border);
+    --bs-link-color: var(--app-color-primary);
+    --bs-link-hover-color: var(--app-color-primary-hover);
+    --bs-link-opacity: 1;
+    --bs-secondary-color: var(--app-color-text-muted);
+    --bs-tertiary-color: color-mix(in srgb, var(--app-color-text-muted) 65%, var(--app-color-text));
+    --bs-secondary-bg: var(--app-color-text-bg);
+    --bs-tertiary-bg: var(--app-color-background);
 
-  --bs-primary: var(--app-color-primary);
-  /* Comma-separated: Bootstrap utilities interpolate these into legacy
+    --bs-primary: var(--app-color-primary);
+    /* Comma-separated: Bootstrap utilities interpolate these into legacy
      rgba(..., var(--bs-text-opacity)), which rejects space-separated channels. */
-  --bs-primary-rgb: 37, 99, 235;
-  --bs-success: var(--app-color-success);
-  --bs-success-rgb: var(--app-rgb-success);
-  --bs-danger: var(--app-color-danger);
-  --bs-danger-rgb: var(--app-rgb-danger);
-  --bs-warning: var(--app-color-warning);
-  --bs-warning-rgb: var(--app-rgb-warning);
+    --bs-primary-rgb: 37, 99, 235;
+    --bs-success: var(--app-color-success);
+    --bs-success-rgb: var(--app-rgb-success);
+    --bs-danger: var(--app-color-danger);
+    --bs-danger-rgb: var(--app-rgb-danger);
+    --bs-warning: var(--app-color-warning);
+    --bs-warning-rgb: var(--app-rgb-warning);
 
-  --bs-body-color-rgb: var(--app-rgb-text);
-  --bs-emphasis-color-rgb: var(--app-rgb-text);
-  --bs-border-color-rgb: var(--app-rgb-border);
-  --bs-secondary-color-rgb: var(--app-rgb-text-muted);
-  --bs-primary-bg-subtle: rgb(var(--app-rgb-primary) / 0.12);
-  --bs-primary-text-emphasis: var(--app-color-primary);
+    --bs-body-color-rgb: var(--app-rgb-text);
+    --bs-emphasis-color-rgb: var(--app-rgb-text);
+    --bs-border-color-rgb: var(--app-rgb-border);
+    --bs-secondary-color-rgb: var(--app-rgb-text-muted);
+    --bs-primary-bg-subtle: rgb(var(--app-rgb-primary) / 0.12);
+    --bs-primary-text-emphasis: var(--app-color-primary);
 
-  --bs-font-sans-serif: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
-  --bs-font-monospace: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --bs-font-sans-serif:
+      ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+      sans-serif;
+    --bs-font-monospace: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --bs-box-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --bs-box-shadow: 0 4px 12px rgb(15 23 42 / 0.08);
-  --bs-box-shadow-lg: 0 12px 32px rgb(15 23 42 / 0.14);
+    --bs-box-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+    --bs-box-shadow: 0 4px 12px rgb(15 23 42 / 0.08);
+    --bs-box-shadow-lg: 0 12px 32px rgb(15 23 42 / 0.14);
+  }
 }
-

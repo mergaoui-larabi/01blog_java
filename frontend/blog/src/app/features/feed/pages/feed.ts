@@ -3,12 +3,11 @@ import { CreatePostButton } from '../../posts/components/create-post-button/crea
 import { PostCard } from '../../posts/components/post-card/post-card';
 import { FeedService } from '../state/feed.service';
 import { Post } from '../data-access/feed.api.service';
-import { CreatePostDialog } from '../../posts/components/create-post-dialog/create-post-dialog';
 import { PostViewDialog } from '../../posts/components/post-view-dialog/post-view-dialog';
 
 @Component({
   selector: 'app-feed',
-  imports: [CreatePostButton, PostCard, CreatePostDialog, PostViewDialog],
+  imports: [CreatePostButton, PostCard, PostViewDialog],
   templateUrl: './feed.html',
 })
 export class Feed {

@@ -34,7 +34,8 @@ export class AuthService {
 
   constructor() {
     // If an access token exists in localStorage on startup, validate and fetch the current user
-    if (this.tokenStorage.token()) {
+    const isAuthPage = ['/auth/login', '/auth/register'].includes(this.router.url);
+    if (!isAuthPage && this.tokenStorage.token()) {
       this.validateSession().subscribe();
     }
   }
@@ -77,7 +78,7 @@ export class AuthService {
           return of('unauthenticated' as AuthStatus);
         }
 
-        console.error('[Session] Validation error:', err);
+        // console.error('[Session] Validation error:', err);
         this.status.set('error');
         this.alertService.error('Unable to verify your session. Please try again.');
 

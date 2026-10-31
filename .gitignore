@@ -12,3 +12,5 @@ logs/
 !.vscode/extensions.json
 !.vscode/mcp.json
 .history/*
+
+.qoder

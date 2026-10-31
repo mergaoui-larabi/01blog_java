@@ -3,8 +3,14 @@
 // defaults, button/form theming, primitives shared by several components and the
 // utilities whose Bootstrap groups are excluded from this build. Anything owned by
 // a single component belongs in that component's .scss file.
+//
+// Bootstrap's partials stay on @import: scss/utilities/_api.scss reads $utilities,
+// $grid-breakpoints and generate-utility as globals, which is what lets this file
+// prune utility groups below. Bootstrap 6 moves to @use; until then the deprecation
+// is silenced in angular.json rather than in this file.
 
 @use 'sass:map';
+@use './styles/theme';
 
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
@@ -34,7 +40,7 @@ $utility-exclusions: (
   'opacity': null,
 );
 
-@import './styles/theme';
+@include theme.theme-tokens;
 
 $utilities: map.merge($utilities, $utility-exclusions) !global;
 
