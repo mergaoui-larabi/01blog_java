@@ -48,6 +48,21 @@
           Notifications
         </a>
       </li>
+
+      @if (isAdmin()) {
+      <li>
+        <a routerLink="/admin" routerLinkActive="active" #rlaAdmin="routerLinkActive"
+          [attr.aria-current]="rlaAdmin.isActive ? 'page' : null" class="app-nav-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3l8 3v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-3z" />
+          </svg>
+
+          Admin
+        </a>
+      </li>
+      }
     </ul>
 
     <!-- Right side -->
@@ -141,6 +156,14 @@
           My Block
         </a>
       </li>
+
+      @if (isAdmin()) {
+      <li>
+        <a routerLink="/admin" (click)="closeMenus()" routerLinkActive="active" class="app-nav-link">
+          Admin
+        </a>
+      </li>
+      }
 
       @if (user()) {
       <li>

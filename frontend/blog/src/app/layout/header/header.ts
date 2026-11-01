@@ -20,6 +20,7 @@ import { Avatar } from '../../shared/ui/avatar/avatar';
 export class Header {
   protected readonly authService = inject(AuthService);
   protected readonly user = this.authService.user;
+  protected readonly isAdmin = computed(() => this.authService.role() === 'ADMIN');
 
   protected readonly unreadCount = 100;
   protected readonly mobileMenuOpen = signal(false);

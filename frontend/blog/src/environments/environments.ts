@@ -57,6 +57,7 @@ export const environment = {
   deleteCommentEndPoint: 'http://localhost:5000/api/v1/posts/{postId}/comments/{commentId}',
 
   // report
+  getAdminReportsEndpoint: 'http://localhost:5000/api/v1/reports',
   createReportEndpoint: 'http://localhost:5000/api/v1/reports',
   getMyReportsEndpoint: 'http://localhost:5000/api/v1/reports/mine',
   getReportEndpoint: 'http://localhost:5000/api/v1/reports/{reportId}',

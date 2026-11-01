@@ -1,11 +1,12 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './layout/app-layout/app-layout';
 import { AuthLayout } from './features/auth/layout/auth-layout';
-import { authGuard, guestGuard } from './features/auth/guards/auth.guard';
+import { authGuard, guestGuard, roleGuard } from './features/auth/guards/auth.guard';
 import { Feed } from './features/feed/pages/feed';
 import { Explore } from './features/explore/pages/explore';
 import { Notifications } from './features/notifications/pages/notifications';
 import { Block } from './features/block/pages/block';
+import { Admin } from './features/admin/pages/admin';
 import { NotFound } from './features/error/pages/not-found/not-found';
 
 export const routes: Routes = [
@@ -61,6 +62,11 @@ export const routes: Routes = [
       {
         path: 'block/:username',
         component: Block,
+      },
+      {
+        path: 'admin',
+        component: Admin,
+        canActivate: [roleGuard('ADMIN')],
       },
       // Anything else falls back to the 404 error page.
       {

@@ -5,6 +5,7 @@ import { CreatePostButton } from '../../posts/components/create-post-button/crea
 import { BlockService } from '../state/block.service';
 import { PostViewDialog } from '../../posts/components/post-view-dialog/post-view-dialog';
 import { UserProfile } from '../../explore/components/user-profile/user-profile';
+import { InfiniteScroll } from '../../../shared/directives/infinite-scroll';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map, switchMap, tap } from 'rxjs';
@@ -13,7 +14,7 @@ import { ExploreService } from '../../explore/state/explore.service';
 
 @Component({
   selector: 'app-block',
-  imports: [CreatePostButton, PostCard, PostViewDialog, UserProfile],
+  imports: [CreatePostButton, PostCard, PostViewDialog, UserProfile, InfiniteScroll],
   templateUrl: './block.html',
 })
 export class Block {
@@ -32,23 +33,28 @@ export class Block {
   constructor() {
     this.username
       .pipe(
-        // The component is reused when the :username param changes, so clear
-        // any previously shown posts before fetching the new profile's data.
         tap(() => {
           this.user.set(null);
           this.blockService.reset();
-          this.blockService.loadFeed();
         }),
         switchMap((username) => {
           if (!username) {
             throw new Error('Username route parameter is missing');
           }
 
-          return this.blockService.getUserByUsername(username);
+          return this.blockService.getUserByUsername(username).pipe(
+            tap((user) => {
+              this.user.set(user);
+
+              if (username === 'me' || user.sameUser) {
+                this.blockService.loadFeed();
+              }
+            }),
+          );
         }),
         takeUntilDestroyed(),
       )
-      .subscribe((user) => this.user.set(user));
+      .subscribe();
   }
 
   onFollowChange(event: { userId: string; followed: boolean }): void {

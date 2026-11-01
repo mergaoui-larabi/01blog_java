@@ -4,10 +4,11 @@ import { PostCard } from '../../posts/components/post-card/post-card';
 import { FeedService } from '../state/feed.service';
 import { Post } from '../data-access/feed.api.service';
 import { PostViewDialog } from '../../posts/components/post-view-dialog/post-view-dialog';
+import { InfiniteScroll } from '../../../shared/directives/infinite-scroll';
 
 @Component({
   selector: 'app-feed',
-  imports: [CreatePostButton, PostCard, PostViewDialog],
+  imports: [CreatePostButton, PostCard, PostViewDialog, InfiniteScroll],
   templateUrl: './feed.html',
 })
 export class Feed {

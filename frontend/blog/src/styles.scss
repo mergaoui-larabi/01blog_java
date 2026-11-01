@@ -1,50 +1,44 @@
-// Bootstrap 5 compiled from source, limited to the modules this app uses.
-// Only genuinely global styling lives here: Bootstrap and theme imports, element
+// Bootstrap 5 compiled from source through the Sass module system.
+// Only genuinely global styling lives here: Bootstrap, theme tokens, element
 // defaults, button/form theming, primitives shared by several components and the
-// utilities whose Bootstrap groups are excluded from this build. Anything owned by
+// utility classes whose Bootstrap groups are switched off below. Anything owned by
 // a single component belongs in that component's .scss file.
 //
-// Bootstrap's partials stay on @import: scss/utilities/_api.scss reads $utilities,
-// $grid-breakpoints and generate-utility as globals, which is what lets this file
-// prune utility groups below. Bootstrap 6 moves to @use; until then the deprecation
-// is silenced in angular.json rather than in this file.
+// Bootstrap's partials cannot be loaded one by one with @use: scss/utilities/api.scss
+// reads $utilities, $grid-breakpoints and generate-utility from the global scope, and
+// the partials that define them never declare that boundary. Loading the aggregate
+// instead keeps every @import inside the dependency, where the builder's quietDeps
+// silences it, so this file needs no deprecation suppression of its own.
 
-@use 'sass:map';
-@use './styles/theme';
-
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-@import 'bootstrap/scss/variables-dark';
-@import 'bootstrap/scss/maps';
-@import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/root';
-@import 'bootstrap/scss/reboot';
-@import 'bootstrap/scss/type';
-@import 'bootstrap/scss/images';
-@import 'bootstrap/scss/containers';
-@import 'bootstrap/scss/grid';
-@import 'bootstrap/scss/buttons';
-@import 'bootstrap/scss/forms';
-@import 'bootstrap/scss/transitions';
-@import 'bootstrap/scss/close';
-@import 'bootstrap/scss/spinners';
-
-@import 'bootstrap/scss/utilities';
-
-$utility-exclusions: (
-  'background': null,
-  'borders': null,
-  'border-radius': null,
-  'display': null,
-  'shadow': null,
-  'opacity': null,
+@use 'bootstrap/scss/bootstrap' as * with (
+  // Keys must match the group names in bootstrap/scss/_utilities.scss; api.scss skips
+  // any entry that is not a map. The classes still needed from these groups are written
+  // out by hand at the bottom of this file.
+  $utilities: (
+      'background-color': false,
+      'border': false,
+      'border-top': false,
+      'border-bottom': false,
+      'border-start': false,
+      'border-end': false,
+      'border-width': false,
+      'border-color': false,
+      'border-opacity': false,
+      'rounded': false,
+      'rounded-top': false,
+      'rounded-bottom': false,
+      'rounded-start': false,
+      'rounded-end': false,
+      'display': false,
+      'shadow': false,
+      'opacity': false
+    )
 );
+
+@use './styles/theme';
 
 @include theme.theme-tokens;
 
-$utilities: map.merge($utilities, $utility-exclusions) !global;
-
-@import 'bootstrap/scss/utilities/api';
 /* ---------- Base ---------- */
 
 body {
@@ -522,8 +516,16 @@ router-outlet + * {
   }
 }
 
+.bg-body {
+  background-color: var(--bs-body-bg) !important;
+}
+
 .bg-transparent {
   background-color: transparent !important;
+}
+
+.border {
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
 }
 
 .border-0 {

@@ -32,8 +32,8 @@ spring:
             - name: RequestRateLimiter
               args:
                 key-resolver: "#{@ipKeyResolver}"
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 50
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 200
           # Global CORS configuration
           globalcors:
             cors-configurations:

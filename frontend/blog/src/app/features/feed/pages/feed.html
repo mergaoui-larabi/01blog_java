@@ -9,6 +9,14 @@
   </p>
   }
   }
+
+  <!-- The sentinel is removed while a page is in flight and re-created once it lands, so
+       a fresh observer fires again immediately if it is still on screen. -->
+  @if (feedService.loading()) {
+  <p class="py-4 text-center text-secondary">Loading…</p>
+  } @else if (feedService.hasNext()) {
+  <div class="py-4" appInfiniteScroll (reached)="feedService.loadMore()"></div>
+  }
 </section>
 
 <app-post-view-dialog />

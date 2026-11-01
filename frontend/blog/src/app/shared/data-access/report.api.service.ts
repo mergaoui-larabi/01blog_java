@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environments';
 
@@ -24,6 +24,12 @@ export interface CreateReportRequest {
   reason: string;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  nextCursor: string | null;
+  hasNext: boolean;
+}
+
 export interface UpdateReportRequest {
   reason?: string;
   status?: ReportStatus;
@@ -36,6 +42,22 @@ export class ReportApiService {
 
   createReport(request: CreateReportRequest): Observable<Report> {
     return this.http.post<Report>(this.env.createReportEndpoint, request);
+  }
+
+  fetchAdminReports(
+    status?: ReportStatus | null,
+    cursor?: string | null,
+    size = 20,
+  ): Observable<PageResponse<Report>> {
+    let params = new HttpParams().set('size', size);
+    if (status) {
+      params = params.set('status', status);
+    }
+    if (cursor) {
+      params = params.set('cursor', cursor);
+    }
+
+    return this.http.get<PageResponse<Report>>(this.env.getAdminReportsEndpoint, { params });
   }
 
   fetchMyReports(): Observable<Report[]> {

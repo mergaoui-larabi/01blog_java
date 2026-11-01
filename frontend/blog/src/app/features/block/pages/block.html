@@ -16,6 +16,14 @@
     </p>
     }
     }
+
+    <!-- The sentinel is removed while a page is in flight and re-created once it lands, so
+         a fresh observer fires again immediately if it is still on screen. -->
+    @if (blockService.loading()) {
+    <p class="py-4 text-center text-secondary">Loading…</p>
+    } @else if (blockService.hasNext()) {
+    <div class="py-4" appInfiniteScroll (reached)="blockService.loadMore()"></div>
+    }
   </div>
 </section>
 

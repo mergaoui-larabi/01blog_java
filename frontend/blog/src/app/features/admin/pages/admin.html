@@ -1,0 +1,173 @@
+<section class="flex-grow-1 min-w-0 p-4 p-sm-6">
+  <div class="mx-auto w-100 d-flex flex-column gap-4" style="max-width: 56rem">
+
+    <header>
+      <h1 class="fs-3 fw-bold mb-0">Admin Dashboard</h1>
+      <p class="mt-1 mb-0 text-sm text-secondary">
+        Manage users and moderate reports.
+      </p>
+    </header>
+
+    <!-- Tabs -->
+    <div class="d-flex gap-2" role="tablist" aria-label="Admin sections">
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'users'"
+        [class]="tab() === 'users' ? 'btn btn-dark rounded-xl fw-semibold' : 'btn btn-outline-secondary rounded-xl fw-semibold'"
+        (click)="switchTab('users')">
+        Users
+      </button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'reports'"
+        [class]="tab() === 'reports' ? 'btn btn-dark rounded-xl fw-semibold' : 'btn btn-outline-secondary rounded-xl fw-semibold'"
+        (click)="switchTab('reports')">
+        Reports
+      </button>
+    </div>
+
+    @if (tab() === 'users') {
+    <!-- Users management -->
+    <input #userSearchInput type="search" placeholder="Search users by username..." aria-label="Search users"
+      (input)="searchUsers(userSearchInput.value)" class="form-control rounded-xl" />
+
+    @if (adminService.usersLoading() && !adminService.hasUsers()) {
+    <p class="py-8 text-center text-secondary">Loading users...</p>
+    }
+
+    <div class="d-flex flex-column gap-3">
+      @for (user of adminService.users(); track user.id) {
+      <div class="d-flex align-items-center justify-content-between gap-3 p-3 rounded-xl border auth-card">
+        <div class="d-flex align-items-center gap-3 min-w-0">
+          <app-avatar [mediaId]="user.avatarMediaId" [name]="user.username" size="sm" />
+          <div class="min-w-0">
+            <p class="mb-0 fw-semibold text-truncate">
+              {{ user.username }}
+              @if (user.role === 'ADMIN') {
+              <span class="badge text-bg-primary ms-1 align-middle">Admin</span>
+              }
+              @if (user.banned) {
+              <span class="badge text-bg-danger ms-1 align-middle">Banned</span>
+              }
+            </p>
+            <p class="mb-0 text-sm text-secondary text-truncate">{{ user.email }}</p>
+          </div>
+        </div>
+
+        @if (!isSelf(user.id)) {
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          @if (user.banned) {
+          <button type="button" class="btn btn-sm btn-outline-success rounded-lg"
+            (click)="adminService.unbanUser(user.id)">
+            Unban
+          </button>
+          } @else {
+          <button type="button" class="btn btn-sm btn-outline-warning rounded-lg"
+            (click)="adminService.banUser(user.id)">
+            Ban
+          </button>
+          }
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-lg"
+            (click)="confirmDeleteUser(user)">
+            Delete
+          </button>
+        </div>
+        }
+      </div>
+      } @empty {
+      @if (!adminService.usersLoading()) {
+      <p class="py-8 text-center text-secondary">No users found.</p>
+      }
+      }
+    </div>
+
+    @if (adminService.hasUsers()) {
+    <button type="button" (click)="adminService.loadMoreUsers()"
+      [disabled]="adminService.usersLoading() || !adminService.usersHasMore()"
+      class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
+      {{ adminService.usersLoading() ? 'Loading...' : 'Load more' }}
+    </button>
+    }
+    }
+
+    @if (tab() === 'reports') {
+    <!-- Reports moderation -->
+    <div class="d-flex align-items-center gap-2">
+      <label for="report-status-filter" class="text-sm text-secondary mb-0">Status</label>
+      <select id="report-status-filter" class="form-select w-auto rounded-lg"
+        [value]="adminService.reportStatusFilter() ?? ''"
+        (change)="filterReports($any($event.target).value)">
+        <option value="">All</option>
+        @for (status of reportStatusOptions; track status) {
+        <option [value]="status">{{ reportStatusText(status) }}</option>
+        }
+      </select>
+    </div>
+
+    @if (adminService.reportsLoading() && !adminService.hasReports()) {
+    <p class="py-8 text-center text-secondary">Loading reports...</p>
+    }
+
+    <div class="d-flex flex-column gap-3">
+      @for (report of adminService.reports(); track report.id) {
+      <div class="d-flex flex-column gap-2 p-3 rounded-xl border auth-card">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <span class="badge text-bg-secondary align-middle">
+            {{ report.targetType }}
+          </span>
+          <span [class]="report.status === 'RESOLVED' ? 'badge text-bg-success align-middle'
+            : report.status === 'DISMISSED' ? 'badge text-bg-secondary align-middle'
+            : report.status === 'UNDER_REVIEW' ? 'badge text-bg-warning align-middle'
+            : 'badge text-bg-danger align-middle'">
+            {{ reportStatusText(report.status) }}
+          </span>
+        </div>
+
+        <p class="mb-0">{{ report.reason }}</p>
+
+        <p class="mb-0 text-sm text-secondary">
+          {{ report.targetType === 'POST' ? 'Post' : 'User' }} {{ report.targetId }}
+          · reported {{ report.createdAt | date: 'MMM d, y' }}
+        </p>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          @if (report.status !== 'RESOLVED') {
+          <button type="button" class="btn btn-sm btn-outline-success rounded-lg"
+            (click)="adminService.updateReportStatus(report.id, 'RESOLVED')">
+            Resolve
+          </button>
+          }
+          @if (report.status === 'OPEN') {
+          <button type="button" class="btn btn-sm btn-outline-warning rounded-lg"
+            (click)="adminService.updateReportStatus(report.id, 'UNDER_REVIEW')">
+            Review
+          </button>
+          }
+          @if (report.status !== 'DISMISSED') {
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-lg"
+            (click)="adminService.updateReportStatus(report.id, 'DISMISSED')">
+            Dismiss
+          </button>
+          }
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-lg ms-auto"
+            (click)="confirmDeleteReport(report)">
+            Delete
+          </button>
+        </div>
+      </div>
+      } @empty {
+      @if (!adminService.reportsLoading()) {
+      <p class="py-8 text-center text-secondary">No reports found.</p>
+      }
+      }
+    </div>
+
+    @if (adminService.hasReports()) {
+    <button type="button" (click)="adminService.loadMoreReports()"
+      [disabled]="adminService.reportsLoading() || !adminService.reportsHasMore()"
+      class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
+      {{ adminService.reportsLoading() ? 'Loading...' : 'Load more' }}
+    </button>
+    }
+    }
+
+  </div>
+</section>
+
+<app-confirm-dialog (confirmed)="onDeleteConfirmed()" />
