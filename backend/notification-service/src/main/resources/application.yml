@@ -1,7 +1,7 @@
 logging:
   level:
     root: WARN
-    com.blog.moderation: INFO
+    com.blog.notification: INFO
 
 server:
   port: 5005
@@ -10,7 +10,7 @@ spring:
   main:
     banner-mode: off
   application:
-    name: moderation-service
+    name: notification-service
   datasource:
     url: jdbc:postgresql://${NOTIF_DB_HOST}/${NOTIF_DB_NAME}
     username: ${NOTIF_DB_USERNAME}
@@ -26,10 +26,6 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:5002/.well-known/jwks.json
-
-moderation:
-  user-service:
-    url: ${USER_SERVICE_URL:http://localhost:5001}
 
 #Actuator
 management:
