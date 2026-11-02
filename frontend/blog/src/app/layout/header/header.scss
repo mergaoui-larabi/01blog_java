@@ -38,6 +38,31 @@
   color: var(--app-color-text);
 }
 
+/* Bootstrap's display group is excluded from this build, so the icon-only
+   navigation used between md and lg is driven from here. At 768px the brand,
+   four labelled links and the account actions no longer fit on one line. */
+.app-nav-link-label {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .app-nav-link-label {
+    display: inline;
+  }
+}
+
+/* Short or landscape viewports: the disclosure menu scrolls inside the header
+   instead of pushing content off-screen. Its rows are sized for touch. */
+.app-mobile-menu {
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+}
+
+.app-mobile-menu .app-nav-link {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+
 .app-account-toggle {
   display: flex;
   align-items: center;

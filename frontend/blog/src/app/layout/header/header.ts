@@ -65,4 +65,12 @@ export class Header {
       this.closeMenus();
     }
   }
+
+  /** Closes the disclosure menu once the viewport is wide enough for the inline navigation. */
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth >= 768) {
+      this.closeMenus();
+    }
+  }
 }
