@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.app-notification-trigger {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: start;
+  color: var(--app-color-text);
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--bs-secondary-color);
+    cursor: default;
+  }
+}
+
+.app-notification-unread .app-notification-trigger:not(:disabled) {
+  font-weight: 600;
+}
+
+.app-notification-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--app-color-primary);
+}

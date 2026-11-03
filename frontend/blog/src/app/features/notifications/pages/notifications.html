@@ -1,4 +1,43 @@
-<div class="p-4">
-  <h1>Notifications</h1>
-  <p class="mb-0 text-secondary">Place your notifications markup here.</p>
-</div>
+<section class="flex-grow-1 min-w-0 p-4 p-sm-6">
+  <div class="mx-auto w-100 d-flex flex-column gap-4" style="max-width: 56rem">
+
+    <header class="d-flex align-items-start justify-content-between gap-3">
+      <div>
+        <h1 class="fs-3 fw-bold mb-0">Notifications</h1>
+        <p class="mt-1 mb-0 text-sm text-secondary">
+          {{ notificationService.unreadCount() }} unread
+        </p>
+      </div>
+
+      @if (notificationService.unreadCount() > 0) {
+      <button type="button" class="btn btn-sm btn-outline-primary rounded-lg flex-shrink-0"
+        (click)="notificationService.setAllRead()">
+        Mark all read
+      </button>
+      }
+    </header>
+
+    @if (notificationService.loading() && !notificationService.notifications().length) {
+    <p class="py-8 text-center text-secondary">Loading notifications...</p>
+    }
+
+    <div class="d-flex flex-column gap-3">
+      @for (notification of notificationService.notifications(); track notification.id) {
+      <app-notification-item [notification]="notification" />
+      } @empty {
+      @if (!notificationService.loading()) {
+      <p class="py-8 text-center text-secondary">No notifications yet.</p>
+      }
+      }
+    </div>
+
+    @if (notificationService.notifications().length) {
+    <button type="button" (click)="notificationService.loadMore()"
+      [disabled]="notificationService.loading() || !notificationService.hasNext()"
+      class="btn w-100 rounded-xl py-3 fw-semibold text-body border">
+      {{ notificationService.loading() ? 'Loading...' : 'Load more' }}
+    </button>
+    }
+
+  </div>
+</section>

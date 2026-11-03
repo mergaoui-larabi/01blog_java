@@ -1,8 +1,9 @@
-import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Logo } from '../../shared/components/logo/logo';
 import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 import { AuthService } from '../../features/auth/state/auth.service';
+import { NotificationService } from '../../features/notifications/state/notification.service';
 import { Avatar } from '../../shared/ui/avatar/avatar';
 // import { Avatar } from '../../shared/ui/avatar/avatar';
 
@@ -22,14 +23,33 @@ export class Header {
   protected readonly user = this.authService.user;
   protected readonly isAdmin = computed(() => this.authService.role() === 'ADMIN');
 
-  protected readonly unreadCount = 100;
+  private readonly notificationService = inject(NotificationService);
+  protected readonly unreadCount = this.notificationService.unreadCount;
+  protected readonly unreadCountLabel = computed(() =>
+    this.unreadCount() > 99 ? '99+' : `${this.unreadCount()}`,
+  );
+
   protected readonly mobileMenuOpen = signal(false);
   protected readonly accountMenuOpen = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (this.authService.user()) {
+        this.notificationService.loadUnreadCount();
+      }
+    });
+  }
 
   protected readonly userSummary = computed(() => {
     const user = this.user();
     return user ? { username: user.username, displayName: user.username } : null;
   });
+
+  protected ariaLabel(): string {
+    const count = this.unreadCount();
+
+    return count > 0 ? `Notifications, ${count} unread` : 'Notifications';
+  }
 
   protected toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);

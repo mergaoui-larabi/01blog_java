@@ -1,0 +1,25 @@
+<div class="d-flex align-items-center gap-3 p-3 rounded-xl border bg-body"
+  [class.app-notification-unread]="!notification().read">
+
+  <app-avatar [mediaId]="actor()?.avatarMediaId ?? null" [name]="actor()?.username ?? null" size="sm" />
+
+  <div class="d-flex flex-column gap-1 min-w-0 flex-grow-1">
+    <button type="button" class="app-notification-trigger text-truncate" [attr.title]="text()"
+      [disabled]="notification().read" (click)="view()">
+      {{ text() }}
+    </button>
+
+    <span class="text-sm text-secondary">{{ notification().createdAt | timeAgo }}</span>
+  </div>
+
+  <div class="d-flex align-items-center gap-2 flex-shrink-0">
+    @if (!notification().read) {
+    <span class="app-notification-dot" aria-hidden="true"></span>
+    }
+
+    <button type="button" [disabled]="pending()" (click)="toggleRead()"
+      [class]="notification().read ? 'btn btn-sm btn-outline-secondary rounded-lg' : 'btn btn-sm btn-outline-success rounded-lg'">
+      {{ pending() ? 'Saving…' : notification().read ? 'Mark unread' : 'Mark read' }}
+    </button>
+  </div>
+</div>

@@ -70,4 +70,9 @@ export const environment = {
   deleteReportEndpoint: 'http://localhost:5000/api/v1/reports/{reportId}',
 
   // notification
+  getNotificationsEndpoint:
+    'http://localhost:5000/api/v1/notifications?cursor={cursor}&size=20',
+  getUnreadCountEndpoint: 'http://localhost:5000/api/v1/notifications/unread-count',
+  patchAllNotificationsReadEndpoint: 'http://localhost:5000/api/v1/notifications/read-all',
+  patchNotificationReadEndpoint: 'http://localhost:5000/api/v1/notifications/{notificationId}',
 } as const;
