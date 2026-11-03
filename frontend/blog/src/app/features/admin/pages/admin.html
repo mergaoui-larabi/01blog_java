@@ -59,12 +59,12 @@
         <div class="d-flex align-items-center gap-2 flex-shrink-0">
           @if (user.banned) {
           <button type="button" class="btn btn-sm btn-outline-success rounded-lg"
-            (click)="adminService.unbanUser(user.id)">
+            (click)="confirmUnbanUser(user)">
             Unban
           </button>
           } @else {
           <button type="button" class="btn btn-sm btn-outline-warning rounded-lg"
-            (click)="adminService.banUser(user.id)">
+            (click)="confirmBanUser(user)">
             Ban
           </button>
           }
@@ -142,12 +142,12 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
           @if (post.hidden) {
           <button type="button" class="btn btn-sm btn-outline-success rounded-lg"
-            (click)="adminService.unhidePost(post.id)">
+            (click)="confirmUnhidePost(post)">
             Unhide
           </button>
           } @else {
           <button type="button" class="btn btn-sm btn-outline-warning rounded-lg"
-            (click)="adminService.hidePost(post.id)">
+            (click)="confirmHidePost(post)">
             Hide
           </button>
           }
@@ -216,19 +216,19 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
           @if (report.status !== 'RESOLVED') {
           <button type="button" class="btn btn-sm btn-outline-success rounded-lg"
-            (click)="adminService.updateReportStatus(report.id, 'RESOLVED')">
+            (click)="confirmUpdateReportStatus(report, 'RESOLVED')">
             Resolve
           </button>
           }
           @if (report.status === 'OPEN') {
           <button type="button" class="btn btn-sm btn-outline-warning rounded-lg"
-            (click)="adminService.updateReportStatus(report.id, 'UNDER_REVIEW')">
+            (click)="confirmUpdateReportStatus(report, 'UNDER_REVIEW')">
             Review
           </button>
           }
           @if (report.status !== 'DISMISSED') {
           <button type="button" class="btn btn-sm btn-outline-secondary rounded-lg"
-            (click)="adminService.updateReportStatus(report.id, 'DISMISSED')">
+            (click)="confirmUpdateReportStatus(report, 'DISMISSED')">
             Dismiss
           </button>
           }
@@ -257,4 +257,4 @@
   </div>
 </section>
 
-<app-confirm-dialog (confirmed)="onDeleteConfirmed()" />
+<app-confirm-dialog (confirmed)="onConfirmed()" />

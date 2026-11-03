@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { DatePipe, SlicePipe } from '@angular/common';
 import { Avatar } from '../../../shared/ui/avatar/avatar';
-import { ConfirmDialog } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { Report, ReportStatus } from '../../../shared/data-access/report.api.service';
 import { UserSearch } from '../../explore/data-access/explore.api.service';
 import { Post } from '../../posts/data-access/post.api.service';
@@ -10,12 +10,6 @@ import { AdminService } from '../state/admin.service';
 import { PostSearchField } from '../data-access/admin.api.service';
 
 type AdminTab = 'users' | 'posts' | 'reports';
-
-interface PendingDelete {
-  kind: 'user' | 'post' | 'report';
-  id: string;
-  label: string;
-}
 
 @Component({
   selector: 'app-admin',
@@ -28,7 +22,7 @@ export class Admin {
   private readonly authService = inject(AuthService);
 
   protected readonly tab = signal<AdminTab>('users');
-  protected readonly pendingDelete = signal<PendingDelete | null>(null);
+  private readonly pendingAction = signal<(() => void) | null>(null);
   private readonly confirmDialog = viewChild.required(ConfirmDialog);
 
   protected readonly reportStatusOptions: ReportStatus[] = [
@@ -91,48 +85,126 @@ export class Admin {
     return status.replace('_', ' ');
   }
 
+  protected confirmBanUser(user: UserSearch): void {
+    this.askConfirmation(
+      {
+        title: 'Ban user',
+        message: `Ban @${user.username}? They will lose access until unbanned.`,
+        confirmLabel: 'Ban',
+        danger: true,
+      },
+      () => this.adminService.banUser(user.id),
+    );
+  }
+
+  protected confirmUnbanUser(user: UserSearch): void {
+    this.askConfirmation(
+      {
+        title: 'Unban user',
+        message: `Restore access for @${user.username}? They will be able to sign in again.`,
+        confirmLabel: 'Unban',
+        danger: false,
+      },
+      () => this.adminService.unbanUser(user.id),
+    );
+  }
+
   protected confirmDeleteUser(user: UserSearch): void {
-    this.pendingDelete.set({ kind: 'user', id: user.id, label: user.username });
-    this.confirmDialog().open({
-      title: 'Delete user',
-      message: `Permanently delete @${user.username}? This cannot be undone.`,
-      confirmLabel: 'Delete',
-      danger: true,
-    });
+    this.askConfirmation(
+      {
+        title: 'Delete user',
+        message: `Permanently delete @${user.username}? This cannot be undone.`,
+        confirmLabel: 'Delete',
+        danger: true,
+      },
+      () => this.adminService.deleteUser(user.id),
+    );
+  }
+
+  protected confirmHidePost(post: Post): void {
+    this.askConfirmation(
+      {
+        title: 'Hide post',
+        message: `Hide "${this.preview(post)}"? Only its author will be able to see it.`,
+        confirmLabel: 'Hide',
+        danger: true,
+      },
+      () => this.adminService.hidePost(post.id),
+    );
+  }
+
+  protected confirmUnhidePost(post: Post): void {
+    this.askConfirmation(
+      {
+        title: 'Unhide post',
+        message: `Make "${this.preview(post)}" visible again?`,
+        confirmLabel: 'Unhide',
+        danger: false,
+      },
+      () => this.adminService.unhidePost(post.id),
+    );
   }
 
   protected confirmDeletePost(post: Post): void {
-    this.pendingDelete.set({ kind: 'post', id: post.id, label: post.content.slice(0, 60) });
-    this.confirmDialog().open({
-      title: 'Delete post',
-      message: 'Permanently delete this post? This cannot be undone.',
-      confirmLabel: 'Delete',
-      danger: true,
-    });
+    this.askConfirmation(
+      {
+        title: 'Delete post',
+        message: `Permanently delete "${this.preview(post)}"? This cannot be undone.`,
+        confirmLabel: 'Delete',
+        danger: true,
+      },
+      () => this.adminService.deletePost(post.id),
+    );
+  }
+
+  protected confirmUpdateReportStatus(report: Report, status: ReportStatus): void {
+    const statusText = this.reportStatusText(status).toLowerCase();
+
+    this.askConfirmation(
+      {
+        title: `Mark report ${statusText}`,
+        message: `Mark this ${report.targetType.toLowerCase()} report as ${statusText}?`,
+        confirmLabel: this.reportActionLabel(status),
+        danger: false,
+      },
+      () => this.adminService.updateReportStatus(report.id, status),
+    );
   }
 
   protected confirmDeleteReport(report: Report): void {
-    this.pendingDelete.set({ kind: 'report', id: report.id, label: report.targetType });
-    this.confirmDialog().open({
-      title: 'Delete report',
-      message: `Delete this ${report.targetType.toLowerCase()} report? This cannot be undone.`,
-      confirmLabel: 'Delete',
-      danger: true,
-    });
+    this.askConfirmation(
+      {
+        title: 'Delete report',
+        message: `Delete this ${report.targetType.toLowerCase()} report? This cannot be undone.`,
+        confirmLabel: 'Delete',
+        danger: true,
+      },
+      () => this.adminService.deleteReport(report.id),
+    );
   }
 
-  protected onDeleteConfirmed(): void {
-    const pending = this.pendingDelete();
-    if (!pending) return;
+  protected onConfirmed(): void {
+    const action = this.pendingAction();
+    this.pendingAction.set(null);
 
-    if (pending.kind === 'user') {
-      this.adminService.deleteUser(pending.id);
-    } else if (pending.kind === 'post') {
-      this.adminService.deletePost(pending.id);
-    } else {
-      this.adminService.deleteReport(pending.id);
-    }
+    action?.();
+  }
 
-    this.pendingDelete.set(null);
+  private askConfirmation(request: ConfirmDialogData, action: () => void): void {
+    this.pendingAction.set(action);
+    this.confirmDialog().open(request);
+  }
+
+  private preview(post: Post): string {
+    const content = post.content.replace(/\s+/g, ' ').trim();
+
+    return content.length > 60 ? `${content.slice(0, 60)}...` : content;
+  }
+
+  private reportActionLabel(status: ReportStatus): string {
+    if (status === 'RESOLVED') return 'Resolve';
+    if (status === 'UNDER_REVIEW') return 'Review';
+
+    return 'Dismiss';
   }
 }
