@@ -62,4 +62,43 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
                         @Param("cursorId") UUID cursorId,
                         @Param("cursorCreatedAt") Instant cursorCreatedAt,
                         Pageable pageable);
+
+        // Admin queries: hidden posts are included, unlike the feed queries above.
+
+        @Query("""
+                        SELECT p FROM Post p
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findAdminFirstPage(Pageable pageable);
+
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findAdminWithCursor(
+                        @Param("cursorId") UUID cursorId,
+                        @Param("cursorCreatedAt") Instant cursorCreatedAt,
+                        Pageable pageable);
+
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE p.authorId = :authorId
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findAdminByAuthorFirstPage(
+                        @Param("authorId") UUID authorId,
+                        Pageable pageable);
+
+        @Query("""
+                        SELECT p FROM Post p
+                        WHERE p.authorId = :authorId
+                          AND (p.createdAt < :cursorCreatedAt OR (p.createdAt = :cursorCreatedAt AND p.id < :cursorId))
+                        ORDER BY p.createdAt DESC, p.id DESC
+                        """)
+        List<Post> findAdminByAuthorWithCursor(
+                        @Param("authorId") UUID authorId,
+                        @Param("cursorId") UUID cursorId,
+                        @Param("cursorCreatedAt") Instant cursorCreatedAt,
+                        Pageable pageable);
 }

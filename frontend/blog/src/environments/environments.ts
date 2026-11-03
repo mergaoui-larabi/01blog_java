@@ -56,6 +56,11 @@ export const environment = {
   unlikePostEndPoint: 'http://localhost:5000/api/v1/posts/{postId}/likes',
   deleteCommentEndPoint: 'http://localhost:5000/api/v1/posts/{postId}/comments/{commentId}',
 
+  // admin post
+  adminSearchPostsEndpoint: 'http://localhost:5000/api/v1/posts/admin/search?cursor={cursor}&size=20',
+  adminHidePostEndpoint: 'http://localhost:5000/api/v1/posts/admin/{postId}/hidden',
+  adminDeletePostEndpoint: 'http://localhost:5000/api/v1/posts/admin/{postId}',
+
   // report
   getAdminReportsEndpoint: 'http://localhost:5000/api/v1/reports',
   createReportEndpoint: 'http://localhost:5000/api/v1/reports',

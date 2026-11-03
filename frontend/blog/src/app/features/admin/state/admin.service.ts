@@ -6,7 +6,8 @@ import { catchError, finalize } from 'rxjs/operators';
 import { AlertService } from '../../../core/alerts/alert.service';
 import { Report, ReportApiService, ReportStatus } from '../../../shared/data-access/report.api.service';
 import { UserSearch } from '../../explore/data-access/explore.api.service';
-import { AdminApiService } from '../data-access/admin.api.service';
+import { Post } from '../../posts/data-access/post.api.service';
+import { AdminApiService, PostFilter } from '../data-access/admin.api.service';
 
 @Service()
 export class AdminService {
@@ -21,6 +22,12 @@ export class AdminService {
   readonly userSearchTerm = signal('');
   private readonly usersCursorInstant = signal<string | null>(null);
 
+  readonly posts = signal<Post[]>([]);
+  readonly postsLoading = signal(false);
+  readonly postsNextCursor = signal<string | null>(null);
+  readonly postsHasMore = signal(false);
+  readonly postFilter = signal<PostFilter>({ field: 'all', value: '' });
+
   readonly reports = signal<Report[]>([]);
   readonly reportsLoading = signal(false);
   readonly reportsNextCursor = signal<string | null>(null);
@@ -28,6 +35,7 @@ export class AdminService {
   readonly reportStatusFilter = signal<ReportStatus | null>(null);
 
   readonly hasUsers = computed(() => this.users().length > 0);
+  readonly hasPosts = computed(() => this.posts().length > 0);
   readonly hasReports = computed(() => this.reports().length > 0);
 
   loadUsers(search?: string | null): void {
@@ -116,6 +124,93 @@ export class AdminService {
   private setBanned(userId: string, banned: boolean): void {
     this.users.update((users) =>
       users.map((user) => (user.id === userId ? { ...user, banned } : user)),
+    );
+  }
+
+  loadPosts(filter?: PostFilter): void {
+    if (filter) {
+      this.postFilter.set(filter);
+    }
+
+    this.fetchPostsPage(null, false);
+  }
+
+  loadMorePosts(): void {
+    if (this.postsLoading() || !this.postsHasMore()) return;
+
+    this.fetchPostsPage(this.postsNextCursor(), true);
+  }
+
+  private fetchPostsPage(cursor: string | null, append: boolean): void {
+    if (this.postsLoading()) return;
+
+    this.postsLoading.set(true);
+
+    this.adminApi
+      .fetchPosts(this.postFilter(), cursor)
+      .pipe(
+        catchError((error: unknown) => {
+          this.postsHasMore.set(false);
+          this.handleError(error, 'Failed to load posts.');
+          return EMPTY;
+        }),
+        finalize(() => this.postsLoading.set(false)),
+      )
+      .subscribe((page) => {
+        this.posts.update((current) => {
+          if (!append) return page.content;
+
+          const existingIds = new Set(current.map((post) => post.id));
+          return [...current, ...page.content.filter((post) => !existingIds.has(post.id))];
+        });
+
+        this.postsNextCursor.set(page.nextCursor ?? null);
+        this.postsHasMore.set(page.hasNext);
+      });
+  }
+
+  hidePost(postId: string): void {
+    this.adminApi
+      .hidePost(postId)
+      .pipe(catchError((error: unknown) => {
+        this.handleError(error, 'Failed to hide post.');
+        return EMPTY;
+      }))
+      .subscribe((post) => {
+        this.setHidden(postId, post.hidden);
+        this.alertService.success('Post hidden.');
+      });
+  }
+
+  unhidePost(postId: string): void {
+    this.adminApi
+      .unhidePost(postId)
+      .pipe(catchError((error: unknown) => {
+        this.handleError(error, 'Failed to unhide post.');
+        return EMPTY;
+      }))
+      .subscribe((post) => {
+        this.setHidden(postId, post.hidden);
+        this.alertService.success('Post unhidden.');
+      });
+  }
+
+  deletePost(postId: string): void {
+    this.adminApi
+      .deletePost(postId)
+      .pipe(catchError((error: unknown) => {
+        this.handleError(error, 'Failed to delete post.');
+        return EMPTY;
+      }))
+      .subscribe(() => {
+        this.posts.update((posts) => posts.filter((post) => post.id !== postId));
+        this.alertService.success('Post deleted.');
+      });
+  }
+
+  private setHidden(postId: string, hidden: boolean): void {
+    this.posts.update((posts) =>
+      posts.map((post) => (post.id === postId ? { ...post, hidden } : post)),
     );
   }
 

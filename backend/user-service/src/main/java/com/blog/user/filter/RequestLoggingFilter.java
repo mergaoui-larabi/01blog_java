@@ -37,7 +37,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             long duration = System.currentTimeMillis() - start;
 
             log.info(
-                    "\nrequestId={}\nmethod={} path={} status={} duration={}ms",
+                    "\nrequestId={}\nmethod={} path={} status={} duration={}ms\n",
                     requestId,
                     request.getMethod(),
                     request.getRequestURI(),

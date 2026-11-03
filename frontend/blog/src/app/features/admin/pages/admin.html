@@ -4,7 +4,7 @@
     <header>
       <h1 class="fs-3 fw-bold mb-0">Admin Dashboard</h1>
       <p class="mt-1 mb-0 text-sm text-secondary">
-        Manage users and moderate reports.
+        Manage users, moderate posts and handle reports.
       </p>
     </header>
 
@@ -14,6 +14,11 @@
         [class]="tab() === 'users' ? 'btn btn-dark rounded-xl fw-semibold' : 'btn btn-outline-secondary rounded-xl fw-semibold'"
         (click)="switchTab('users')">
         Users
+      </button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'posts'"
+        [class]="tab() === 'posts' ? 'btn btn-dark rounded-xl fw-semibold' : 'btn btn-outline-secondary rounded-xl fw-semibold'"
+        (click)="switchTab('posts')">
+        Posts
       </button>
       <button type="button" role="tab" [attr.aria-selected]="tab() === 'reports'"
         [class]="tab() === 'reports' ? 'btn btn-dark rounded-xl fw-semibold' : 'btn btn-outline-secondary rounded-xl fw-semibold'"
@@ -82,6 +87,88 @@
       [disabled]="adminService.usersLoading() || !adminService.usersHasMore()"
       class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
       {{ adminService.usersLoading() ? 'Loading...' : 'Load more' }}
+    </button>
+    }
+    }
+
+    @if (tab() === 'posts') {
+    <!-- Posts moderation -->
+    <div class="d-flex align-items-center gap-2">
+      <label for="post-search-field" class="text-sm text-secondary mb-0">Search by</label>
+      <select id="post-search-field" #postFieldSelect class="form-select w-auto rounded-lg"
+        [value]="adminService.postFilter().field"
+        (change)="searchPosts(postFieldSelect.value, postSearchInput.value)">
+        @for (option of postFieldOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="d-flex gap-2">
+      <input #postSearchInput type="search" [placeholder]="postSearchPlaceholder()" aria-label="Search posts"
+        class="form-control rounded-xl"
+        (keyup.enter)="searchPosts(postFieldSelect.value, postSearchInput.value)" />
+      <button type="button" class="btn btn-dark rounded-xl flex-shrink-0"
+        (click)="searchPosts(postFieldSelect.value, postSearchInput.value)">
+        Search
+      </button>
+    </div>
+
+    @if (adminService.postsLoading() && !adminService.hasPosts()) {
+    <p class="py-8 text-center text-secondary">Loading posts...</p>
+    }
+
+    <div class="d-flex flex-column gap-3">
+      @for (post of adminService.posts(); track post.id) {
+      <div class="d-flex flex-column gap-2 p-3 rounded-xl border auth-card">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <span class="badge text-bg-secondary align-middle">
+            {{ post.mediaIds.length }} media
+          </span>
+          @if (post.hidden) {
+          <span class="badge text-bg-danger align-middle">Hidden</span>
+          } @else {
+          <span class="badge text-bg-success align-middle">Visible</span>
+          }
+        </div>
+
+        <p class="mb-0 text-break">{{ post.content | slice:0:280 }}{{ post.content.length > 280 ? '...' : '' }}</p>
+
+        <p class="mb-0 text-sm text-secondary text-break">
+          {{ post.id }} · author {{ post.authorId }} · {{ post.likesCount }} likes · {{ post.commentsCount }} comments
+          · {{ post.createdAt | date: 'MMM d, y' }}
+        </p>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          @if (post.hidden) {
+          <button type="button" class="btn btn-sm btn-outline-success rounded-lg"
+            (click)="adminService.unhidePost(post.id)">
+            Unhide
+          </button>
+          } @else {
+          <button type="button" class="btn btn-sm btn-outline-warning rounded-lg"
+            (click)="adminService.hidePost(post.id)">
+            Hide
+          </button>
+          }
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-lg ms-auto"
+            (click)="confirmDeletePost(post)">
+            Delete
+          </button>
+        </div>
+      </div>
+      } @empty {
+      @if (!adminService.postsLoading()) {
+      <p class="py-8 text-center text-secondary">No posts found.</p>
+      }
+      }
+    </div>
+
+    @if (adminService.hasPosts()) {
+    <button type="button" (click)="adminService.loadMorePosts()"
+      [disabled]="adminService.postsLoading() || !adminService.postsHasMore()"
+      class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
+      {{ adminService.postsLoading() ? 'Loading...' : 'Load more' }}
     </button>
     }
     }

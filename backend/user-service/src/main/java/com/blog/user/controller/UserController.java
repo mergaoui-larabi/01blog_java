@@ -98,12 +98,12 @@ public class UserController {
                 })
                 .toList();
 
-        String nextCursor = null;
+        UUID nextCursor = null;
         if (!content.isEmpty() && users.getTotalPages() > 0) {
             long fetched = users.getContent().size();
             if (fetched > size) {
                 User lastFetched = users.getContent().get(size - 1);
-                nextCursor = lastFetched.getCreatedAt().toString();
+                nextCursor = lastFetched.getId();
             }
         }
 
@@ -173,7 +173,8 @@ public class UserController {
             @AuthenticationPrincipal Jwt jwt) {
         Username u = new Username(username);
         User user = userService.getUserByUser(u);
-        // System.out.println("the user is : " + UUID.fromString(jwt.getSubject()) + "-------" + user.getId());
+        // System.out.println("the user is : " + UUID.fromString(jwt.getSubject()) +
+        // "-------" + user.getId());
         UsernameSearchResponse response = new UsernameSearchResponse(user.getId(),
                 user.getEmail(),
                 user.getUsername(),

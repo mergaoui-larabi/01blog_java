@@ -60,6 +60,10 @@ hr {
   opacity: 1;
 }
 
+textarea {
+  resize: none;
+}
+
 /* Surface colors, standing in for Bootstrap's excluded background utility group. */
 .bg-surface {
   background-color: var(--app-color-surface);
@@ -223,7 +227,7 @@ router-outlet + * {
 .app-dialog {
   width: 80vw;
   max-width: none;
-  height: 90dvh;
+  // height: 90dvh;
   max-height: 90dvh;
   margin: auto;
   overflow-y: auto;

@@ -112,6 +112,37 @@ public class PostService {
     }
 
     // -------------------------------------------------------------------------
+    // Admin Queries
+    // -------------------------------------------------------------------------
+
+    @Transactional(readOnly = true)
+    public PageResponse<PostResponse> searchPosts(UUID postId, UUID authorId, UUID cursor, int size) {
+        if (postId != null) {
+            List<PostResponse> content = postRepository.findById(postId)
+                    .map(post -> List.of(toPostResponse(post, null, false)))
+                    .orElse(Collections.emptyList());
+            return new PageResponse<>(content, null, false);
+        }
+
+        Pageable pageable = PageRequest.ofSize(size + 1);
+        List<Post> posts;
+
+        if (cursor == null) {
+            posts = authorId != null
+                    ? postRepository.findAdminByAuthorFirstPage(authorId, pageable)
+                    : postRepository.findAdminFirstPage(pageable);
+        } else {
+            Post cursorPost = postRepository.findById(cursor).orElse(null);
+            Instant cursorCreatedAt = cursorPost != null ? cursorPost.getCreatedAt() : Instant.now();
+            posts = authorId != null
+                    ? postRepository.findAdminByAuthorWithCursor(authorId, cursor, cursorCreatedAt, pageable)
+                    : postRepository.findAdminWithCursor(cursor, cursorCreatedAt, pageable);
+        }
+
+        return buildPageResponse(posts, size, null);
+    }
+
+    // -------------------------------------------------------------------------
     // Post Mutations
     // -------------------------------------------------------------------------
 
@@ -184,6 +215,15 @@ public class PostService {
             throw new PostNotOwnedException("Post not owned by current user: " + postId);
         }
         postRepository.delete(post);
+    }
+
+    @Transactional
+    public PostResponse setPostHidden(UUID postId, boolean hidden) {
+        Post post = requirePost(postId);
+        post.setHidden(hidden);
+        post.touch();
+        post = postRepository.save(post);
+        return toPostResponse(post, null, false);
     }
 
     // -------------------------------------------------------------------------
