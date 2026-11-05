@@ -1,5 +1,6 @@
 import { Component, ElementRef, computed, inject, output, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Comment, Post, PostApiService } from '../../data-access/post.api.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
@@ -15,7 +16,7 @@ import { DeadLogo } from '../../../../shared/components/dead-logo/dead-logo';
 
 @Component({
   selector: 'app-post-view-dialog',
-  imports: [DatePipe, TimeAgoPipe, Avatar, PostMediaGallery, ConfirmDialog, DeadLogo],
+  imports: [DatePipe, RouterLink, TimeAgoPipe, Avatar, PostMediaGallery, ConfirmDialog, DeadLogo],
   templateUrl: './post-view-dialog.html',
   styleUrl: './post-view-dialog.scss',
 })

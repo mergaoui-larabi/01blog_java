@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Post } from '../../../posts/data-access/post.api.service';
 import { PostService } from '../../state/post.service';
 import { PostAuthorService } from '../../state/post-author.service';
@@ -12,7 +13,7 @@ import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dial
 
 @Component({
   selector: 'app-post-card',
-  imports: [DatePipe, Avatar, TimeAgoPipe, EditPostDialog, ConfirmDialog, ReportButton],
+  imports: [DatePipe, RouterLink, Avatar, TimeAgoPipe, EditPostDialog, ConfirmDialog, ReportButton],
   templateUrl: './post-card.html',
   styleUrl: './post-card.scss',
 })

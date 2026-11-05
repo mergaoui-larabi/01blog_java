@@ -51,6 +51,17 @@
   }
 }
 
+/* Unread cue on the bell, kept to its own corner so it never sits under the count badge. */
+.app-header-dot {
+  position: absolute;
+  top: -0.15rem;
+  left: -0.15rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--app-color-danger);
+}
+
 /* Short or landscape viewports: the disclosure menu scrolls inside the header
    instead of pushing content off-screen. Its rows are sized for touch. */
 .app-mobile-menu {

@@ -1,5 +1,7 @@
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
 import { Logo } from '../../shared/components/logo/logo';
 import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 import { AuthService } from '../../features/auth/state/auth.service';
@@ -20,6 +22,7 @@ import { Avatar } from '../../shared/ui/avatar/avatar';
 })
 export class Header {
   protected readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   protected readonly user = this.authService.user;
   protected readonly isAdmin = computed(() => this.authService.role() === 'ADMIN');
 
@@ -29,10 +32,29 @@ export class Header {
     this.unreadCount() > 99 ? '99+' : `${this.unreadCount()}`,
   );
 
+  private readonly onNotificationsRoute = signal(this.router.url.startsWith('/notifications'));
+
+  /**
+   * A push the reader cannot already see. On /notifications the list itself shows the unread rows, so the dot
+   * would only repeat what is on screen.
+   */
+  protected readonly showsUnreadDot = computed(
+    () => this.unreadCount() > 0 && !this.onNotificationsRoute(),
+  );
+
   protected readonly mobileMenuOpen = signal(false);
   protected readonly accountMenuOpen = signal(false);
 
   constructor() {
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe((event) =>
+        this.onNotificationsRoute.set(event.urlAfterRedirects.startsWith('/notifications')),
+      );
+
     effect(() => {
       if (this.authService.user()) {
         this.notificationService.loadUnreadCount();

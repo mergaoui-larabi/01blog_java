@@ -4,6 +4,18 @@
   max-width: 672px;
 }
 
+/* Author header link to the author's block. .text-body is not used: it resolves through
+   rgba() against this theme's space-separated rgb tokens, comes out invalid, and falls back
+   to the blue link colour it inherits. */
+
+.app-post-author {
+  color: var(--app-color-text);
+}
+
+.app-post-author:hover {
+  text-decoration: underline;
+}
+
 /* Comments list separators. */
 
 .app-comment + .app-comment {
@@ -20,7 +32,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  border: 0;
   border-radius: var(--bs-border-radius-lg);
+  background-color: transparent;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   color: var(--app-color-text-muted);
@@ -42,7 +56,10 @@
     cursor: default;
   }
 
-  &.text-danger {
+  /* A component class rather than Bootstrap's .text-danger: that utility resolves through
+     rgba() against this theme's space-separated rgb tokens, is invalid, and falls back to the
+     inherited colour — which is why a liked heart here never went red. */
+  &.liked {
     color: var(--app-color-danger);
   }
 }

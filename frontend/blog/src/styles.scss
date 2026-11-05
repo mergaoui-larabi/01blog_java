@@ -142,6 +142,17 @@ textarea {
   --bs-btn-focus-shadow-rgb: var(--app-rgb-primary);
 }
 
+/* Icon-only action button: the glyph carries the meaning and the label lives on
+   aria-label/title, so it is a fixed square instead of Bootstrap's text padding. */
+.app-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
 /* ---------- Forms ---------- */
 
 .form-control,

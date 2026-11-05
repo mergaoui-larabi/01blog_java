@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Avatar } from '../../../../shared/ui/avatar/avatar';
 import { FollowButton } from '../../../../shared/ui/buttons/follow/follow-button';
 
@@ -11,8 +12,9 @@ export interface ExploreUser {
 
 @Component({
   selector: 'app-user-card',
-  imports: [Avatar, FollowButton],
+  imports: [RouterLink, Avatar, FollowButton],
   templateUrl: './user-card.html',
+  styleUrl: './user-card.scss',
 })
 export class UserCard {
   readonly user = input.required<ExploreUser>();

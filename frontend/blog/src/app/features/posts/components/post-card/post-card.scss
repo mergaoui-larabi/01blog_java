@@ -167,6 +167,16 @@
   font-weight: 600;
 }
 
+/* .text-body cannot be used here: it resolves through rgba() against this theme's
+   space-separated rgb tokens, is invalid, and falls back to the blue link colour. */
+.app-post-author {
+  color: var(--app-color-text);
+}
+
+.app-post-author:hover {
+  text-decoration: underline;
+}
+
 div[role="button"] {
   cursor: pointer;
 }

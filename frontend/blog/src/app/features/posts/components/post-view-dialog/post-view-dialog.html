@@ -25,18 +25,36 @@
         } @else if (post(); as currentPost) {
         <article class="d-flex flex-column gap-4">
             <!-- Author -->
+            @let postAuthor = authorOf(currentPost.authorId);
             <header class="d-flex w-100 align-items-center gap-3">
-                <app-avatar [mediaId]="authorOf(currentPost.authorId)?.avatarMediaId"
-                    [name]="authorOf(currentPost.authorId)?.username ?? null" size="md" />
+                @if (postAuthor) {
+                <a class="app-post-author d-flex min-w-0 flex-grow-1 align-items-center gap-3 cursor-pointer"
+                    [routerLink]="['/block', postAuthor.username]"
+                    [attr.aria-label]="'Open ' + postAuthor.username + '\'s block'"
+                    [attr.title]="'Open ' + postAuthor.username + '\'s block'">
+                    <app-avatar [mediaId]="postAuthor.avatarMediaId" [name]="postAuthor.username" size="md" />
+
+                    <div class="min-w-0">
+                        <p class="mb-0 text-truncate fw-semibold">{{ postAuthor.username }}</p>
+                        <p class="mb-0 text-xs text-secondary">
+                            <time [attr.datetime]="currentPost.createdAt">
+                                {{ currentPost.createdAt | timeAgo }}
+                            </time>
+                        </p>
+                    </div>
+                </a>
+                } @else {
+                <app-avatar [mediaId]="null" [name]="null" size="md" />
 
                 <div class="min-w-0">
-                    <p class="mb-0 text-truncate fw-semibold text-body">
-                        {{ authorOf(currentPost.authorId)?.username ?? 'Unknown user' }}
-                    </p>
+                    <p class="mb-0 text-truncate fw-semibold text-body">Unknown user</p>
                     <p class="mb-0 text-xs text-secondary">
-                        <time [attr.datetime]="currentPost.createdAt">{{ currentPost.createdAt | timeAgo }}</time>
+                        <time [attr.datetime]="currentPost.createdAt">
+                            {{ currentPost.createdAt | timeAgo }}
+                        </time>
                     </p>
                 </div>
+                }
             </header>
 
 
@@ -55,8 +73,8 @@
             <!-- Post statistics -->
             <div class="app-stats">
                 <!-- Like -->
-                <button type="button" class="app-interaction-btn border-0 bg-transparent"
-                    [class.text-danger]="currentPost.likedByCurrentUser" [disabled]="likePending()"
+                <button type="button" class="app-interaction-btn"
+                    [class.liked]="currentPost.likedByCurrentUser" [disabled]="likePending()"
                     (click)="toggleLike()"
                     [attr.aria-label]="currentPost.likedByCurrentUser ? 'Unlike post' : 'Like post'"
                     [attr.aria-pressed]="currentPost.likedByCurrentUser">
@@ -152,12 +170,42 @@
                     [name]="authorOf(comment.authorId)?.username ?? null" size="sm" />
 
                 <div class="min-w-0 flex-grow-1">
-                    <p class="mb-1 text-sm fw-semibold text-body">
-                        {{ authorOf(comment.authorId)?.username ?? 'Unknown user' }}
-                        <span class="ms-2 fw-normal text-xs text-secondary">
-                            <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | timeAgo }}</time>
-                        </span>
-                    </p>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <p class="min-w-0 flex-grow-1 mb-0 text-sm fw-semibold text-body">
+                            {{ authorOf(comment.authorId)?.username ?? 'Unknown user' }}
+                            <span class="ms-2 fw-normal text-xs text-secondary">
+                                <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | timeAgo }}</time>
+                            </span>
+                        </p>
+
+                        @if (isOwnedComment(comment) && editingCommentId() !== comment.id) {
+                        <div class="d-flex flex-shrink-0 gap-1">
+                            <button type="button" (click)="startEdit(comment)"
+                                class="btn btn-sm btn-ghost rounded-lg app-icon-btn" aria-label="Edit comment"
+                                title="Edit">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                                </svg>
+                            </button>
+
+                            <button type="button" (click)="requestDelete(comment)"
+                                [disabled]="deletingCommentId() === comment.id"
+                                class="btn btn-sm btn-ghost-danger rounded-lg app-icon-btn" aria-label="Delete comment"
+                                [attr.title]="deletingCommentId() === comment.id ? 'Deleting…' : 'Delete'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M3 6h18" />
+                                    <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                </svg>
+                            </button>
+                        </div>
+                        }
+                    </div>
 
                     @if (editingCommentId() === comment.id) {
                     <div class="d-flex flex-column gap-2">
@@ -178,21 +226,6 @@
                     </div>
                     } @else {
                     <p class="text-wrap-pretty mb-0 text-sm text-body">{{ comment.content }}</p>
-
-                    @if (isOwnedComment(comment)) {
-                    <div class="mt-1 d-flex gap-2">
-                        <button type="button" (click)="startEdit(comment)" class="btn btn-link btn-sm p-0 fw-semibold"
-                            aria-label="Edit comment">
-                            Edit
-                        </button>
-
-                        <button type="button" (click)="requestDelete(comment)"
-                            [disabled]="deletingCommentId() === comment.id"
-                            class="btn btn-link btn-sm p-0 fw-semibold text-danger" aria-label="Delete comment">
-                            {{ deletingCommentId() === comment.id ? 'Deleting...' : 'Delete' }}
-                        </button>
-                    </div>
-                    }
                     }
                 </div>
             </div>

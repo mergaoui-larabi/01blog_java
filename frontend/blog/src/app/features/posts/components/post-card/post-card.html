@@ -6,9 +6,17 @@
             <app-avatar [mediaId]="author()?.avatarMediaId" [name]="author()?.username ?? null" size="md" />
 
             <div class="min-w-0 flex-grow-1">
-                <p class="mb-0 text-truncate fw-semibold text-body">
-                    {{ author()?.username ?? 'Unknown user' }}
-                </p>
+                @if (author(); as postAuthor) {
+                <a class="app-post-author mb-0 d-block text-truncate fw-semibold cursor-pointer"
+                    [routerLink]="['/block', postAuthor.username]" (click)="$event.stopPropagation()"
+                    (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
+                    [attr.aria-label]="'Open ' + postAuthor.username + '\'s block'"
+                    [attr.title]="'Open ' + postAuthor.username + '\'s block'">
+                    {{ postAuthor.username }}
+                </a>
+                } @else {
+                <p class="mb-0 text-truncate fw-semibold text-body">Unknown user</p>
+                }
                 <p class="mb-0 text-xs text-secondary">
                     <time [attr.datetime]="post().createdAt">{{ post().createdAt | timeAgo }}</time>
                 </p>

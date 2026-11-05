@@ -23,7 +23,7 @@
 
     <div class="d-flex flex-column gap-3">
       @for (notification of notificationService.notifications(); track notification.id) {
-      <app-notification-item [notification]="notification" />
+      <app-notification-item [notification]="notification" (opened)="openNotifiedPost($event)" />
       } @empty {
       @if (!notificationService.loading()) {
       <p class="py-8 text-center text-secondary">No notifications yet.</p>
@@ -41,3 +41,5 @@
 
   </div>
 </section>
+
+<app-post-view-dialog />

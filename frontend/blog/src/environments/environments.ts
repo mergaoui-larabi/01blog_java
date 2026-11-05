@@ -57,7 +57,8 @@ export const environment = {
   deleteCommentEndPoint: 'http://localhost:5000/api/v1/posts/{postId}/comments/{commentId}',
 
   // admin post
-  adminSearchPostsEndpoint: 'http://localhost:5000/api/v1/posts/admin/search?cursor={cursor}&size=20',
+  adminSearchPostsEndpoint:
+    'http://localhost:5000/api/v1/posts/admin/search?cursor={cursor}&size=20',
   adminHidePostEndpoint: 'http://localhost:5000/api/v1/posts/admin/{postId}/hidden',
   adminDeletePostEndpoint: 'http://localhost:5000/api/v1/posts/admin/{postId}',
 
@@ -70,9 +71,15 @@ export const environment = {
   deleteReportEndpoint: 'http://localhost:5000/api/v1/reports/{reportId}',
 
   // notification
-  getNotificationsEndpoint:
-    'http://localhost:5000/api/v1/notifications?cursor={cursor}&size=20',
+  getNotificationsEndpoint: 'http://localhost:5000/api/v1/notifications?cursor={cursor}&size=20',
   getUnreadCountEndpoint: 'http://localhost:5000/api/v1/notifications/unread-count',
   patchAllNotificationsReadEndpoint: 'http://localhost:5000/api/v1/notifications/read-all',
   patchNotificationReadEndpoint: 'http://localhost:5000/api/v1/notifications/{notificationId}',
+
+  // Realtime notifications: one SharedWorker-owned WebSocket, shared across every tab of this origin.
+  // Notification Service is reached directly because the gateway has no /ws route, and the port must stay
+  // 4200 for that service's allowed-origin pattern to accept the handshake.
+  notificationsSocketEndpoint: 'ws://localhost:5005/ws/notifications',
+  notificationsWorkerUrl: '/workers/notification-transport.js',
+  notificationsChannelName: '01blog.notifications',
 } as const;

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, output } from '@angular/core';
 import { Avatar } from '../../../../shared/ui/avatar/avatar';
 import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 import { Notification } from '../../data-access/notification.api.service';
@@ -13,6 +13,9 @@ import { PostAuthorService } from '../../../posts/state/post-author.service';
 })
 export class NotificationItem {
   readonly notification = input.required<Notification>();
+
+  /** The page owns opening the post, because that is where the viewer dialog lives. */
+  readonly opened = output<Notification>();
 
   private readonly notificationService = inject(NotificationService);
   private readonly authorService = inject(PostAuthorService);
@@ -30,7 +33,7 @@ export class NotificationItem {
   }
 
   protected view(): void {
-    this.notificationService.markRead(this.notification());
+    this.opened.emit(this.notification());
   }
 
   protected toggleRead(): void {

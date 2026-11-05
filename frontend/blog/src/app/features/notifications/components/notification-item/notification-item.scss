@@ -12,14 +12,9 @@
   text-align: start;
   color: var(--app-color-text);
   cursor: pointer;
-
-  &:disabled {
-    color: var(--bs-secondary-color);
-    cursor: default;
-  }
 }
 
-.app-notification-unread .app-notification-trigger:not(:disabled) {
+.app-notification-unread .app-notification-trigger {
   font-weight: 600;
 }
 
