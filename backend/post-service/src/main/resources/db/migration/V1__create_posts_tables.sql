@@ -2,7 +2,9 @@
 CREATE TABLE
     posts (
         id UUID PRIMARY KEY,
-        author_id UUID NOT NULL,
+        -- Nullable: cleared when the author's account is deleted, the post is kept and anonymized.
+        author_id UUID,
+        author_anonymized BOOLEAN NOT NULL DEFAULT FALSE,
         content TEXT NOT NULL,
         likes_count BIGINT NOT NULL DEFAULT 0,
         comments_count BIGINT NOT NULL DEFAULT 0,
@@ -55,7 +57,9 @@ CREATE TABLE
     comments (
         id UUID PRIMARY KEY,
         post_id UUID NOT NULL,
-        author_id UUID NOT NULL,
+        -- Nullable: cleared when the author's account is deleted, the comment is kept and anonymized.
+        author_id UUID,
+        author_anonymized BOOLEAN NOT NULL DEFAULT FALSE,
         content TEXT NOT NULL,
         created_at TIMESTAMP
         WITH
@@ -67,3 +71,6 @@ CREATE TABLE
     );
 
 CREATE INDEX idx_comments_created_at ON comments (created_at);
+
+-- Account deletion looks a user's comments up by author.
+CREATE INDEX idx_comments_author_id ON comments (author_id);

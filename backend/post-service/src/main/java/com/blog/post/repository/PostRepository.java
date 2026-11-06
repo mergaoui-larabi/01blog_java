@@ -18,6 +18,8 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
         Optional<Post> findByIdAndAuthorId(UUID id, UUID authorId);
 
+        List<Post> findByAuthorId(UUID authorId);
+
         @Query("""
                         SELECT p FROM Post p
                         WHERE p.authorId IN (:authorIds)

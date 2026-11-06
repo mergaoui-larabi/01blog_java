@@ -71,4 +71,12 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
                     WHERE n.recipientId = :recipientId AND n.read = false
                     """)
     int markAllRead(@Param("recipientId") UUID recipientId, @Param("now") Instant now);
+
+    // A deleted account keeps neither its own notifications nor notifications about its actions
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+                    DELETE FROM Notification n
+                    WHERE n.recipientId = :userId OR n.actorId = :userId
+                    """)
+    long deleteForUser(@Param("userId") UUID userId);
 }

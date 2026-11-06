@@ -8,6 +8,12 @@
 -- Accounts 1-3 are ADMIN, accounts 97 and 98 are banned, accounts 1-30 have an
 -- avatar (see 02_medias.sql).
 --
+-- status is the account-deletion state machine (ACTIVE, DELETION_PENDING,
+-- DELETED). Every seeded account is ACTIVE: DELETION_PENDING is a transient
+-- state that User Service leaves only after every cleanup call succeeds, and a
+-- DELETED account has its posts, comments and reports anonymized in the other
+-- services, which this data set does not reproduce.
+--
 -- Apply with:
 --   docker exec -i blog-postgres-users sh -c \
 --     'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -f -' \
@@ -17,7 +23,7 @@ truncate table followers, users;
 
 insert into users (
     id, email, username, password_hash, age, gender, role,
-    avatar_media_id, banned, created_at, updated_at)
+    avatar_media_id, banned, status, created_at, updated_at)
 select
     md5('01blog-user-' || i)::uuid,
     lower(adjective || '_' || noun || '_' || i) || '@mailinator.com',
@@ -28,6 +34,7 @@ select
     case when i <= 3 then 'ADMIN' else 'USER' end,
     case when i <= 30 then md5('01blog-avatar-media-' || i)::uuid end,
     i in (97, 98),
+    'ACTIVE',
     created_at,
     created_at + make_interval(mins => (i * 13) % 600)
 from (

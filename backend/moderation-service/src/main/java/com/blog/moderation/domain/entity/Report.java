@@ -25,8 +25,12 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "reporter_id", nullable = false)
+    // Nullable: cleared when the reporter deletes their account, the report is kept for audit
+    @Column(name = "reporter_id")
     private UUID reporterId;
+
+    @Column(name = "reporter_anonymized", nullable = false)
+    private boolean reporterAnonymized = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type", nullable = false, length = 20)
@@ -85,6 +89,10 @@ public class Report {
         return reporterId;
     }
 
+    public boolean isReporterAnonymized() {
+        return reporterAnonymized;
+    }
+
     public TargetType getTargetType() {
         return targetType;
     }
@@ -111,5 +119,10 @@ public class Report {
 
     public void setStatus(ReportStatus status) {
         this.status = status;
+    }
+
+    public void anonymizeReporter() {
+        this.reporterId = null;
+        this.reporterAnonymized = true;
     }
 }

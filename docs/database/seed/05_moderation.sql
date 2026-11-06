@@ -6,6 +6,11 @@
 -- one entry, and the 40 earliest of those get a follow-up entry, which is how a
 -- real review history looks. Moderators are accounts 1-3, the seeded admins.
 --
+-- reporter_anonymized goes with the nullable reporter_id: Moderation Service
+-- clears the reporter and closes the report instead of deleting audit history
+-- when the reporting account is deleted. Every seeded reporter is still an
+-- ACTIVE account from 01_users.sql, so all of them are false.
+--
 -- Apply with:
 --   docker exec -i blog-postgres-moderation sh -c \
 --     'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -f -' \
@@ -14,11 +19,12 @@
 truncate table moderation_actions, reports;
 
 insert into reports (
-    id, reporter_id, target_type, target_id, reason, status,
+    id, reporter_id, reporter_anonymized, target_type, target_id, reason, status,
     created_at, updated_at)
 select
     md5('01blog-report-' || r)::uuid,
     md5('01blog-user-' || reporter_index)::uuid,
+    false,
     case when r % 4 = 0 then 'USER' else 'POST' end,
     case
         when r % 4 = 0 then md5('01blog-user-' || target_index)::uuid

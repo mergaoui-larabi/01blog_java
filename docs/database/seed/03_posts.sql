@@ -6,6 +6,10 @@
 -- accepted post images in 02_medias.sql. likes_count and comments_count are
 -- recomputed from the rows below at the end of this file.
 --
+-- author_anonymized goes with the nullable author_id: Post Service's cleanup sets
+-- both when an account is deleted (author_id becomes null, the row is kept). Every
+-- seeded row has a live author, so all of them are false.
+--
 -- Apply with:
 --   docker exec -i blog-postgres-posts sh -c \
 --     'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -f -' \
@@ -14,11 +18,12 @@
 truncate table post_medias, likes, comments, posts;
 
 insert into posts (
-    id, author_id, content, likes_count, comments_count, hidden,
+    id, author_id, author_anonymized, content, likes_count, comments_count, hidden,
     created_at, updated_at)
 select
     md5('01blog-post-' || j)::uuid,
     md5('01blog-user-' || ((j * 3) % 100) + 1)::uuid,
+    false,
     (array[
         'I spent the weekend rewriting the notification pipeline and it finally makes sense.',
         'Something to keep in mind before you add a second database to your stack.',
@@ -92,11 +97,12 @@ from generate_series(1, 100) as l
 join posts as p
     on p.id = md5('01blog-post-' || (1 + abs(hashtext('01blog-like-slot-' || l)::bigint) % 100))::uuid;
 
-insert into comments (id, post_id, author_id, content, created_at, updated_at)
+insert into comments (id, post_id, author_id, author_anonymized, content, created_at, updated_at)
 select
     md5('01blog-comment-' || c)::uuid,
     p.id,
     md5('01blog-user-' || ((c * 17) % 100) + 1)::uuid,
+    false,
     (array[
         'This matches what I saw last sprint, thanks for writing it up.',
         'The index point is easy to miss until it bites you.',

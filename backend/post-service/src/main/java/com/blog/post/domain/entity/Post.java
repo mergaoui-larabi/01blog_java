@@ -33,8 +33,12 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "author_id", nullable = false)
+    // Nullable: cleared when the author's account is deleted, the post itself is kept and anonymized
+    @Column(name = "author_id")
     private UUID authorId;
+
+    @Column(name = "author_anonymized", nullable = false)
+    private boolean authorAnonymized = false;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "content", nullable = false, columnDefinition = "TEXT"))
@@ -105,6 +109,10 @@ public class Post {
         return authorId;
     }
 
+    public boolean isAuthorAnonymized() {
+        return authorAnonymized;
+    }
+
     public PostContent getContent() {
         return content;
     }
@@ -135,6 +143,12 @@ public class Post {
 
     public void setAuthorId(UUID authorId) {
         this.authorId = authorId;
+    }
+
+    public void anonymizeAuthor() {
+        this.authorId = null;
+        this.authorAnonymized = true;
+        touch();
     }
 
     public void setContent(PostContent content) {

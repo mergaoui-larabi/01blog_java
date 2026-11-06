@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blog.user.application.dto.request.CreateUserRequest;
+import com.blog.user.application.dto.response.AccountDeletionResponse;
+import com.blog.user.domain.model.AccountStatus;
 import com.blog.user.application.dto.request.PageResponse;
 import com.blog.user.application.dto.request.UpdateUserAvatarRequest;
 import com.blog.user.application.dto.response.UserResponse;
@@ -27,6 +29,7 @@ import com.blog.user.application.dto.response.UserSearchResponse;
 import com.blog.user.application.dto.response.UsernameSearchResponse;
 import com.blog.user.exception.InvalidValueException;
 import com.blog.user.service.FollowerService;
+import com.blog.user.service.UserDeletionService;
 import com.blog.user.service.UserService;
 import com.blog.user.domain.entity.User;
 import com.blog.user.domain.valueobject.Username;
@@ -41,10 +44,15 @@ public class UserController {
 
     private final UserService userService;
     private final FollowerService followerService;
+    private final UserDeletionService userDeletionService;
 
-    public UserController(UserService userService, FollowerService followerService) {
+    public UserController(
+            UserService userService,
+            FollowerService followerService,
+            UserDeletionService userDeletionService) {
         this.userService = userService;
         this.followerService = followerService;
+        this.userDeletionService = userDeletionService;
     }
 
     @GetMapping("/me")
@@ -119,6 +127,7 @@ public class UserController {
             @PathVariable UUID userId,
             @AuthenticationPrincipal Jwt jwt) {
         UUID currentUserId = UUID.fromString(jwt.getSubject());
+        userService.requireActiveAccount(currentUserId);
         followerService.follow(currentUserId, userId);
         return ResponseEntity.ok().build();
     }
@@ -128,6 +137,7 @@ public class UserController {
             @PathVariable UUID userId,
             @AuthenticationPrincipal Jwt jwt) {
         UUID currentUserId = UUID.fromString(jwt.getSubject());
+        userService.requireActiveAccount(currentUserId);
         followerService.unfollow(currentUserId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -191,13 +201,17 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId, @AuthenticationPrincipal Jwt jwt) {
-        if (!userService.isAdmin(jwt)) {
-            throw new InvalidValueException("Only admins can delete users");
+    public ResponseEntity<AccountDeletionResponse> deleteAccount(
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal Jwt jwt) {
+        UUID currentUserId = UUID.fromString(jwt.getSubject());
+        if (!currentUserId.equals(userId) && !userService.isAdmin(jwt)) {
+            throw new InvalidValueException("Only the account owner or an admin can delete an account");
         }
-        userService.getUserById(userId);
-        userService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
+
+        AccountDeletionResponse response = userDeletionService.deleteAccount(userId);
+        HttpStatus status = response.status() == AccountStatus.DELETED ? HttpStatus.OK : HttpStatus.ACCEPTED;
+        return ResponseEntity.status(status).body(response);
     }
 
     @PostMapping("signup")

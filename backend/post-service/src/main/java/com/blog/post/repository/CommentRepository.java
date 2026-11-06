@@ -32,6 +32,8 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
         List<Comment> findByPostIdOrderByCreatedAtAsc(UUID postId, Pageable pageable);
 
+        List<Comment> findByAuthorId(UUID authorId);
+
         long countByPostId(UUID postId);
 
         void deleteByPostId(UUID postId);

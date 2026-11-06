@@ -4,9 +4,11 @@ import com.blog.notification.application.dto.request.CreateNotificationRequest;
 import com.blog.notification.application.dto.response.NotificationResponse;
 import com.blog.notification.application.dto.response.PageResponse;
 import com.blog.notification.domain.entity.Notification;
+import com.blog.notification.event.NotificationsPersistedEvent;
 import com.blog.notification.exception.NotificationNotFoundException;
 import com.blog.notification.repository.NotificationRepository;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,9 +22,13 @@ import java.util.UUID;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(
+            NotificationRepository notificationRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.notificationRepository = notificationRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -36,9 +42,18 @@ public class NotificationService {
                         request.message()))
                 .toList();
 
-        return notificationRepository.saveAll(notifications).stream()
+        List<NotificationResponse> persisted = notificationRepository.saveAll(notifications).stream()
                 .map(NotificationResponse::from)
                 .toList();
+
+        eventPublisher.publishEvent(new NotificationsPersistedEvent(persisted));
+
+        return persisted;
+    }
+
+    @Transactional
+    public long cleanupUser(UUID userId) {
+        return notificationRepository.deleteForUser(userId);
     }
 
     @Transactional(readOnly = true)

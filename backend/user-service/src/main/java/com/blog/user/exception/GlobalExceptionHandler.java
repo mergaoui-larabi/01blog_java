@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
         }
 
         // 403
-        @ExceptionHandler(BannedUserNotFoundException.class)
+        @ExceptionHandler({BannedUserNotFoundException.class, AccountNotActiveException.class})
         public ResponseEntity<UserErrorResponse> handleBannedUserNotFound(
                         BannedUserNotFoundException exception,
                         HttpServletRequest request) {
@@ -124,6 +124,15 @@ public class GlobalExceptionHandler {
                 log.error("Data integrity violation on {}", request.getRequestURI(), exception);
 
                 return buildResponse(HttpStatus.CONFLICT, "The request conflicts with existing data", request);
+        }
+
+        // An account that is already deleted cannot be deleted again
+        @ExceptionHandler(IllegalStateException.class)
+        public ResponseEntity<UserErrorResponse> handleIllegalState(
+                        IllegalStateException exception,
+                        HttpServletRequest request) {
+
+                return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
         }
 
         // 500

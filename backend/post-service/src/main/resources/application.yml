@@ -32,6 +32,12 @@ post:
     url: ${USER_SERVICE_URL:http://localhost:5001}
   media-service:
     url: ${MEDIA_SERVICE_URL:http://localhost:5003}
+  notification-service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:5005}
+
+# Shared secret for service-to-service calls on /internal/**
+internal:
+  service-token: ${INTERNAL_SERVICE_TOKEN:}
 
 #Actuator
 management:

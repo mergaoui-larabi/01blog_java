@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.blog.user.domain.model.AccountStatus;
 import com.blog.user.domain.entity.FollowerKey;
 import com.blog.user.domain.entity.Followers;
 import com.blog.user.exception.InvalidValueException;
@@ -34,6 +35,21 @@ public class FollowerService {
     public List<UUID> getFollowerIds(UUID followedId) {
         Objects.requireNonNull(followedId, "followedId must not be null");
         return followersRepository.findFollowerIdsByFollowedId(followedId);
+    }
+
+    /**
+     * Only active accounts are worth notifying: a follower mid-deletion must not receive new events.
+     */
+    @Transactional(readOnly = true)
+    public List<UUID> getActiveFollowerIds(UUID followedId) {
+        Objects.requireNonNull(followedId, "followedId must not be null");
+        return followersRepository.findFollowerIdsByFollowedIdWithStatus(followedId, AccountStatus.ACTIVE);
+    }
+
+    @Transactional
+    public long removeAllForUser(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        return followersRepository.deleteAllForUser(userId);
     }
 
     @Transactional

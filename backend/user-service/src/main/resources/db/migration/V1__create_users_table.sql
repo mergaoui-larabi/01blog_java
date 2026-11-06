@@ -10,12 +10,18 @@ CREATE TABLE
         role VARCHAR(50) NOT NULL,
         avatar_media_id UUID,
         banned BOOLEAN NOT NULL DEFAULT FALSE,
+        -- Account deletion is coordinated across services, so an account stays reachable in a
+        -- DELETION_PENDING state until every cleanup call succeeds.
+        status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE',
         created_at TIMESTAMP
         WITH
             TIME ZONE NOT NULL,
             updated_at TIMESTAMP
         WITH
-            TIME ZONE NOT NULL
+            TIME ZONE NOT NULL,
+            CONSTRAINT chk_users_account_status CHECK (
+                status IN ('ACTIVE', 'DELETION_PENDING', 'DELETED')
+            )
     );
 
 -- followers
@@ -38,3 +44,5 @@ CREATE TABLE
 CREATE INDEX idx_users_created_at ON users (created_at);
 
 CREATE INDEX idx_followers_followed_id ON followers (followed_id);
+
+CREATE INDEX idx_users_status ON users (status);

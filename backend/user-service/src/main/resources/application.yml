@@ -27,6 +27,18 @@ spring:
         jwt:
           jwk-set-uri: http://localhost:5002/.well-known/jwks.json
 
+user-service:
+  post-service:
+    url: ${POST_SERVICE_URL:http://localhost:5004}
+  notification-service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:5005}
+  moderation-service:
+    url: ${MODERATION_SERVICE_URL:http://localhost:5006}
+
+# Shared secret for service-to-service calls on /internal/**
+internal:
+  service-token: ${INTERNAL_SERVICE_TOKEN:}
+
 #Actuator
 management:
   endpoints:

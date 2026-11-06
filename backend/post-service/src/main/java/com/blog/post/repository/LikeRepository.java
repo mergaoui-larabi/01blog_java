@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -15,6 +16,8 @@ import java.util.UUID;
 public interface LikeRepository extends JpaRepository<Like, UUID> {
 
     Optional<Like> findByPostIdAndUserId(UUID postId, UUID userId);
+
+    List<Like> findByUserId(UUID userId);
 
     boolean existsByPostIdAndUserId(UUID postId, UUID userId);
 

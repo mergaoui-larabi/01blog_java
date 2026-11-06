@@ -13,6 +13,7 @@ import com.blog.post.domain.entity.Post;
 import com.blog.post.domain.model.CommentModel;
 import com.blog.post.domain.valueobject.CommentContent;
 import com.blog.post.domain.valueobject.PostContent;
+import com.blog.post.event.PostCreatedEvent;
 import com.blog.post.exception.CommentNotFoundException;
 import com.blog.post.exception.CommentNotOwnedException;
 import com.blog.post.exception.InvalidValueException;
@@ -23,6 +24,7 @@ import com.blog.post.repository.CommentRepository;
 import com.blog.post.repository.LikeRepository;
 import com.blog.post.repository.PostRepository;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,18 +48,21 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final UserServiceClient userServiceClient;
     private final MediaServiceClient mediaServiceClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PostService(
             PostRepository postRepository,
             CommentRepository commentRepository,
             LikeRepository likeRepository,
             UserServiceClient userServiceClient,
-            MediaServiceClient mediaServiceClient) {
+            MediaServiceClient mediaServiceClient,
+            ApplicationEventPublisher eventPublisher) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.likeRepository = likeRepository;
         this.userServiceClient = userServiceClient;
         this.mediaServiceClient = mediaServiceClient;
+        this.eventPublisher = eventPublisher;
     }
 
     // -------------------------------------------------------------------------
@@ -159,6 +164,7 @@ public class PostService {
                 mediaUuids);
 
         post = postRepository.save(post);
+        eventPublisher.publishEvent(new PostCreatedEvent(post.getId(), userId));
         return toPostResponse(post, userId, false);
     }
 
@@ -413,7 +419,8 @@ public class PostService {
     }
 
     private PostResponse toPostResponse(Post post, UUID currentUserId, boolean likedByCurrentUser) {
-        boolean ownedByCurrentUser = currentUserId != null && post.getAuthorId().equals(currentUserId);
+        boolean ownedByCurrentUser = currentUserId != null && post.getAuthorId() != null
+                && post.getAuthorId().equals(currentUserId);
 
         List<String> mediaIds = post.getMediaIds() != null
                 ? post.getMediaIds().stream().map(UUID::toString).toList()
@@ -421,7 +428,7 @@ public class PostService {
 
         return new PostResponse(
                 post.getId().toString(),
-                post.getAuthorId().toString(),
+                post.getAuthorId() != null ? post.getAuthorId().toString() : null,
                 post.getContent().value(),
                 mediaIds,
                 post.getLikesCount().value(),
@@ -430,6 +437,7 @@ public class PostService {
                 ownedByCurrentUser,
                 post.getHidden(),
                 post.getCreatedAt(),
-                post.getUpdatedAt());
+                post.getUpdatedAt(),
+                post.isAuthorAnonymized());
     }
 }

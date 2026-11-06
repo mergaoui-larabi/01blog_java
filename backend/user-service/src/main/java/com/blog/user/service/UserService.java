@@ -20,6 +20,7 @@ import com.blog.user.domain.valueobject.Email;
 import com.blog.user.domain.valueobject.Gender;
 import com.blog.user.domain.valueobject.Password;
 import com.blog.user.domain.valueobject.Username;
+import com.blog.user.exception.AccountNotActiveException;
 import com.blog.user.exception.BannedUserNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import com.blog.user.exception.EmailAlreadyExistsException;
@@ -114,9 +115,11 @@ public class UserService {
 
     @Transactional
     public User updateAvatarMediaId(UpdateUserAvatarRequest request) {
-        // System.out.println("OwnerId: " + request.ownerId() + "avatar media id" + request.avatarMediaId());
         User user = userRepository.findById(request.ownerId())
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+        if (!user.isActive()) {
+            throw new AccountNotActiveException("Account is not active");
+        }
         user.updateAvatarMediaId(request.avatarMediaId());
 
         return userRepository.save(user);
@@ -130,6 +133,12 @@ public class UserService {
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+
+        // Same wording as a bad password: an account under deletion must not be distinguishable.
+        // Already issued JWTs stay valid until they expire, this only stops new ones.
+        if (!user.isActive()) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
@@ -183,8 +192,33 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Short transaction: the account is persisted as DELETION_PENDING before any cleanup call is
+     * made, so a crash mid-orchestration leaves a retryable state behind.
+     */
     @Transactional
-    public void deleteUser(UUID userId) {
-        userRepository.deleteById(userId);
+    public User markDeletionPending(UUID userId) {
+        User user = requireUser(userId);
+        user.requestDeletion();
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User markDeleted(UUID userId) {
+        User user = requireUser(userId);
+        user.markDeleted();
+        return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public void requireActiveAccount(UUID userId) {
+        if (!requireUser(userId).isActive()) {
+            throw new AccountNotActiveException("Account is not active");
+        }
+    }
+
+    private User requireUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
     }
 }

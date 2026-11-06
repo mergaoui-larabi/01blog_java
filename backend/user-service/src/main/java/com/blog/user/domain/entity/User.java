@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.blog.user.domain.model.AccountStatus;
 import com.blog.user.domain.model.UserRole;
 import com.blog.user.domain.valueobject.Email;
 import com.blog.user.domain.valueobject.Username;
@@ -58,6 +59,10 @@ public class User {
     @Column(name = "banned", nullable = false)
     private Boolean banned = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 30)
+    private AccountStatus status = AccountStatus.ACTIVE;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -83,6 +88,7 @@ public class User {
         this.gender = gender;
         this.role = role;
         this.banned = false;
+        this.status = AccountStatus.ACTIVE;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }
@@ -124,6 +130,10 @@ public class User {
         return banned;
     }
 
+    public AccountStatus getStatus() {
+        return status;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -151,6 +161,26 @@ public class User {
         }
         this.banned = false;
         this.updatedAt = Instant.now();
+    }
+
+    /**
+     * Repeated requests are allowed: DELETION_PENDING is the retryable state where cleanup resumes.
+     */
+    public void requestDeletion() {
+        if (status == AccountStatus.DELETED) {
+            throw new IllegalStateException("User account is already deleted");
+        }
+        this.status = AccountStatus.DELETION_PENDING;
+        this.updatedAt = Instant.now();
+    }
+
+    public void markDeleted() {
+        this.status = AccountStatus.DELETED;
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isActive() {
+        return status == AccountStatus.ACTIVE;
     }
 
     void setId(UUID id) {

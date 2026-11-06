@@ -1,7 +1,10 @@
 CREATE TABLE
     reports (
         id UUID PRIMARY KEY,
-        reporter_id UUID NOT NULL,
+        -- Nullable: a deleted account must not erase the moderation audit trail, so the report keeps
+        -- existing with its reporter reference cleared.
+        reporter_id UUID,
+        reporter_anonymized BOOLEAN NOT NULL DEFAULT FALSE,
         target_type VARCHAR(20) NOT NULL CHECK (target_type IN ('USER', 'POST')),
         target_id UUID NOT NULL,
         reason TEXT NOT NULL CHECK (length (trim(reason)) > 0),

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blog.user.application.dto.request.AuthenticateUserRequest;
+import com.blog.user.application.dto.response.FollowerIdsResponse;
 import com.blog.user.application.dto.response.FollowedUsersResponse;
 import com.blog.user.application.dto.response.UserRoleResponse;
 import com.blog.user.application.dto.response.UserAuthenticationResponse;
@@ -40,6 +41,11 @@ public class InternalUserController {
     public FollowedUsersResponse getFollowedUsers(@PathVariable UUID userId) {
         List<UUID> followedUserIds = followerService.getFollowedUserIds(userId);
         return new FollowedUsersResponse(userId, followedUserIds);
+    }
+
+    @GetMapping("/{userId}/followers")
+    public FollowerIdsResponse getFollowers(@PathVariable UUID userId) {
+        return new FollowerIdsResponse(userId, followerService.getActiveFollowerIds(userId));
     }
 
     @GetMapping("/{userId}/role")

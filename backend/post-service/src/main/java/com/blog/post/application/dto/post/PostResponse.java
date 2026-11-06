@@ -14,5 +14,6 @@ public record PostResponse(
                 boolean ownedByCurrentUser,
                 boolean hidden,
                 Instant createdAt,
-                Instant updatedAt) {
+                Instant updatedAt,
+                boolean authorAnonymized) {
 }

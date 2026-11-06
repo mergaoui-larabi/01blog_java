@@ -25,8 +25,12 @@ public class Comment {
     @Column(name = "post_id", nullable = false)
     private UUID postId;
 
-    @Column(name = "author_id", nullable = false)
+    // Nullable: cleared when the author's account is deleted, the comment itself is kept and anonymized
+    @Column(name = "author_id")
     private UUID authorId;
+
+    @Column(name = "author_anonymized", nullable = false)
+    private boolean authorAnonymized = false;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "content", nullable = false, columnDefinition = "TEXT"))
@@ -61,6 +65,10 @@ public class Comment {
         return authorId;
     }
 
+    public boolean isAuthorAnonymized() {
+        return authorAnonymized;
+    }
+
     public CommentContent getContent() {
         return content;
     }
@@ -83,6 +91,12 @@ public class Comment {
 
     public void setAuthorId(UUID authorId) {
         this.authorId = authorId;
+    }
+
+    public void anonymizeAuthor() {
+        this.authorId = null;
+        this.authorAnonymized = true;
+        touch();
     }
 
     public void setContent(CommentContent content) {
