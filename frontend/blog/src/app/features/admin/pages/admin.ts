@@ -8,6 +8,7 @@ import { Post } from '../../posts/data-access/post.api.service';
 import { AuthService } from '../../auth/state/auth.service';
 import { AdminService } from '../state/admin.service';
 import { PostSearchField } from '../data-access/admin.api.service';
+import { throttle } from '../../../shared/utils/throttle';
 
 type AdminTab = 'users' | 'posts' | 'reports';
 
@@ -24,6 +25,63 @@ export class Admin {
   protected readonly tab = signal<AdminTab>('users');
   private readonly pendingAction = signal<(() => void) | null>(null);
   private readonly confirmDialog = viewChild.required(ConfirmDialog);
+
+  /**
+   * Throttled tab switch so rapid repeated clicks cannot trigger multiple
+   * section loads. Runs at most once per 500 ms.
+   */
+  private readonly switchTabThrottled = throttle((tab: AdminTab): void => {
+    this.tab.set(tab);
+
+    if (tab === 'posts' && !this.adminService.hasPosts() && !this.adminService.postsLoading()) {
+      this.adminService.loadPosts();
+    }
+
+    if (tab === 'reports' && !this.adminService.hasReports() && !this.adminService.reportsLoading()) {
+      this.adminService.loadReports();
+    }
+  }, 500);
+
+  /**
+   * Throttled user search so rapid input cannot fire multiple search requests.
+   * Runs at most once per 500 ms.
+   */
+  private readonly searchUsersThrottled = throttle((term: string): void => {
+    this.adminService.loadUsers(term);
+  }, 500);
+
+  /**
+   * Throttled post search so rapid repeated clicks cannot fire multiple search
+   * requests. Runs at most once per 500 ms.
+   */
+  private readonly searchPostsThrottled = throttle((field: string, value: string): void => {
+    this.adminService.loadPosts({ field: field as PostSearchField, value: value.trim() });
+  }, 500);
+
+  /**
+   * Throttled report filter so rapid status changes cannot fire multiple
+   * requests. Runs at most once per 500 ms.
+   */
+  private readonly filterReportsThrottled = throttle((value: string): void => {
+    const status = value ? (value as ReportStatus) : null;
+    this.adminService.loadReports(status);
+  }, 500);
+
+  /**
+   * Throttled load-more so rapid repeated clicks cannot fire multiple fetch
+   * requests. Runs at most once per 1000 ms.
+   */
+  private readonly loadMoreUsersThrottled = throttle((): void => {
+    this.adminService.loadMoreUsers();
+  }, 1000);
+
+  private readonly loadMorePostsThrottled = throttle((): void => {
+    this.adminService.loadMorePosts();
+  }, 1000);
+
+  private readonly loadMoreReportsThrottled = throttle((): void => {
+    this.adminService.loadMoreReports();
+  }, 1000);
 
   protected readonly reportStatusOptions: ReportStatus[] = [
     'OPEN',
@@ -57,32 +115,35 @@ export class Admin {
   }
 
   protected switchTab(tab: AdminTab): void {
-    this.tab.set(tab);
-
-    if (tab === 'posts' && !this.adminService.hasPosts() && !this.adminService.postsLoading()) {
-      this.adminService.loadPosts();
-    }
-
-    if (tab === 'reports' && !this.adminService.hasReports() && !this.adminService.reportsLoading()) {
-      this.adminService.loadReports();
-    }
+    this.switchTabThrottled(tab);
   }
 
   protected searchUsers(term: string): void {
-    this.adminService.loadUsers(term);
+    this.searchUsersThrottled(term);
   }
 
   protected searchPosts(field: string, value: string): void {
-    this.adminService.loadPosts({ field: field as PostSearchField, value: value.trim() });
+    this.searchPostsThrottled(field, value);
   }
 
   protected filterReports(value: string): void {
-    const status = value ? (value as ReportStatus) : null;
-    this.adminService.loadReports(status);
+    this.filterReportsThrottled(value);
   }
 
   protected reportStatusText(status: ReportStatus): string {
     return status.replace('_', ' ');
+  }
+
+  protected loadMoreUsers(): void {
+    this.loadMoreUsersThrottled();
+  }
+
+  protected loadMorePosts(): void {
+    this.loadMorePostsThrottled();
+  }
+
+  protected loadMoreReports(): void {
+    this.loadMoreReportsThrottled();
   }
 
   protected confirmBanUser(user: UserSearch): void {

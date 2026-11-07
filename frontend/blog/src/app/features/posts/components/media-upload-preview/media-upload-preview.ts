@@ -1,4 +1,5 @@
 import { Component, OnDestroy, computed, input, output, signal } from '@angular/core';
+import { throttle } from '../../../../shared/utils/throttle';
 
 interface MediaItem {
   id: string;
@@ -27,6 +28,24 @@ export class MediaUploadPreview implements OnDestroy {
   readonly activeMedia = computed(() => this.media()[this.activeIndex()] ?? null);
 
   readonly mediaCount = computed(() => this.media().length);
+
+  /**
+   * Drag events fire continuously while a file is dragged over the zone.
+   * preventDefault() runs every time (required for drop to work), while the
+   * dragged-state toggle is throttled to at most once per 100 ms.
+   */
+  private readonly dragOverThrottled = throttle(() => {
+    this.isDragging.set(true);
+  }, 100);
+
+  private readonly dragLeaveThrottled = throttle((event: DragEvent) => {
+    const currentTarget = event.currentTarget as HTMLElement;
+    const relatedTarget = event.relatedTarget as Node | null;
+
+    if (!relatedTarget || !currentTarget.contains(relatedTarget)) {
+      this.isDragging.set(false);
+    }
+  }, 100);
 
   private readonly maxFiles = 10;
   private readonly maxFileSize = 10 * 1024 * 1024;
@@ -94,18 +113,12 @@ export class MediaUploadPreview implements OnDestroy {
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    this.isDragging.set(true);
+    this.dragOverThrottled();
   }
 
   onDragLeave(event: DragEvent): void {
     event.preventDefault();
-
-    const currentTarget = event.currentTarget as HTMLElement;
-    const relatedTarget = event.relatedTarget as Node | null;
-
-    if (!relatedTarget || !currentTarget.contains(relatedTarget)) {
-      this.isDragging.set(false);
-    }
+    this.dragLeaveThrottled(event);
   }
 
   onDrop(event: DragEvent): void {

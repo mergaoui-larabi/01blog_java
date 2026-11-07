@@ -13,6 +13,7 @@ import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dial
 import { AuthService } from '../../../auth/state/auth.service';
 import { Logo } from '../../../../shared/components/logo/logo';
 import { DeadLogo } from '../../../../shared/components/dead-logo/dead-logo';
+import { throttle } from '../../../../shared/utils/throttle';
 
 @Component({
   selector: 'app-post-view-dialog',
@@ -57,6 +58,23 @@ export class PostViewDialog {
     const post = this.post();
     return post ? !!this.postService.pendingLikes()[post.id] : false;
   });
+
+  /**
+   * Throttled like toggle so rapid repeated clicks cannot fire multiple
+   * like/unlike requests. Runs at most once per 1000 ms.
+   */
+  private readonly likeThrottled = throttle(() => {
+    const post = this.post();
+    if (!post) {
+      return;
+    }
+
+    this.postService.toggleLike(post, (updated) => {
+      if (this.post()?.id === updated.id) {
+        this.post.set(updated);
+      }
+    });
+  }, 1000);
 
   open(post: Post): void {
     this.post.set(post);
@@ -122,11 +140,7 @@ export class PostViewDialog {
       return;
     }
 
-    this.postService.toggleLike(post, (updated) => {
-      if (this.post()?.id === updated.id) {
-        this.post.set(updated);
-      }
-    });
+    this.likeThrottled();
   }
 
   // ---------------------------------------------------------------------------

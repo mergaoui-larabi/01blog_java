@@ -96,7 +96,7 @@
     </div>
 
     @if (adminService.hasUsers()) {
-    <button type="button" (click)="adminService.loadMoreUsers()"
+    <button type="button" (click)="loadMoreUsers()"
       [disabled]="adminService.usersLoading() || !adminService.usersHasMore()"
       class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
       {{ adminService.usersLoading() ? 'Loading...' : 'Load more' }}
@@ -193,7 +193,7 @@
     </div>
 
     @if (adminService.hasPosts()) {
-    <button type="button" (click)="adminService.loadMorePosts()"
+    <button type="button" (click)="loadMorePosts()"
       [disabled]="adminService.postsLoading() || !adminService.postsHasMore()"
       class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
       {{ adminService.postsLoading() ? 'Loading...' : 'Load more' }}
@@ -294,7 +294,7 @@
     </div>
 
     @if (adminService.hasReports()) {
-    <button type="button" (click)="adminService.loadMoreReports()"
+    <button type="button" (click)="loadMoreReports()"
       [disabled]="adminService.reportsLoading() || !adminService.reportsHasMore()"
       class="btn w-100 rounded-xl py-3 fw-semibold text-body border auth-file-label">
       {{ adminService.reportsLoading() ? 'Loading...' : 'Load more' }}

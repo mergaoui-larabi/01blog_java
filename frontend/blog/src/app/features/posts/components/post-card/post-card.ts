@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Post } from '../../../posts/data-access/post.api.service';
@@ -10,6 +19,7 @@ import { ReportButton } from '../../../../shared/ui/buttons/report/report-button
 import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 import { EditPostDialog } from '../edit-post-dialog/edit-post-dialog';
 import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dialog';
+import { throttle } from '../../../../shared/utils/throttle';
 
 @Component({
   selector: 'app-post-card',
@@ -39,6 +49,16 @@ export class PostCard {
   );
 
   readonly likePending = computed(() => !!this.postService.pendingLikes()[this.post().id]);
+
+  /**
+   * Throttled like toggle so rapid repeated clicks cannot fire multiple
+   * like/unlike requests. Runs at most once per 1000 ms. The pending-likes
+   * guard in post.service already prevents in-flight duplicates; this is an
+   * extra defense for clicks that land before the guard is set.
+   */
+  private readonly likeThrottled = throttle(() => {
+    this.postService.toggleLike(this.post());
+  }, 1000);
 
   readonly previewContent = computed(() => {
     const content = this.post().content.trim();
@@ -75,7 +95,7 @@ export class PostCard {
 
   toggleLike(event: MouseEvent): void {
     event.stopPropagation();
-    this.postService.toggleLike(this.post());
+    this.likeThrottled();
   }
 
   toggleMenu(event: MouseEvent): void {

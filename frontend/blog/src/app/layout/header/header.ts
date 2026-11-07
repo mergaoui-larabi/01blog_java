@@ -7,7 +7,7 @@ import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 import { AuthService } from '../../features/auth/state/auth.service';
 import { NotificationService } from '../../features/notifications/state/notification.service';
 import { Avatar } from '../../shared/ui/avatar/avatar';
-// import { Avatar } from '../../shared/ui/avatar/avatar';
+import { throttle } from '../../shared/utils/throttle';
 
 /**
  * Authenticated application header: brand, primary navigation with an unread
@@ -44,6 +44,17 @@ export class Header {
 
   protected readonly mobileMenuOpen = signal(false);
   protected readonly accountMenuOpen = signal(false);
+
+  /**
+   * Throttled resize handler so the mobile menu is not closed dozens of times
+   * per second while the user is dragging the window edges. Runs at most once
+   * per 200 ms.
+   */
+  private readonly closeMenusOnResize = throttle(() => {
+    if (window.innerWidth >= 768) {
+      this.closeMenus();
+    }
+  }, 200);
 
   constructor() {
     this.router.events
@@ -111,8 +122,6 @@ export class Header {
   /** Closes the disclosure menu once the viewport is wide enough for the inline navigation. */
   @HostListener('window:resize')
   onResize(): void {
-    if (window.innerWidth >= 768) {
-      this.closeMenus();
-    }
+    this.closeMenusOnResize();
   }
 }

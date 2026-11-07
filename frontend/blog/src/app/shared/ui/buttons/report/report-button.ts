@@ -2,6 +2,7 @@ import { Component, computed, ElementRef, inject, input, signal, viewChild } fro
 import { Report, ReportTargetType } from '../../../data-access/report.api.service';
 import { ReportService } from '../../../state/report.service';
 import { ConfirmDialog } from '../../confirm-dialog/confirm-dialog';
+import { throttle } from '../../../../shared/utils/throttle';
 
 @Component({
   selector: 'app-report-button',
@@ -22,6 +23,20 @@ export class ReportButton {
   readonly pending = signal(false);
   readonly existingReport = signal<Report | null>(null);
 
+  /**
+   * Throttled report-dialog opener so rapid repeated clicks cannot open the
+   * dialog (and reload reports) multiple times. Runs at most once per 500 ms.
+   */
+  private readonly openThrottled = throttle(() => {
+    this.reportService.ensureLoaded();
+    const existing = this.reportService.activeReportFor(this.targetType(), this.targetId());
+
+    this.existingReport.set(existing);
+    this.reason.set(existing?.reason ?? '');
+    this.pending.set(false);
+    this.dialog().nativeElement.showModal();
+  }, 500);
+
   readonly targetNoun = computed(() => (this.targetType() === 'POST' ? 'post' : 'user'));
   readonly hasReport = computed(() => this.existingReport() !== null);
   readonly editable = computed(() => this.existingReport()?.status === 'OPEN' || !this.hasReport());
@@ -35,14 +50,7 @@ export class ReportButton {
 
   open(event: MouseEvent): void {
     event.stopPropagation();
-
-    this.reportService.ensureLoaded();
-    const existing = this.reportService.activeReportFor(this.targetType(), this.targetId());
-
-    this.existingReport.set(existing);
-    this.reason.set(existing?.reason ?? '');
-    this.pending.set(false);
-    this.dialog().nativeElement.showModal();
+    this.openThrottled();
   }
 
   close(): void {
