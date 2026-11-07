@@ -160,11 +160,6 @@ export class NotificationService {
       });
   }
 
-  /**
-   * The single place a read-state change lands, so the change this tab made and the same change reported by
-   * another tab cannot move the badge twice. A row that is not loaded here still counts: the badge covers every
-   * notification, not only the page that happens to be on screen.
-   */
   private applyReadState(notificationId: string, read: boolean, updated?: Notification): void {
     const current = this.notifications().find((notification) => notification.id === notificationId);
     if (current?.read === read) return;

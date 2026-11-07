@@ -1,5 +1,5 @@
-import { inject, Service, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { inject, output, Service, signal } from '@angular/core';
+import { catchError, EMPTY, Observable, tap } from 'rxjs';
 import {
   CreateReportRequest,
   Report,
@@ -7,64 +7,75 @@ import {
   ReportTargetType,
   UpdateReportRequest,
 } from '../data-access/report.api.service';
+import { AlertService } from '../../core/alerts/alert.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 const ACTIVE_STATUSES: Report['status'][] = ['OPEN', 'UNDER_REVIEW'];
 
 @Service()
 export class ReportService {
   private readonly reportApi = inject(ReportApiService);
+  private readonly alertService = inject(AlertService);
 
   readonly reports = signal<Report[]>([]);
   readonly loading = signal(false);
 
   private loaded = false;
 
-  load(): Observable<Report[]> {
+  load(): void {
     this.loading.set(true);
-
-    return this.reportApi.fetchMyReports().pipe(
-      tap({
-        next: (reports) => {
-          this.reports.set(reports);
-          this.loaded = true;
-        },
-        complete: () => this.loading.set(false),
-        error: () => this.loading.set(false),
-      }),
-    );
   }
 
   ensureLoaded(): void {
     if (this.loaded || this.loading()) return;
-
-    this.load().subscribe({
-      error: () => {
-        // The button refetches on the next interaction; no user-facing noise here.
-      },
-    });
   }
 
-  create(request: CreateReportRequest): Observable<Report> {
-    return this.reportApi.createReport(request).pipe(
-      tap((report) => this.reports.update((reports) => [report, ...reports])),
+  createReport(targetType: ReportTargetType, request: CreateReportRequest): Observable<Report> {
+    if (targetType === 'USER') {
+      return this.reportApi.createUserReport(request).pipe(
+        tap((report) => {
+          this.alertService.success('Report created successfully.');
+          this.reports.update((reports) => [report, ...reports]);
+        }),
+      );
+    }
+    return this.reportApi.createPostReport(request).pipe(
+      tap((report) => {
+        this.alertService.success('Report created successfully.');
+        this.reports.update((reports) => [report, ...reports]);
+      }),
+      catchError((err: unknown) => {
+        this.getErrorMessage(err);
+        return EMPTY;
+      }),
     );
   }
 
   update(reportId: string, request: UpdateReportRequest): Observable<Report> {
     return this.reportApi.updateReport(reportId, request).pipe(
-      tap((report) =>
+      tap((report) => {
+        this.alertService.success('report updated successfully.');
         this.reports.update((reports) =>
           reports.map((existing) => (existing.id === report.id ? report : existing)),
-        ),
-      ),
+        );
+      }),
+      catchError((err: unknown) => {
+        this.getErrorMessage(err);
+        return EMPTY;
+      }),
     );
   }
 
   delete(reportId: string): Observable<void> {
     return this.reportApi.deleteReport(reportId).pipe(
-      tap(() =>
-        this.reports.update((reports) => reports.filter((report) => report.id !== reportId)),
-      ),
+      tap(() => {
+        this.alertService.success('report deleted successfully.');
+        this.reports.update((reports) => reports.filter((report) => report.id !== reportId));
+      }),
+      catchError((err: unknown) => {
+        this.getErrorMessage(err);
+        return EMPTY;
+      }),
     );
   }
 
@@ -77,5 +88,22 @@ export class ReportService {
           ACTIVE_STATUSES.includes(report.status),
       ) ?? null
     );
+  }
+
+  getErrorMessage(error: unknown): void {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 0) {
+        this.alertService.error('Cannot connect to the server.');
+        return;
+      }
+
+      const message = error.error?.message;
+      this.alertService.error(
+        typeof message === 'string' ? message : 'Something went wrong. Please try again.',
+      );
+      return;
+    }
+
+    this.alertService.error('An unexpected error occurred. Please try again.');
   }
 }

@@ -12,8 +12,6 @@ import { ConfirmDialog } from '../../confirm-dialog/confirm-dialog';
 export class ReportButton {
   readonly targetType = input.required<ReportTargetType>();
   readonly targetId = input.required<string>();
-
-  /** 'icon' renders a standalone flag button, 'menu' renders a full-width menu row. */
   readonly variant = input<'icon' | 'menu'>('icon');
 
   private readonly reportService = inject(ReportService);
@@ -60,7 +58,10 @@ export class ReportButton {
     const existing = this.existingReport();
     const request$ = existing
       ? this.reportService.update(existing.id, { reason })
-      : this.reportService.create({ targetType: this.targetType(), targetId: this.targetId(), reason });
+      : this.reportService.createReport(this.targetType(), {
+          userId: this.targetId(),
+          reason,
+        });
 
     this.pending.set(true);
     request$.subscribe({

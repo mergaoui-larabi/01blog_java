@@ -13,6 +13,7 @@ interface CachedMedia {
  * Caches object URLs per media id so a media file fetched once (card,
  * dialog, gallery) is never downloaded again while the app is open.
  */
+
 @Service()
 export class MediaUrlService {
   private readonly mediaApi = inject(MediaApiService);

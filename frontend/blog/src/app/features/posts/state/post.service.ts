@@ -1,15 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
 import { EMPTY, from, Observable, throwError } from 'rxjs';
-import {
-  catchError,
-  concatMap,
-  finalize,
-  map,
-  switchMap,
-  tap,
-  toArray,
-} from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, switchMap, tap, toArray } from 'rxjs/operators';
 
 import {
   CreatePostRequest,
@@ -54,7 +46,9 @@ export class PostService {
         ),
       ),
       toArray(),
-      switchMap((mediaIds) => this.postApi.createPost({ content, mediaIds } satisfies CreatePostRequest)),
+      switchMap((mediaIds) =>
+        this.postApi.createPost({ content, mediaIds } satisfies CreatePostRequest),
+      ),
       tap(() => {
         this.router.navigate(['/block/me']);
         this.alertService.success('Post published!');
@@ -160,8 +154,9 @@ export class PostService {
   }
 
   changeCommentCount(postId: string, delta: number, fallbackCount?: number): void {
-    const current = this.feedService.posts().find((post) => post.id === postId)
-      ?? this.blockService.posts().find((post) => post.id === postId);
+    const current =
+      this.feedService.posts().find((post) => post.id === postId) ??
+      this.blockService.posts().find((post) => post.id === postId);
     const previous = current?.commentsCount ?? fallbackCount ?? 0;
     const next = Math.max(0, previous + delta);
 
@@ -182,7 +177,9 @@ export class PostService {
       }
 
       const message = error.error?.message;
-      this.alertService.error(typeof message === 'string' ? message : 'Something went wrong. Please try again.');
+      this.alertService.error(
+        typeof message === 'string' ? message : 'Something went wrong. Please try again.',
+      );
       return;
     }
 

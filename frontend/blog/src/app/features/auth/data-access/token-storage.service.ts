@@ -12,13 +12,6 @@ export class TokenStorageService {
 
   readonly token = this._token.asReadonly();
 
-  /**
-   * Stores only the access token in localStorage and updates the reactive token signal.
-   *
-   * The user session lives in memory and is populated by `AuthService.getCurrentUser()`
-   * through the backend. Storing only the token in localStorage (and not the full session)
-   * keeps the token easy to read from the current origin and avoids cookie constraints.
-   */
   setToken(token: string): void {
     this._token.set(token);
 
@@ -29,13 +22,10 @@ export class TokenStorageService {
     try {
       localStorage.setItem(ACCESS_TOKEN_KEY, token);
     } catch {
-      // Ignore quota or privacy-blocked writes
+      return;
     }
   }
 
-  /**
-   * Clears the access token from localStorage and resets the reactive signal.
-   */
   clearToken(): void {
     this._token.set(null);
 
@@ -46,13 +36,10 @@ export class TokenStorageService {
     try {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
     } catch {
-      // Ignore
+      return;
     }
   }
 
-  /**
-   * Retrieves the stored access token from localStorage.
-   */
   getToken(): string | null {
     if (!this.isBrowser) {
       return null;

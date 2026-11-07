@@ -65,6 +65,11 @@ public class AdminPostController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("ping")
+    public String ping() {
+        return "pong";
+    }
+
     private void requireAdmin(Jwt jwt) {
         if (jwt == null || !SecurityConstants.ADMIN_ROLE.equals(jwt.getClaimAsString(SecurityConstants.ROLE_CLAIM))) {
             throw new AdminOnlyException("Admin privileges are required");

@@ -73,6 +73,11 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("ping")
+    public String ping() {
+        return "pong";
+    }
+
     private UUID userId(Jwt jwt) {
         return UUID.fromString(jwt.getSubject());
     }

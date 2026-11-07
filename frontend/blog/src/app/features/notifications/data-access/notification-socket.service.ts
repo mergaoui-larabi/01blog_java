@@ -4,13 +4,10 @@ import { Subject } from 'rxjs';
 import { TokenStorageService } from '../../auth/data-access/token-storage.service';
 import { environment } from '../../../../environments/environments';
 import { Notification } from './notification.api.service';
+import { AlertService } from '../../../core/alerts/alert.service';
 
 export type SocketStatus = 'unavailable' | 'connecting' | 'connected' | 'reconnecting' | 'closed';
 
-/**
- * A read-state change made in another tab. The SharedWorker already fans a pushed notification out to every
- * tab, so the channel only has to carry what originates in a tab: the PATCH it sent on the user's behalf.
- */
 export type RemoteNotificationEvent =
   { kind: 'read'; notificationId: string; read: boolean } | { kind: 'read-all' };
 
@@ -22,16 +19,12 @@ interface ChannelEnvelope {
   at: number;
 }
 
-/**
- * Talks to the SharedWorker that owns the single STOMP-over-WebSocket connection for this origin. Keeping the
- * connection in a worker means one socket for every tab rather than one per tab; the token has to be handed
- * over explicitly because a worker scope has no access to `localStorage`.
- */
 @Service()
 export class NotificationSocketService {
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly alertService = inject(AlertService);
 
   private readonly tabId = crypto.randomUUID();
   private readonly worker: SharedWorker | null = this.createWorker();
@@ -151,4 +144,5 @@ export class NotificationSocketService {
     this.notificationSource.complete();
     this.remoteSource.complete();
   }
+
 }

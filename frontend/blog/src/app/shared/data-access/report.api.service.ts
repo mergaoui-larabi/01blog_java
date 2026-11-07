@@ -19,8 +19,7 @@ export interface Report {
 }
 
 export interface CreateReportRequest {
-  targetType: ReportTargetType;
-  targetId: string;
+  userId: string;
   reason: string;
 }
 
@@ -40,8 +39,12 @@ export class ReportApiService {
   private readonly http = inject(HttpClient);
   private readonly env = environment;
 
-  createReport(request: CreateReportRequest): Observable<Report> {
-    return this.http.post<Report>(this.env.createReportEndpoint, request);
+  createUserReport(request: CreateReportRequest): Observable<Report> {
+    return this.http.post<Report>(this.env.createUserReportEndpoint, request);
+  }
+
+  createPostReport(request: CreateReportRequest): Observable<Report> {
+    return this.http.post<Report>(this.env.createPostReportEndpoint, request);
   }
 
   fetchAdminReports(
@@ -60,31 +63,18 @@ export class ReportApiService {
     return this.http.get<PageResponse<Report>>(this.env.getAdminReportsEndpoint, { params });
   }
 
-  fetchMyReports(): Observable<Report[]> {
-    return this.http.get<Report[]>(this.env.getMyReportsEndpoint);
-  }
-
   fetchReport(reportId: string): Observable<Report> {
-    const url = this.env.getReportEndpoint.replace(
-      '{reportId}',
-      encodeURIComponent(reportId),
-    );
+    const url = this.env.getReportEndpoint.replace('{reportId}', encodeURIComponent(reportId));
     return this.http.get<Report>(url);
   }
 
   updateReport(reportId: string, request: UpdateReportRequest): Observable<Report> {
-    const url = this.env.updateReportEndpoint.replace(
-      '{reportId}',
-      encodeURIComponent(reportId),
-    );
+    const url = this.env.updateReportEndpoint.replace('{reportId}', encodeURIComponent(reportId));
     return this.http.patch<Report>(url, request);
   }
 
   deleteReport(reportId: string): Observable<void> {
-    const url = this.env.deleteReportEndpoint.replace(
-      '{reportId}',
-      encodeURIComponent(reportId),
-    );
+    const url = this.env.deleteReportEndpoint.replace('{reportId}', encodeURIComponent(reportId));
     return this.http.delete<void>(url);
   }
 }

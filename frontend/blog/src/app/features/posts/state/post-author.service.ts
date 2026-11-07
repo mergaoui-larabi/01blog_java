@@ -4,10 +4,7 @@ import { catchError } from 'rxjs/operators';
 
 import { ExploreApiService, UserSearch } from '../../explore/data-access/explore.api.service';
 
-/**
- * Caches user profiles by id so post cards and comments resolve author
- * names/avatars with at most one request per user.
- */
+
 @Service()
 export class PostAuthorService {
   private readonly exploreApi = inject(ExploreApiService);

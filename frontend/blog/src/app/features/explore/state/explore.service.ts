@@ -25,6 +25,7 @@ export class ExploreService {
     this.exploreApi.followUser(userId).subscribe({
       next: () => {
         this.updateFollowState(userId, true);
+        this.alertService.success('User followed successfully.');
         onSettled?.(true);
       },
       error: (error: unknown) => {
@@ -39,6 +40,7 @@ export class ExploreService {
     this.exploreApi.unfollowUser(userId).subscribe({
       next: () => {
         this.updateFollowState(userId, false);
+        this.alertService.success('User unfollowed successfully.');
         onSettled?.(false);
       },
       error: (error: unknown) => {

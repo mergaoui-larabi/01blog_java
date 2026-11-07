@@ -15,9 +15,6 @@ export class BlockService {
   readonly posts = signal<Post[]>([]);
   readonly nextCursor = signal<string | null>(null);
 
-  // The server sends hasNext=false on the last page. Without it, loadMore() would call
-  // fetchMyPosts(null), and a null cursor is indistinguishable from a first request, so
-  // the server would answer with the first page again.
   readonly hasNext = signal(false);
 
   loadFeed(): void {
@@ -39,8 +36,6 @@ export class BlockService {
       .fetchMyPosts(cursor)
       .pipe(
         catchError((error: unknown) => {
-          // Stop auto-loading after a failed page. The sentinel re-arms as soon as the
-          // list lands, so leaving hasNext true would retry the same request endlessly.
           this.hasNext.set(false);
           this.getErrorMessage(error);
           return EMPTY;
