@@ -34,10 +34,15 @@ import java.util.UUID;
 @Service
 public class UserService {
 
+    private final UserBlacklistService userBlacklistService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(
+            UserBlacklistService userBlacklistService,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
+        this.userBlacklistService = userBlacklistService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -136,10 +141,12 @@ public class UserService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        // Same wording as a bad password: an account under deletion must not be distinguishable.
-        // Already issued JWTs stay valid until they expire, this only stops new ones.
+        if (user.getBanned()) {
+            throw new BannedUserNotFoundException("Account is Banned");
+        }
+
         if (!user.isActive()) {
-            throw new InvalidCredentialsException("Invalid email or password");
+            throw new AccountNotActiveException("Account is not active");
         }
 
         return new UserAuthenticationResponse(user.getId(), user.getRole());
@@ -178,6 +185,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BannedUserNotFoundException("User not found"));
         user.ban();
+        userBlacklistService.flagUser(userId, "BANNED");
         return userRepository.save(user);
     }
 
@@ -189,11 +197,13 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BannedUserNotFoundException("User not found"));
         user.unban();
+        userBlacklistService.unflagUser(userId);
         return userRepository.save(user);
     }
 
     /**
-     * Short transaction: the account is persisted as DELETION_PENDING before any cleanup call is
+     * Short transaction: the account is persisted as DELETION_PENDING before any
+     * cleanup call is
      * made, so a crash mid-orchestration leaves a retryable state behind.
      */
     @Transactional
@@ -207,6 +217,7 @@ public class UserService {
     public User markDeleted(UUID userId) {
         User user = requireUser(userId);
         user.markDeleted();
+        userBlacklistService.flagUser(userId, "DELETED");
         return userRepository.save(user);
     }
 

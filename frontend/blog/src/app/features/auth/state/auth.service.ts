@@ -34,10 +34,10 @@ export class AuthService {
 
   constructor() {
     // If an access token exists in localStorage on startup, validate and fetch the current user
-    const isAuthPage = ['/auth/login', '/auth/register'].includes(this.router.url);
-    if (!isAuthPage && this.tokenStorage.token()) {
-      this.validateSession().subscribe();
-    }
+    // const isAuthPage = ['/auth/login', '/auth/register'].includes(this.router.url);
+    // if (!isAuthPage && this.tokenStorage.token()) {
+    //   this.validateSession().subscribe();
+    // }
   }
 
   getAuthenticatedUser() {
@@ -60,6 +60,7 @@ export class AuthService {
    * Validates the session token and populates the current user.
    */
   validateSession(): Observable<AuthStatus> {
+  
     const token = this.tokenStorage.token();
 
     if (!token) {

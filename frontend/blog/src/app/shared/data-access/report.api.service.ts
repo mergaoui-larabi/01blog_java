@@ -44,7 +44,10 @@ export class ReportApiService {
   }
 
   createPostReport(request: CreateReportRequest): Observable<Report> {
-    return this.http.post<Report>(this.env.createPostReportEndpoint, request);
+    return this.http.post<Report>(this.env.createPostReportEndpoint, {
+      postId: request.userId,
+      reason: request.reason,
+    });
   }
 
   fetchAdminReports(

@@ -48,6 +48,15 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
     }
 
+    // 403
+    @ExceptionHandler(UserBannedOrDeleted.class)
+    public ResponseEntity<AuthErrorResponse> handleInvalidCredentials(
+            UserBannedOrDeleted exception,
+            HttpServletRequest request) {
+
+        return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage(), request);
+    }
+
     // 404
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<AuthErrorResponse> handleNoResourceFound(

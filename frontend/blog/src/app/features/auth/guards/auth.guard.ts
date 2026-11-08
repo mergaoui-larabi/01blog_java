@@ -34,20 +34,15 @@ export const authGuard: CanActivateFn = (_route, state) => {
 export const guestGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-
   return authService.validateSession().pipe(
     map((status) => {
       if (status === 'authenticated') {
         return router.parseUrl('/');
       }
 
-      if (status === 'error') {
-        return router.parseUrl('/');
-      }
-
       return true;
     }),
-    catchError(() => of(router.parseUrl('/'))),
+    catchError(() => of(true)),
   );
 };
 
@@ -59,7 +54,6 @@ export const roleGuard = (expectedRole: 'USER' | 'ADMIN'): CanActivateFn => {
   return (_route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
-
     return authService.getCurrentUser().pipe(
       map((user) => {
         if (user.role === expectedRole) {

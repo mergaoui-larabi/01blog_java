@@ -10,6 +10,7 @@ import com.blog.auth.application.dto.user.AuthenticateUserRequest;
 import com.blog.auth.application.dto.user.UserAuthenticationResponse;
 import com.blog.auth.exception.InvalidCredentialsException;
 import com.blog.auth.exception.InvalidRequestException;
+import com.blog.auth.exception.UserBannedOrDeleted;
 import com.blog.auth.exception.UserServiceUnavailableException;
 
 @Service
@@ -49,7 +50,8 @@ public class UserServiceClientImpl implements UserServiceClient {
     private RuntimeException mapErrorResponse(RestClientResponseException exception) {
         return switch (exception.getStatusCode().value()) {
             case 400 -> new InvalidRequestException("The login request is invalid");
-            case 401, 403 -> new InvalidCredentialsException("Invalid email or password");
+            case 401 -> new InvalidCredentialsException("Invalid email or password");
+            case 403 -> new UserBannedOrDeleted("This is user has been banned or deleted");
             default -> new UserServiceUnavailableException(SERVICE_UNAVAILABLE_MESSAGE, exception);
         };
     }
