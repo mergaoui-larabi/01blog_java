@@ -9,6 +9,8 @@ import {
 } from '../data-access/report.api.service';
 import { AlertService } from '../../core/alerts/alert.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { TokenStorageService } from '../../features/auth/data-access/token-storage.service';
 
 const ACTIVE_STATUSES: Report['status'][] = ['OPEN', 'UNDER_REVIEW'];
 
@@ -16,6 +18,8 @@ const ACTIVE_STATUSES: Report['status'][] = ['OPEN', 'UNDER_REVIEW'];
 export class ReportService {
   private readonly reportApi = inject(ReportApiService);
   private readonly alertService = inject(AlertService);
+  private readonly router = inject(Router);
+  private readonly tokenStorage = inject(TokenStorageService);
 
   readonly reports = signal<Report[]>([]);
   readonly loading = signal(false);
@@ -92,6 +96,31 @@ export class ReportService {
 
   getErrorMessage(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        this.tokenStorage.clearToken();
+        void this.router.navigate(['/auth/login']);
+      }
+
+      if (error.status === 403) {
+        console.log('Authorization error:', error);
+        const errorCode = error.error?.code;
+
+        switch (errorCode) {
+          case 'ACCOUNT_BANNED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          case 'ACCOUNT_DELETED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          default:
+            break;
+        }
+      }
+
       if (error.status === 0) {
         this.alertService.error('Cannot connect to the server.');
         return;

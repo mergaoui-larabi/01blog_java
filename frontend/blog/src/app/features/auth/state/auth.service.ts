@@ -211,6 +211,31 @@ export class AuthService {
 
   private getErrorMessage(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        this.tokenStorage.clearToken();
+        void this.router.navigate(['/auth/login']);
+      }
+
+      if (error.status === 403) {
+        console.log('Authorization error:', error);
+        const errorCode = error.error?.code;
+
+        switch (errorCode) {
+          case 'ACCOUNT_BANNED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          case 'ACCOUNT_DELETED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          default:
+            break;
+        }
+      }
+
       if (error.status === 0) {
         this.alertService.error('Cannot connect to the server.');
         return;

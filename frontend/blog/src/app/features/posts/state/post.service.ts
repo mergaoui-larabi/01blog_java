@@ -13,6 +13,7 @@ import { AlertService } from '../../../core/alerts/alert.service';
 import { Router } from '@angular/router';
 import { FeedService } from '../../feed/state/feed.service';
 import { BlockService } from '../../block/state/block.service';
+import { TokenStorageService } from '../../auth/data-access/token-storage.service';
 
 @Service()
 export class PostService {
@@ -21,6 +22,7 @@ export class PostService {
   private readonly router = inject(Router);
   private readonly feedService = inject(FeedService);
   private readonly blockService = inject(BlockService);
+  private readonly tokenStorage = inject(TokenStorageService);
 
   readonly lastPost = signal<Post | null>(null);
   readonly loading = signal(false);
@@ -171,6 +173,31 @@ export class PostService {
 
   getErrorMessage(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        this.tokenStorage.clearToken();
+        void this.router.navigate(['/auth/login']);
+      }
+
+      if (error.status === 403) {
+        console.log('Authorization error:', error);
+        const errorCode = error.error?.code;
+
+        switch (errorCode) {
+          case 'ACCOUNT_BANNED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          case 'ACCOUNT_DELETED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          default:
+            break;
+        }
+      }
+
       if (error.status === 0) {
         this.alertService.error('Cannot connect to the server.');
         return;

@@ -1,15 +1,19 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { EMPTY } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { BlockApiService, Post } from '../data-access/block.api.service';
 import { AlertService } from '../../../core/alerts/alert.service';
+import { TokenStorageService } from '../../auth/data-access/token-storage.service';
 
 @Service()
 export class BlockService {
   private readonly alertService = inject(AlertService);
   private readonly blockApi = inject(BlockApiService);
+  private readonly router = inject(Router);
+  private readonly tokenStorage = inject(TokenStorageService);
 
   readonly loading = signal(false);
   readonly posts = signal<Post[]>([]);
@@ -88,6 +92,31 @@ export class BlockService {
 
   private getErrorMessage(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        this.tokenStorage.clearToken();
+        void this.router.navigate(['/auth/login']);
+      }
+
+      if (error.status === 403) {
+        console.log('Authorization error:', error);
+        const errorCode = error.error?.code;
+
+        switch (errorCode) {
+          case 'ACCOUNT_BANNED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          case 'ACCOUNT_DELETED':
+            this.tokenStorage.clearToken();
+            void this.router.navigate(['/auth/login']);
+            break;
+
+          default:
+            break;
+        }
+      }
+
       if (error.status === 0) {
         this.alertService.error('Cannot connect to the server.');
         return;
