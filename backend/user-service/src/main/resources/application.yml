@@ -25,21 +25,20 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
 
-user-service:
+clients:
   post-service:
     url: ${POST_SERVICE_URL:http://localhost:5004}
   notification-service:
     url: ${NOTIFICATION_SERVICE_URL:http://localhost:5005}
   moderation-service:
     url: ${MODERATION_SERVICE_URL:http://localhost:5006}
-
 # Shared secret for service-to-service calls on /internal/**
 internal:
   service-token: ${INTERNAL_SERVICE_TOKEN:}

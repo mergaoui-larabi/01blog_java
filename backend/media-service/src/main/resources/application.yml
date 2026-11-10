@@ -30,19 +30,17 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:5002/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
 
-
 # Media storage
 media:
   storage:
     location: ${MEDIA_STORAGE_LOCATION}
-
 
 # Actuator
 management:

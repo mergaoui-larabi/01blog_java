@@ -51,7 +51,7 @@ public class RequestLoggingFilter implements WebFilter, Ordered {
                                                         : null;
 
                                         log.info(
-                                                        "\nrequestId={}\nmethod={} path={} status={} duration={}ms\n",
+                                                        "\nAPI_GATEWAY:\nrequestId={}\nmethod={} path={} status={} duration={}ms\n",
                                                         requestId,
                                                         method,
                                                         path,

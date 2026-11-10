@@ -33,13 +33,22 @@ public class UserServiceClientImpl implements UserServiceClient {
                     .body(request)
                     .retrieve()
                     .body(UserAuthenticationResponse.class);
-
             if (response == null) {
                 throw new UserServiceUnavailableException(SERVICE_UNAVAILABLE_MESSAGE);
             }
+            System.out.println("""
+
+                    ========== AUTHENTICATION RESPONSE ==========
+                    User ID : %s
+                    Role    : %s
+                    =============================================
+                    """.formatted(
+                    response.userId(),
+                    response.role()));
 
             return response;
         } catch (RestClientResponseException exception) {
+            System.out.println("Error during authentication: " + exception.getMessage());
             throw mapErrorResponse(exception);
         } catch (ResourceAccessException exception) {
             // connection refused / DNS failure / read timeout on the user service

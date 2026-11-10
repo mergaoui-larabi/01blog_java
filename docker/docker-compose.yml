@@ -1,5 +1,4 @@
 services:
-
   postgres-users:
     image: postgres:17
     container_name: blog-postgres-users
@@ -15,7 +14,6 @@ services:
 
     volumes:
       - postgres_users_data:/var/lib/postgresql/data
-
 
   postgres-media:
     image: postgres:17
@@ -33,7 +31,6 @@ services:
     volumes:
       - postgres_media_data:/var/lib/postgresql/data
 
-
   postgres-posts:
     image: postgres:17
     container_name: blog-postgres-posts
@@ -49,7 +46,6 @@ services:
 
     volumes:
       - postgres_posts_data:/var/lib/postgresql/data
-
 
   postgres-notifications:
     image: postgres:17
@@ -67,7 +63,6 @@ services:
     volumes:
       - postgres_notifications_data:/var/lib/postgresql/data
 
-
   postgres-moderation:
     image: postgres:17
     container_name: blog-postgres-moderation
@@ -84,7 +79,6 @@ services:
     volumes:
       - postgres_moderation_data:/var/lib/postgresql/data
 
-
   redis:
     image: redis:8
     container_name: blog-redis
@@ -97,6 +91,170 @@ services:
 
     volumes:
       - redis_data:/data
+
+  api-gateway:
+    build:
+      context: ../backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: blog-api-gateway
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      HOST_MACHINE_ORIGIN: ${HOST_MACHINE_ORIGIN}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL}
+      POST_SERVICE_URL: ${POST_SERVICE_URL}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      MODERATION_SERVICE_URL: ${MODERATION_SERVICE_URL}
+    depends_on:
+      - redis
+
+  user-service:
+    build:
+      context: ../backend/user-service
+      dockerfile: Dockerfile
+    container_name: blog-user-service
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      USER_DB_HOST: postgres-users
+      USER_DB_NAME: ${USER_DB_NAME}
+      USER_DB_USERNAME: ${USER_DB_USERNAME}
+      USER_DB_PASSWORD: ${USER_DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      POST_SERVICE_URL: ${POST_SERVICE_URL}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      MODERATION_SERVICE_URL: ${MODERATION_SERVICE_URL}
+    depends_on:
+      - postgres-users
+      - redis
+
+  auth-service:
+    build:
+      context: ../backend/auth-service
+      dockerfile: Dockerfile
+    container_name: blog-auth-service
+    # restart: unless-stopped
+    ports:
+      - "5002:5002"
+    volumes:
+      - ../backend/auth-service/keys/:/run/secrets/auth:ro
+
+    environment:
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      JWT_PRIVATE_KEY_PATH: /run/secrets/auth/private.pem
+      JWT_PUBLIC_KEY_PATH: /run/secrets/auth/public.pem
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    depends_on:
+      - user-service
+
+  media-service:
+    build:
+      context: ../backend/media-service
+      dockerfile: Dockerfile
+    container_name: blog-media-service
+    restart: unless-stopped
+    ports:
+      - "5003:5003"
+    environment:
+      MEDIA_DB_HOST: postgres-media
+      MEDIA_DB_NAME: ${MEDIA_DB_NAME}
+      MEDIA_DB_USERNAME: ${MEDIA_DB_USERNAME}
+      MEDIA_DB_PASSWORD: ${MEDIA_DB_PASSWORD}
+      MEDIA_STORAGE_LOCATION: /app/media-storage
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+    volumes:
+      - ../backend/media-service/media-storage:/app/media-storage
+    depends_on:
+      - postgres-media
+
+  post-service:
+    build:
+      context: ../backend/post-service
+      dockerfile: Dockerfile
+    container_name: blog-post-service
+    restart: unless-stopped
+    ports:
+      - "5004:5004"
+    environment:
+      POST_DB_HOST: postgres-posts
+      POST_DB_NAME: ${POST_DB_NAME}
+      POST_DB_USERNAME: ${POST_DB_USERNAME}
+      POST_DB_PASSWORD: ${POST_DB_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL}
+    depends_on:
+      - postgres-posts
+      - user-service
+      - media-service
+      - notification-service
+
+  notification-service:
+    build:
+      context: ../backend/notification-service
+      dockerfile: Dockerfile
+    container_name: blog-notification-service
+    restart: unless-stopped
+    ports:
+      - "5005:5005"
+    environment:
+      NOTIF_DB_HOST: postgres-notifications
+      NOTIF_DB_NAME: ${NOTIF_DB_NAME}
+      NOTIF_DB_USERNAME: ${NOTIF_DB_USERNAME}
+      NOTIF_DB_PASSWORD: ${NOTIF_DB_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+    depends_on:
+      - postgres-notifications
+      - user-service
+
+  moderation-service:
+    build:
+      context: ../backend/moderation-service
+      dockerfile: Dockerfile
+    container_name: blog-moderation-service
+    restart: unless-stopped
+    ports:
+      - "5006:5006"
+    environment:
+      MOD_DB_HOST: postgres-moderation
+      MOD_DB_NAME: ${MOD_DB_NAME}
+      MOD_DB_USERNAME: ${MOD_DB_USERNAME}
+      MOD_DB_PASSWORD: ${MOD_DB_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+    depends_on:
+      - postgres-moderation
+      - user-service
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: frontend/Dockerfile
+    container_name: blog-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-gateway
+      - user-service
 
 volumes:
   postgres_users_data:

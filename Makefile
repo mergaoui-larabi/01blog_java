@@ -46,6 +46,9 @@ MODERATION_SERVICE_PATH := backend/moderation-service
 MODERATION_SERVICE_PORT := 5006
 MODERATION_SERVICE_LOG := logs/moderation-service.log
 
+LOG_DIR := logs
+TIMESTAMP := $(shell date +%Y-%m-%d_%H-%M-%S)
+
 DOCKER_COMPOSE := docker
 
 COMPOSE_FILE := docker/docker-compose.yml
@@ -74,10 +77,12 @@ front-down:
 # =======================
 
 docker-up:
+	@mkdir -p $(LOG_DIR)
 	@cd $(DOCKER_COMPOSE) && \
 	set -a && . ../.env && set +a && \
-	docker compose  down && \
-	docker compose  up -d
+	docker compose down && \
+	docker compose up -d 
+
 
 docker-clean-up:
 	@cd $(DOCKER_COMPOSE) && \
@@ -87,8 +92,7 @@ docker-clean-up:
 
 docker-down:
 	@cd $(DOCKER_COMPOSE) && \
-	set -a && . ../.env && set +a && \
-	docker compose -f $(COMPOSE_FILE) down
+	docker compose down
 
 
 # =======================

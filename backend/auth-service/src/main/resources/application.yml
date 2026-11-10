@@ -20,7 +20,7 @@ auth:
     private-key-path: ${JWT_PRIVATE_KEY_PATH}
     public-key-path: ${JWT_PUBLIC_KEY_PATH}
   user-service:
-    url: http://localhost:5001
+    url: ${USER_SERVICE_URL:http://localhost:5001}
 
 # Shared secret for service-to-service calls on /internal/**
 internal:
