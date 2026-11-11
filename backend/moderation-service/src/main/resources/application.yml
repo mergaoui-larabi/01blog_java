@@ -12,9 +12,9 @@ spring:
   application:
     name: moderation-service
   datasource:
-    url: jdbc:postgresql://${MOD_DB_HOST}/${MOD_DB_NAME}
-    username: ${MOD_DB_USERNAME}
-    password: ${MOD_DB_PASSWORD}
+    url: jdbc:postgresql://${MOD_DB_HOST:localhost:5436}/${MOD_DB_NAME:blog_moderations}
+    username: ${MOD_DB_USERNAME:blog_moderation}
+    password: ${MOD_DB_PASSWORD:secret}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -25,7 +25,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:5002}/.well-known/jwks.json
 
 moderation:
   user-service:
@@ -33,7 +33,7 @@ moderation:
 
 # Shared secret for service-to-service calls on /internal/**
 internal:
-  service-token: ${INTERNAL_SERVICE_TOKEN:}
+  service-token: ${INTERNAL_SERVICE_TOKEN:local-dev-internal-token}
 
 #Actuator
 management:

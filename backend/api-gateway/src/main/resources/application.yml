@@ -20,8 +20,8 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST:localhost}
-      port: 6379
-      password: ${REDIS_PASSWORD}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:secret}
   #spring cloud
   cloud:
     gateway:
@@ -59,7 +59,7 @@ spring:
           routes:
             - id: user-service
 
-              uri: ${USER_SERVICE_URL}
+              uri: ${USER_SERVICE_URL:http://localhost:5001}
 
               predicates:
                 - Path=/api/v1/users/**
@@ -71,34 +71,34 @@ spring:
                 #     redis-rate-limiter.burstCapacity: 20
 
             - id: auth-service
-              uri: ${AUTH_SERVICE_URL}
+              uri: ${AUTH_SERVICE_URL:http://localhost:5002}
               predicates:
                 - Path=/api/v1/auth/**
 
             - id: media-service
-              uri: ${MEDIA_SERVICE_URL}
+              uri: ${MEDIA_SERVICE_URL:http://localhost:5003}
               predicates:
                 - Path=/api/v1/medias/**
 
             - id: post-service
-              uri: ${POST_SERVICE_URL}
+              uri: ${POST_SERVICE_URL:http://localhost:5004}
               predicates:
                 - Path=/api/v1/posts/**
 
             - id: notification-service
-              uri: ${NOTIFICATION_SERVICE_URL}
+              uri: ${NOTIFICATION_SERVICE_URL:http://localhost:5005}
               predicates:
                 - Path=/api/v1/notifications/**
 
             - id: moderation-service
-              uri: ${MODERATION_SERVICE_URL}
+              uri: ${MODERATION_SERVICE_URL:http://localhost:5006}
               predicates:
                 - Path=/api/v1/reports/**
 
 gateway:
   # OAuth/OIDC jwt validation
   jwt:
-    jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+    jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:5002}/.well-known/jwks.json
     issuer: blog-auth-service
   security:
     public-routes:

@@ -12,9 +12,9 @@ spring:
   application:
     name: post-service
   datasource:
-    url: jdbc:postgresql://${POST_DB_HOST}/${POST_DB_NAME}
-    username: ${POST_DB_USERNAME}
-    password: ${POST_DB_PASSWORD}
+    url: jdbc:postgresql://${POST_DB_HOST:localhost:5434}/${POST_DB_NAME:blog_post}
+    username: ${POST_DB_USERNAME:blog_post}
+    password: ${POST_DB_PASSWORD:secret}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -25,7 +25,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:5002}/.well-known/jwks.json
 
 post:
   user-service:
@@ -37,7 +37,7 @@ post:
 
 # Shared secret for service-to-service calls on /internal/**
 internal:
-  service-token: ${INTERNAL_SERVICE_TOKEN:}
+  service-token: ${INTERNAL_SERVICE_TOKEN:local-dev-internal-token}
 
 #Actuator
 management:

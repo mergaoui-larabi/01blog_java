@@ -12,9 +12,9 @@ spring:
   application:
     name: notification-service
   datasource:
-    url: jdbc:postgresql://${NOTIF_DB_HOST}/${NOTIF_DB_NAME}
-    username: ${NOTIF_DB_USERNAME}
-    password: ${NOTIF_DB_PASSWORD}
+    url: jdbc:postgresql://${NOTIF_DB_HOST:localhost:5435}/${NOTIF_DB_NAME:blog_notifications}
+    username: ${NOTIF_DB_USERNAME:blog_notification}
+    password: ${NOTIF_DB_PASSWORD:secret}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -25,7 +25,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:5002}/.well-known/jwks.json
 
 notification:
   user-service:
@@ -33,7 +33,7 @@ notification:
 
 # Shared secret for service-to-service calls on /internal/**
 internal:
-  service-token: ${INTERNAL_SERVICE_TOKEN:}
+  service-token: ${INTERNAL_SERVICE_TOKEN:local-dev-internal-token}
 
 #Actuator
 management:

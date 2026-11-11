@@ -14,9 +14,9 @@ spring:
     name: media-service
 
   datasource:
-    url: jdbc:postgresql://${MEDIA_DB_HOST}/${MEDIA_DB_NAME}
-    username: ${MEDIA_DB_USERNAME}
-    password: ${MEDIA_DB_PASSWORD}
+    url: jdbc:postgresql://${MEDIA_DB_HOST:localhost:5433}/${MEDIA_DB_NAME:blog_medias}
+    username: ${MEDIA_DB_USERNAME:blog_media}
+    password: ${MEDIA_DB_PASSWORD:secret}
 
   jpa:
     hibernate:
@@ -30,7 +30,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:5002}/.well-known/jwks.json
 
   servlet:
     multipart:
@@ -40,7 +40,7 @@ spring:
 # Media storage
 media:
   storage:
-    location: ${MEDIA_STORAGE_LOCATION}
+    location: ${MEDIA_STORAGE_LOCATION:./media-storage}
 
 # Actuator
 management:

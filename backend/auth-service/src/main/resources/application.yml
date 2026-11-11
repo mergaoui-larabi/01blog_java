@@ -17,14 +17,14 @@ auth:
     issuer: blog-auth-service
     expiration: 3600
     key-id: blog-auth-key-1
-    private-key-path: ${JWT_PRIVATE_KEY_PATH}
-    public-key-path: ${JWT_PUBLIC_KEY_PATH}
+    private-key-path: ${JWT_PRIVATE_KEY_PATH:keys/private.pem}
+    public-key-path: ${JWT_PUBLIC_KEY_PATH:keys/public.pem}
   user-service:
     url: ${USER_SERVICE_URL:http://localhost:5001}
 
 # Shared secret for service-to-service calls on /internal/**
 internal:
-  service-token: ${INTERNAL_SERVICE_TOKEN:}
+  service-token: ${INTERNAL_SERVICE_TOKEN:local-dev-internal-token}
 
 #Actuator
 management:

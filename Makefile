@@ -52,6 +52,7 @@ LOG_DIR := logs
 TIMESTAMP := $(shell date +%Y-%m-%d_%H-%M-%S)
 
 DOCKER_COMPOSE := docker
+COMPOSE_DEV = docker compose -f docker/docker-compose.dev.yml
 
 COMPOSE_FILE := docker/docker-compose.yml
 
@@ -93,6 +94,12 @@ front-down:
 # =======================
 # Docker
 # =======================
+
+infra-up:
+	$(COMPOSE_DEV) up -d
+
+infra-down:
+	$(COMPOSE_DEV) down
 
 docker-up:
 	@mkdir -p $(LOG_DIR)
