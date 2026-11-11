@@ -36,7 +36,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         // Authentication failure
         if (error.status === 401) {
           tokenStorage.clearToken();
-          router.navigate(['/login']);
+          router.navigate(['/auth/login']);
         }
 
         // Authorization failure
@@ -47,12 +47,12 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
           switch (errorCode) {
             case 'ACCOUNT_BANNED':
               tokenStorage.clearToken();
-              router.navigate(['/account/banned']);
+              router.navigate(['/auth/login']);
               break;
 
             case 'ACCOUNT_DELETED':
               tokenStorage.clearToken();
-              router.navigate(['/login']);
+              router.navigate(['/auth/login']);
               break;
 
             default:

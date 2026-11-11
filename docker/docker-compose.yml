@@ -145,7 +145,7 @@ services:
       context: ../backend/auth-service
       dockerfile: Dockerfile
     container_name: blog-auth-service
-    # restart: unless-stopped
+    restart: unless-stopped
     ports:
       - "5002:5002"
     volumes:
@@ -255,6 +255,17 @@ services:
     depends_on:
       - api-gateway
       - user-service
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: blog-dozzle
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock:ro
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
 
 volumes:
   postgres_users_data:

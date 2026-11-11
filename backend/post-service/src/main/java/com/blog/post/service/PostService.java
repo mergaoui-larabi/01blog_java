@@ -217,7 +217,8 @@ public class PostService {
     public void deletePost(UUID postId, UUID userId, boolean isAdmin) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found: " + postId));
-        if (!post.getAuthorId().equals(userId) && !isAdmin) {
+        
+        if (post.getAuthorId() != null && !post.getAuthorId().equals(userId) && !isAdmin) {
             throw new PostNotOwnedException("Post not owned by current user: " + postId);
         }
         postRepository.delete(post);

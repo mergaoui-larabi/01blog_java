@@ -46,12 +46,30 @@ MODERATION_SERVICE_PATH := backend/moderation-service
 MODERATION_SERVICE_PORT := 5006
 MODERATION_SERVICE_LOG := logs/moderation-service.log
 
+JWT_KEYS_DIR := backend/auth-service/keys/
+
 LOG_DIR := logs
 TIMESTAMP := $(shell date +%Y-%m-%d_%H-%M-%S)
 
 DOCKER_COMPOSE := docker
 
 COMPOSE_FILE := docker/docker-compose.yml
+
+# =======================
+# keys generation
+# =======================
+
+key-gen:
+	@mkdir -p $(AUTH_SERVICE_PATH)/keys
+	@test ! -f $(AUTH_SERVICE_PATH)/keys/private.pem || \
+		(echo "Private key already exists. Aborting."; exit 1)
+	@openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+		-out $(AUTH_SERVICE_PATH)/keys/private.pem
+	@openssl pkey -in $(AUTH_SERVICE_PATH)/keys/private.pem -pubout \
+		-out $(AUTH_SERVICE_PATH)/keys/public.pem
+	@chmod 600 $(AUTH_SERVICE_PATH)/keys/private.pem
+	@chmod 644 $(AUTH_SERVICE_PATH)/keys/public.pem
+	@echo "RSA key pair generated."
 
 # =======================
 # Frontend
