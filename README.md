@@ -1,125 +1,255 @@
-## 01Blog
+# 01Blog
 
-### Overview
+A social blogging platform for students to share what they are learning. Users can publish posts with media, comment, like, follow each other, receive realtime notifications, and report inappropriate content; admins get user and content moderation tools.
 
-In this project, you will build a **social blogging platform** called **01Blog**, where students can share their learning experiences, discoveries, and progress throughout their journey. Users can interact with each other’s content, follow one another, and engage in meaningful discussions.
+## Overview
 
-This project will guide you through creating a fullstack application using **Java Spring Boot** for the backend and **Angular** for the frontend — from setting up REST APIs to building an interactive and responsive interface.
+The project is a microservice application: an Angular SPA talks to a Spring Cloud Gateway, which routes to six independent Spring Boot services. Each service owns its PostgreSQL database and talks to the others over HTTP. Redis backs gateway rate limiting and caching, and JWTs are signed by the auth service.
 
-### Role Play
+```
+Angular (4200) ──► API Gateway (5000) ──┬──► user-service          (5001) ──► PostgreSQL 5432
+                                        ├──► auth-service          (5002)
+                                        ├──► media-service         (5003) ──► PostgreSQL 5433
+                                        ├──► post-service          (5004) ──► PostgreSQL 5434
+                                        ├──► notification-service  (5005) ──► PostgreSQL 5435
+                                        └──► moderation-service    (5006) ──► PostgreSQL 5436
+                                                          Redis (6379)
+```
 
-You are a **fullstack developer** working for a platform dedicated to helping students document their learning journey. Your mission is to create a user-friendly and secure blogging system where students can post content, subscribe to others, and report inappropriate behavior. Administrators must have tools to moderate the content and manage users.
+| Component | Stack | Responsibility |
+| --- | --- | --- |
+| `frontend/blog` | Angular 22, TypeScript, Bootstrap, Vitest | SPA: feed, profiles, posts, notifications, admin panel |
+| `backend/api-gateway` | Spring Cloud Gateway, WebFlux, Redis | Single entry point, routing, CORS, rate limiting, JWT checks |
+| `backend/auth-service` | Spring Boot, RSA/JWT | Signup/signin, JWKS endpoint, token issuance |
+| `backend/user-service` | Spring Boot, JPA, Flyway | Accounts, profiles, follows, bans |
+| `backend/media-service` | Spring Boot, JPA, Flyway | Avatar/post media upload and serving |
+| `backend/post-service` | Spring Boot, JPA, Flyway | Posts, comments, likes, feed |
+| `backend/notification-service` | Spring Boot, WebSocket | Notifications and realtime delivery |
+| `backend/moderation-service` | Spring Boot, JPA, Flyway | Content/user reports and moderation actions |
+| `docker/` | Docker Compose | Infrastructure-only and full-stack stacks |
 
-### Learning Objectives
+API and design documentation lives in [`docs/`](docs) — start with [`docs/subject.md`](docs/subject.md), [`docs/backend/api/index.md`](docs/backend/api/index.md), and [`docs/database/db.dbml`](docs/database/db.dbml).
 
-- Master **Java Spring Boot** (REST API, authentication, services, security)
-- Build **Angular** applications (components, routing, services, UI/UX)
-- Understand **fullstack architecture** and RESTful API integration
-- Handle **user-generated content** (media upload, content management)
-- Design and use **relational databases** for social interactions (likes, comments, subscriptions)
-- Implement **secure authentication** and **role-based access**
-- Create tools for **moderation and administration**
-- Collaborate using **Git**, GitHub, and agile practices (issues, branches, commits)
+## Prerequisites
 
-### Instructions
+- **Docker path:** Docker Engine/Desktop with Compose v2, `make`, `openssl`, `bash`.
+- **Local dev path:** Java 21, Node.js 22 with npm, `make`, `openssl`, `bash`, plus Docker for the databases and Redis.
+- The Maven wrapper (`./mvnw`) is committed, so Maven itself is not required.
 
-#### Backend
+## Path A — Run everything with Docker
 
-- **Authentication**
+### 1. Create the environment file
 
-  - User registration, login, and secure password handling
-  - Role-based access control (user vs admin)
+```bash
+cp .env.example .env
+```
 
-- **User Block Page**
+Open `.env` and delete the first line (`[TEMPLATE]`), which is a placeholder and not valid shell. The rest of the file already contains the Docker-internal service URLs and database credentials the Compose stack expects. `.env` is gitignored.
 
-  - Each user has a public profile (their "block") listing all their posts
-  - Users can subscribe to other profiles
-  - Subscribed users receive notifications when new posts are published
+### 2. Generate the JWT signing keys
 
-- **Posts**
+```bash
+make key-gen
+```
 
-  - Users can create/edit/delete posts with media (image or video) and text
-  - Each post includes a timestamp, description, and media preview
-  - Other users can like and comment on posts
+This writes `backend/auth-service/keys/private.pem` and `public.pem`. The auth service will not start without them, and the Compose stack mounts that directory read-only. The target refuses to overwrite existing keys.
 
-- **Reports**
+### 3. Build and start the stack
 
-  - Users can report profiles for inappropriate or offensive content
-  - Reports must include a reason and timestamp
-  - Reports are stored and visible only to admins
+```bash
+make docker-up
+```
 
-- **Admin Panel**
-  - Admin can view and manage all users
-  - Admin can manage posts and remove inappropriate content
-  - Admin can handle user reports (ban/delete user or post)
-  - All admin routes must be protected by access control
+The first run builds seven images (six services plus the nginx-served frontend), so it takes a few minutes. Check status and logs with:
 
-#### Frontend
+```bash
+docker compose -f docker/docker-compose.yml ps
+docker compose -f docker/docker-compose.yml logs -f user-service
+```
 
-- **User Experience**
+Flyway applies each service's schema on startup automatically; the databases start empty apart from that schema.
 
-  - Homepage with a feed of posts from subscribed users
-  - Personal block page with full post management (CRUD)
-  - View other users’ blocks and subscribe/unsubscribe
+### 4. Open the app
 
-- **Post Interaction**
+| URL | What |
+| --- | --- |
+| http://localhost:4200 | Frontend |
+| http://localhost:5000 | API Gateway (`/api/v1/...`) |
+| http://localhost:8080 | Dozzle — live container logs |
 
-  - Like and comment on posts (comments update in real time or via refresh)
-  - Upload media (images/videos) with previews
-  - Display timestamps, likes, and comments on each post
+Dozzle's compose definition mounts the Podman socket (`${XDG_RUNTIME_DIR}/podman/podman.sock`). On Docker Desktop or plain Docker Engine that path does not exist and Dozzle will fail; it is an optional log viewer, so remove or comment out the `dozzle` service in `docker/docker-compose.yml` if you do not need it.
 
-- **Notifications**
+### 5. (Optional) Load seed data
 
-  - Notification icon showing updates from subscribed profiles
-  - Mark notifications as read/unread
+```bash
+./tests/seed.sh
+```
 
-- **Reporting**
+This loads 100 users, posts, comments, notifications, and reports into the running database containers, then writes the placeholder media files. Seeded accounts all use the password `Password123!`; the first three are admins. For example: `swift_nebula_1@mailinator.com` / username `swift_nebula_1`.
 
-  - Report a user with a text reason (UI component/modal)
-  - Confirmation before submitting the report
+### Stop / reset
 
-- **Admin Dashboard**
+```bash
+make docker-down     # stop containers, keep data
+make docker-clean-up # stop, delete volumes, and start again (empty databases)
+```
 
-  - View all users, posts, and submitted reports
-  - Delete or ban users, remove or hide posts
-  - Clean UI for moderation tasks
+## Path B — Local development (services on the host, infra in Docker)
 
-- Use a responsive UI framework: **Angular Material** or **Bootstrap**
+Use this when you want hot reload and debuggers for the Java services and Angular.
 
-### Constraints
+### 1. Create the environment file
 
-- Use **Spring Security** or **JWT** for authentication and role management
-- Store media securely (in file system or using cloud storage like AWS S3)
-- Use a relational SQL database (e.g., PostgreSQL or MySQL)
-- All routes must be protected according to user roles
-- Code generation tools (like JHipster) are **not allowed**
-- The project must include a detailed **README** with:
-  - How to run the backend and frontend
-  - Technologies used
+```bash
+cp .env.example .env
+```
 
-### Evaluation
+Delete the `[TEMPLATE]` line, then **replace the Docker-internal hosts with ports published on your machine** (Compose maps each database to a different host port):
 
-This project is evaluated through **peer-to-peer code review** and **functional demo**. Evaluation criteria include:
+```dotenv
+# JWT RSA key location
+JWT_PRIVATE_KEY_PATH=keys/private.pem
+JWT_PUBLIC_KEY_PATH=keys/public.pem
 
-- 💡 **Functionality**: All features implemented and working as expected
-- 🔐 **Security**: Proper role-based access and secure user data handling
-- 🎨 **UI/UX**: Responsive, intuitive, and clean interface
+INTERNAL_SERVICE_TOKEN=local-dev-internal-token
 
-### Bonus Features (Optional but Recommended)
+# Databases (host ports exposed by docker/docker-compose.dev.yml)
+USER_DB_HOST=localhost:5432
+USER_DB_NAME=blog_users
+USER_DB_USERNAME=blog_user
+USER_DB_PASSWORD=secret
 
-- Real-time updates using WebSockets (for comments or notifications)
-- infinite scroll on feeds
-- Dark mode toggle
-- Basic analytics for admins (number of posts, most reported users)
-- Markdown support for posts
+MEDIA_DB_HOST=localhost:5433
+MEDIA_DB_NAME=blog_medias
+MEDIA_DB_USERNAME=blog_media
+MEDIA_DB_PASSWORD=secret
 
-### Resources
+POST_DB_HOST=localhost:5434
+POST_DB_NAME=blog_post
+POST_DB_USERNAME=blog_post
+POST_DB_PASSWORD=secret
 
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Angular Official Documentation](https://angular.io/docs)
-- [Angular Material Documentation](https://material.angular.io/components/categories)
-- [Spring Boot File Upload](https://www.bezkoder.com/spring-boot-upload-file-database/)
-- [JWT Introduction – Auth0](https://auth0.com/learn/json-web-tokens/)
-- [Spring Security Basics – Java Guides](https://www.javaguides.net/2022/01/spring-security-tutorial.html)
-- [PostgreSQL Basics](https://www.postgresqltutorial.com/)
-- [JPA (Java Persistence API) Guide](https://www.baeldung.com/the-persistence-layer-with-spring-data-jpa)
+NOTIF_DB_HOST=localhost:5435
+NOTIF_DB_NAME=blog_notifications
+NOTIF_DB_USERNAME=blog_notification
+NOTIF_DB_PASSWORD=secret
+
+MOD_DB_HOST=localhost:5436
+MOD_DB_NAME=blog_moderations
+MOD_DB_USERNAME=blog_moderation
+MOD_DB_PASSWORD=secret
+
+MEDIA_STORAGE_LOCATION=./media-storage
+
+# Service URLs (localhost, not container names)
+USER_SERVICE_URL=http://localhost:5001
+AUTH_SERVICE_URL=http://localhost:5002
+MEDIA_SERVICE_URL=http://localhost:5003
+POST_SERVICE_URL=http://localhost:5004
+NOTIFICATION_SERVICE_URL=http://localhost:5005
+MODERATION_SERVICE_URL=http://localhost:5006
+
+REDIS_PASSWORD=secret
+```
+
+The Makefile sources this `.env` before launching every service. If you keep the container-name hosts (`postgres-users:5432`, `auth-service:5002`, ...), host processes cannot resolve them.
+
+### 2. Start PostgreSQL and Redis
+
+```bash
+make infra-up
+```
+
+This runs `docker/docker-compose.dev.yml` (five PostgreSQL 17 instances, Redis 8, and Dozzle). Verify with `docker ps`.
+
+### 3. Generate the JWT keys
+
+```bash
+make key-gen
+```
+
+### 4. Start the backend services and frontend
+
+```bash
+make start
+```
+
+This starts the gateway, all six services, and the Angular dev server in the background, writing logs to `logs/`. Each Java service runs `./mvnw install` and then `spring-boot:run`. The first start downloads dependencies, so give it a minute or two before the gateway is reachable. Follow progress with:
+
+```bash
+tail -f logs/gateway.log
+tail -f logs/user-service.log
+tail -f logs/angular.log
+```
+
+Open http://localhost:4200. Angular calls the gateway at `http://localhost:5000/api/v1` (see `frontend/blog/src/environments/environments.ts`); the notification WebSocket connects directly to `ws://localhost:5005`.
+
+### 5. (Optional) Load seed data
+
+```bash
+./tests/seed.sh
+```
+
+The `infra-up` containers have the same names as the full stack, so the script works here too.
+
+### Stop
+
+```bash
+make stop       # stop the seven host processes and the frontend
+make infra-down # stop PostgreSQL/Redis
+```
+
+Individual targets are also available, e.g. `make dev-post-service`, `make stop-post-service`, `make front-down`.
+
+## Common commands
+
+| Command | Effect |
+| --- | --- |
+| `make key-gen` | Generate the RSA key pair for JWT signing |
+| `make infra-up` / `make infra-down` | Start/stop only databases + Redis (dev compose) |
+| `make docker-up` / `make docker-down` | Start/stop the full Docker stack |
+| `make docker-clean-up` | Recreate the stack with empty volumes |
+| `make start` / `make stop` | Start/stop all services + frontend on the host |
+| `make dev-<service>` / `make stop-<service>` | One service (`gateway`, `user-service`, `auth-service`, `media-service`, `post-service`, `notification-service`, `moderation-service`) |
+| `make front-up` / `make front-down` | Angular dev server only |
+| `./tests/seed.sh` | Load mock data into the database containers |
+
+Frontend-only commands (from `frontend/blog`): `npm start`, `npm run build`, `npm test` (Vitest).
+Backend-only commands (from a service directory): `./mvnw spring-boot:run`, `./mvnw test`.
+
+## Ports and health checks
+
+| Service | Port | Health endpoint |
+| --- | --- | --- |
+| Frontend (dev / Docker) | 4200 | — |
+| API Gateway | 5000 | `/actuator/health` |
+| User | 5001 | `/actuator/health` |
+| Auth | 5002 | `/actuator/health`, `/.well-known/jwks.json` |
+| Media | 5003 | `/actuator/health` |
+| Post | 5004 | `/actuator/health` |
+| Notification | 5005 | `/actuator/health` |
+| Moderation | 5006 | `/actuator/health` |
+| PostgreSQL (users/media/posts/notifications/moderation) | 5432 / 5433 / 5434 / 5435 / 5436 | — |
+| Redis | 6379 | — |
+| Dozzle | 8080 | — |
+
+## Troubleshooting
+
+- **Auth service exits on startup** — `make key-gen` was not run, or the keys were generated after the container was created. Generate them, then `make docker-up` again.
+- **`relation "..." does not exist` / schema validation errors** — the databases were created before/without Flyway migrations. Check the service log; if the volume predates a migration, run `make docker-clean-up` (destroys data) and recreate.
+- **Services cannot reach each other locally** — the `.env` still has Docker hostnames. Use the local `.env` block above.
+- **`[TEMPLATE]: command not found`** — remove the first line of `.env`.
+- **Gateway returns 429** — the Redis rate limiter (50 req/s replenish, 100 burst) is active; wait or relax it in `backend/api-gateway/src/main/resources/application.yml`.
+- **Port already in use** — `make stop` and `make infra-down` free the app ports; the Makefile's `stop-*` targets kill by port.
+- **Dozzle fails in the full stack** — the Podman socket mount does not exist on Docker; remove the optional `dozzle` service.
+
+## Project layout
+
+```
+backend/            # api-gateway + six Spring Boot services (each with its own Dockerfile)
+frontend/blog/      # Angular application
+docker/             # docker-compose.dev.yml (infra only) and docker-compose.yml (full stack)
+docs/               # architecture, API reference, database schema and seed data
+tests/seed.sh       # loads docs/database/seed into the running containers
+Makefile            # key generation, Docker stacks, and per-service dev start/stop
+```
