@@ -32,6 +32,16 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:secret}
 
+app:
+  bootstrap:
+    admin:
+      enabled: ${INITIAL_ADMIN_ENABLED:false}
+      email: ${INITIAL_ADMIN_EMAIL:}
+      username: ${INITIAL_ADMIN_USERNAME:}
+      password: ${INITIAL_ADMIN_PASSWORD:}
+      age: ${INITIAL_ADMIN_AGE:25}
+      gender: ${INITIAL_ADMIN_GENDER:MALE}
+
 clients:
   post-service:
     url: ${POST_SERVICE_URL:http://localhost:5004}

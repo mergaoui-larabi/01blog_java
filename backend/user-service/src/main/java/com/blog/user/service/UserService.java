@@ -119,6 +119,32 @@ public class UserService {
     }
 
     @Transactional
+    public User createAdmin(String _email, String _username, String _password, short _age, Gender gender) {
+        Email email = new Email(_email);
+        Username username = new Username(_username);
+        Password password = new Password(_password);
+        Age age = new Age(_age);
+
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+        if (userRepository.existsByUsername(username)) {
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
+        String passwordHash = passwordEncoder.encode(password.value());
+
+        User user = new User(
+                email,
+                username,
+                passwordHash,
+                age,
+                gender,
+                UserRole.ADMIN);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public User updateAvatarMediaId(UpdateUserAvatarRequest request) {
         User user = userRepository.findById(request.ownerId())
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
