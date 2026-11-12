@@ -31,7 +31,6 @@ public class AdminUserInitializer implements ApplicationRunner {
             throw new IllegalStateException(
                     "Admin bootstrap is enabled, but credentials are incomplete");
         }
-
         userService.createAdmin(
                 properties.email(),
                 properties.username(),
